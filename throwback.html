@@ -7,6 +7,9 @@
     <style>
         body { margin: 0; overflow: hidden; background-color: #87CEEB; }
         #canvas-container { width: 100vw; height: 100vh; display: block; }
+        #ui-panel { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 12px; border-radius: 8px; font-family: sans-serif; font-size: 13px; z-index: 100; display: flex; flex-direction: column; gap: 6px; }
+        #ui-panel label { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        #ui-panel input { cursor: pointer; border: none; background: transparent; width: 40px; height: 24px; }
     </style>
     <script type="importmap">
         {
@@ -19,6 +22,15 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+    <div id="ui-panel">
+        <div style="font-weight:bold; text-align:center; margin-bottom:4px;">Character Colors</div>
+        <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
+        <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
+        <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
+        <label>R. Arm <input type="color" id="col-rightArm" value="#e0e0e0"></label>
+        <label>L. Leg <input type="color" id="col-leftLeg" value="#e0e0e0"></label>
+        <label>R. Leg <input type="color" id="col-rightLeg" value="#e0e0e0"></label>
+    </div>
     <div id="canvas-container"></div>
     <script type="module">
         import * as THREE from 'three';
@@ -76,114 +88,152 @@
         studsPlane.position.y = 0.01;
         studsPlane.receiveShadow = true;
         scene.add(studsPlane);
+        const masters = { head: null, torso: null, limb: null };
+        const partLayouts = {
+            head: { pos: [0, 4.5, 0], size: [1, 1, 1] },
+            torso: { pos: [0, 3.0, 0], size: [2, 2, 1] },
+            leftArm: { pos: [-1.5, 3.0, 0], size: [1, 2, 1] },
+            rightArm: { pos: 1.5, 3.0, 0], size: [1, 2, 1] },
+            leftLeg: { pos: [-0.5, 1.0, 0], size: [1, 2, 1] },
+            rightLeg: { pos: [0.5, 1.0, 0], size: [1, 2, 1] }
+        };
+        const currentLocalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+        function createCharacterFigure(isRemote, baseColors) {
+            const group = new THREE.Group();
+            const parts = {};
+            Object.keys(partLayouts).forEach(partName => {
+                const layout = partLayouts[partName];
+                const partGroup = new THREE.Group();
+                partGroup.position.set(layout.pos[0], layout.pos[1], layout.pos[2]);
+                let visualMesh;
+                const masterKey = (partName === 'head' || partName === 'torso') ? partName : 'limb';
+                const assignedColor = baseColors ? (baseColors[partName] || '#e0e0e0') : (isRemote ? '#ffa500' : '#e0e0e0');
+                if (masters[masterKey]) {
+                    visualMesh = masters[masterKey].clone();
+                    visualMesh.traverse(child => {
+                        if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(assignedColor), side: THREE.DoubleSide });
+                    });
+                } else {
+                    const geo = new THREE.BoxGeometry(layout.size[0], layout.size[1], layout.size[2]);
+                    const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(assignedColor) });
+                    visualMesh = new THREE.Mesh(geo, mat);
+                }
+                visualMesh.castShadow = true;
+                visualMesh.receiveShadow = true;
+                partGroup.add(visualMesh);
+                group.add(partGroup);
+                parts[partName] = partGroup;
+            });
+            return { group, parts };
+        }
+        function setupMasterModel(key, obj) {
+            const box = new THREE.Box3().setFromObject(obj);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            obj.position.set(-center.x, -center.y, -center.z);
+            const wrapper = new THREE.Group();
+            wrapper.add(obj);
+            const layoutSize = key === 'head' ? [1, 1, 1] : (key === 'torso' ? [2, 2, 1] : [1, 2, 1]);
+            wrapper.scale.set(layoutSize[0] / size.x, layoutSize[1] / size.y, layoutSize[2] / size.z);
+            masters[key] = wrapper;
+        }
+        function upgradePartVisual(partsObj, key, baseColors) {
+            Object.keys(partsObj).forEach(partName => {
+                const masterKey = (partName === 'head' || partName === 'torso') ? partName : 'limb';
+                if (masterKey !== key) return;
+                const partGroup = partsObj[partName];
+                while (partGroup.children.length > 0) partGroup.remove(partGroup.children[0]);
+                const visual = masters[key].clone();
+                const col = baseColors[partName] || '#e0e0e0';
+                visual.traverse(child => {
+                    if (child.isMesh) {
+                        child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(col), side: THREE.DoubleSide });
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                partGroup.add(visual);
+            });
+        }
+        function upgradeAllPlayersForPart(key) {
+            if (!masters[key]) return;
+            Object.keys(remotePlayers).forEach(id => {
+                const rp = remotePlayers[id];
+                if (rp && rp.parts) upgradePartVisual(rp.parts, key, rp.colors);
+            });
+            if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
+        }
+        function applyColorsToParts(partsObj, colors) {
+            Object.keys(partsObj).forEach(partName => {
+                const partGroup = partsObj[partName];
+                const col = colors[partName] || '#e0e0e0';
+                partGroup.traverse(child => {
+                    if (child.isMesh) child.material.color.set(col);
+                });
+            });
+        }
         const playerGroup = new THREE.Group();
         playerGroup.position.set(0, 0, 0);
         scene.add(playerGroup);
         const playerModelContainer = new THREE.Group();
         playerGroup.add(playerModelContainer);
-        let loadedModelMaster = null;
-        const pendingRemotePlayers = [];
+        const { group: localVisualGroup, parts: localPlayerParts } = createCharacterFigure(false, currentLocalColors);
+        playerModelContainer.add(localVisualGroup);
         const objLoader = new OBJLoader();
-        const objUrl = 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/player.obj';
-        objLoader.load(objUrl, (obj) => {
-            const box = new THREE.Box3().setFromObject(obj);
-            const size = box.getSize(new THREE.Vector3());
-            const center = box.getCenter(new THREE.Vector3());
-            if (size.y > 0) {
-                const targetHeight = 2;
-                const scaleFactor = targetHeight / size.y;
-                obj.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                obj.position.x = -center.x * scaleFactor;
-                obj.position.y = -box.min.y * scaleFactor;
-                obj.position.z = -center.z * scaleFactor;
-                obj.rotation.y = Math.PI / 2;
-                obj.traverse((child) => {
-                    if (child.isMesh) {
-                        child.geometry.computeVertexNormals();
-                        child.material = new THREE.MeshStandardMaterial({ 
-                            color: 0xe0e0e0,
-                            side: THREE.DoubleSide
-                        });
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-                loadedModelMaster = obj;
-                playerModelContainer.add(obj.clone());
-                pendingRemotePlayers.forEach((id) => {
-                    if (remotePlayers[id]) {
-                        upgradeRemoteToMesh(id);
-                    }
-                });
-                pendingRemotePlayers.length = 0;
-            }
-        }, undefined, (err) => {
-            const fallbackGeo = new THREE.BoxGeometry(1, 2, 1);
-            const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0 });
-            const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
-            fallbackMesh.position.y = 1;
-            fallbackMesh.castShadow = true;
-            playerModelContainer.add(fallbackMesh);
+        const assets = [
+            { key: 'head', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/head.obj' },
+            { key: 'torso', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/torso.obj' },
+            { key: 'limb', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/limb.obj' }
+        ];
+        assets.forEach(asset => {
+            objLoader.load(asset.url, (obj) => {
+                setupMasterModel(asset.key, obj);
+                upgradeAllPlayersForPart(asset.key);
+            }, undefined, (err) => {});
         });
-        function createRemotePlayerMesh(id) {
-            const pGroup = new THREE.Group();
-            if (loadedModelMaster) {
-                const clone = loadedModelMaster.clone();
-                clone.traverse((child) => {
-                    if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: 0xffa500, side: THREE.DoubleSide });
-                });
-                pGroup.add(clone);
-            } else {
-                const fallbackGeo = new THREE.BoxGeometry(1, 2, 1);
-                const mat = new THREE.MeshStandardMaterial({ color: 0xffa500 });
-                const mesh = new THREE.Mesh(fallbackGeo, mat);
-                mesh.position.y = 1;
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                pGroup.add(mesh);
-                pendingRemotePlayers.push(id);
-            }
-            scene.add(pGroup);
-            return pGroup;
-        }
-        function upgradeRemoteToMesh(id) {
-            const oldGroup = remotePlayers[id];
-            if (!oldGroup || !loadedModelMaster) return;
-            while(oldGroup.children.length > 0){
-                oldGroup.remove(oldGroup.children[0]);
-            }
-            const clone = loadedModelMaster.clone();
-            clone.traverse((child) => {
-                if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: 0xffa500, side: THREE.DoubleSide });
-            });
-            oldGroup.add(clone);
-        }
         socket.on('currentPlayers', (players) => {
             Object.keys(players).forEach((id) => {
                 if (id !== socket.id && !remotePlayers[id]) {
-                    remotePlayers[id] = createRemotePlayerMesh(id);
-                    remotePlayers[id].position.set(players[id].x, players[id].y, players[id].z);
-                    remotePlayers[id].rotation.y = players[id].ry;
+                    const { group, parts } = createCharacterFigure(true, players[id].colors);
+                    scene.add(group);
+                    remotePlayers[id] = { group, parts, colors: players[id].colors };
+                    remotePlayers[id].group.position.set(players[id].x, players[id].y, players[id].z);
+                    remotePlayers[id].group.rotation.y = players[id].ry;
                 }
             });
         });
         socket.on('newPlayer', (playerInfo) => {
             if (!remotePlayers[playerInfo.id]) {
-                remotePlayers[playerInfo.id] = createRemotePlayerMesh(playerInfo.id);
-                remotePlayers[playerInfo.id].position.set(playerInfo.x, playerInfo.y, playerInfo.z);
+                const { group, parts } = createCharacterFigure(true, playerInfo.colors);
+                scene.add(group);
+                remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
+                remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
             }
         });
         socket.on('playerMoved', (playerInfo) => {
             if (remotePlayers[playerInfo.id]) {
-                remotePlayers[playerInfo.id].position.set(playerInfo.x, playerInfo.y, playerInfo.z);
-                remotePlayers[playerInfo.id].rotation.y = playerInfo.ry;
+                remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
+                remotePlayers[playerInfo.id].group.rotation.y = playerInfo.ry;
+            }
+        });
+        socket.on('playerColorsChanged', (data) => {
+            if (remotePlayers[data.id]) {
+                remotePlayers[data.id].colors = data.colors;
+                applyColorsToParts(remotePlayers[data.id].parts, data.colors);
             }
         });
         socket.on('playerDisconnected', (id) => {
             if (remotePlayers[id]) {
-                scene.remove(remotePlayers[id]);
+                scene.remove(remotePlayers[id].group);
                 delete remotePlayers[id];
             }
+        });
+        ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
+            document.getElementById(`col-${part}`).addEventListener('input', (e) => {
+                currentLocalColors[part] = e.target.value;
+                applyColorsToParts(localPlayerParts, currentLocalColors);
+                socket.emit('playerColorUpdate', currentLocalColors);
+            });
         });
         let cameraDistance = 10;
         let cameraPitch = 0.3;
@@ -199,6 +249,7 @@
         let lastPosition = new THREE.Vector3();
         let lastRotationY = 0;
         window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
             if (e.key.toLowerCase() === 'w') keys.w = true;
             if (e.key.toLowerCase() === 'a') keys.a = true;
             if (e.key.toLowerCase() === 's') keys.s = true;
@@ -225,14 +276,11 @@
             if (e.key.toLowerCase() === 'd') keys.d = false;
         });
         window.addEventListener('mousedown', (e) => {
-            if (e.button === 2) {
-                isRightMouseDown = true;
-            }
+            if (e.target.tagName === 'INPUT') return;
+            if (e.button === 2) isRightMouseDown = true;
         });
         window.addEventListener('mouseup', (e) => {
-            if (e.button === 2) {
-                isRightMouseDown = false;
-            }
+            if (e.button === 2) isRightMouseDown = false;
         });
         window.addEventListener('contextmenu', (e) => e.preventDefault());
         window.addEventListener('wheel', (e) => {
@@ -247,9 +295,7 @@
             }
         });
         document.addEventListener('pointerlockchange', () => {
-            if (document.pointerLockElement !== container) {
-                isShiftLock = false;
-            }
+            if (document.pointerLockElement !== container) isShiftLock = false;
         });
         const clock = new THREE.Clock();
         const raycaster = new THREE.Raycaster();
@@ -289,7 +335,7 @@
             if (isShiftLock || isFirstPerson) {
                 playerModelContainer.rotation.y = cameraYaw + Math.PI;
             }
-            const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 1.5, playerGroup.position.z);
+            const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 3.0, playerGroup.position.z);
             let cameraTargetPosition = new THREE.Vector3();
             if (isFirstPerson) {
                 camera.position.copy(centerTarget);
