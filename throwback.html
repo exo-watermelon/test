@@ -235,7 +235,7 @@
                 socket.emit('playerColorUpdate', currentLocalColors);
             });
         });
-        let cameraDistance = 12;
+        let cameraDistance = 20.4;
         let cameraPitch = 0.3;
         let cameraYaw = 0;
         let isShiftLock = false;
@@ -262,9 +262,9 @@
             }
             if (e.key === 'Shift') {
                 isShiftLock = !isShiftLock;
-                if (isShiftLock) {
+                if (isShiftLock || cameraDistance < 1.5) {
                     container.requestPointerLock();
-                } else {
+                } else if (!isRightMouseDown) {
                     document.exitPointerLock();
                 }
             }
@@ -277,25 +277,46 @@
         });
         window.addEventListener('mousedown', (e) => {
             if (e.target.tagName === 'INPUT') return;
-            if (e.button === 2) isRightMouseDown = true;
+            if (e.button === 2) {
+                isRightMouseDown = true;
+                container.requestPointerLock();
+            }
         });
         window.addEventListener('mouseup', (e) => {
-            if (e.button === 2) isRightMouseDown = false;
+            if (e.button === 2) {
+                isRightMouseDown = false;
+                if (!isShiftLock && cameraDistance >= 1.5) {
+                    document.exitPointerLock();
+                }
+            }
         });
         window.addEventListener('contextmenu', (e) => e.preventDefault());
         window.addEventListener('wheel', (e) => {
-            cameraDistance += e.deltaY * 0.01;
-            cameraDistance = Math.max(0, Math.min(25, cameraDistance));
+            cameraDistance += e.deltaY * 0.017;
+            cameraDistance = Math.max(0, Math.min(42.5, cameraDistance));
+            if (cameraDistance < 1.5) {
+                if (document.pointerLockElement !== container) {
+                    container.requestPointerLock();
+                }
+            } else if (!isShiftLock && !isRightMouseDown && document.pointerLockElement === container) {
+                document.exitPointerLock();
+            }
         });
         window.addEventListener('mousemove', (e) => {
-            if (isShiftLock || document.pointerLockElement === container || isRightMouseDown) {
+            if (isShiftLock || document.pointerLockElement === container || isRightMouseDown || cameraDistance < 1.5) {
                 cameraYaw -= e.movementX * 0.005;
                 cameraPitch -= e.movementY * 0.005;
                 cameraPitch = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, cameraPitch));
             }
         });
         document.addEventListener('pointerlockchange', () => {
-            if (document.pointerLockElement !== container) isShiftLock = false;
+            if (document.pointerLockElement !== container) {
+                isShiftLock = false;
+                isRightMouseDown = false;
+                if (cameraDistance < 1.5) {
+                    cameraDistance = 1.5;
+                }
+            }
         });
         const clock = new THREE.Clock();
         const raycaster = new THREE.Raycaster();
@@ -357,11 +378,10 @@
                     centerTarget.y + offsetCamDistance * Math.sin(cameraPitch),
                     centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch)
                 );
-                const rayDirection = new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize();
-                raycaster.set(centerTarget, rayDirection);
+                raycaster.set(centerTarget, new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize());
                 const intersects = raycaster.intersectObject(cube);
                 if (intersects.length > 0 && intersects[0].distance < offsetCamDistance) {
-                    cameraTargetPosition.copy(intersects[0].point).addScaledVector(rayDirection, -0.2);
+                    cameraTargetPosition.copy(intersects[0].point).addScaledVector(new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize(), -0.2);
                 } else {
                     cameraTargetPosition.copy(preferredCamPos);
                 }
