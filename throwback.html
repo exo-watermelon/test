@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Multiplayer Space</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; }
+        #canvas-container { width: 100vw; height: 100vh; display: block; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+        const socket = io();
+        const remotePlayers = {};
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(30, 40, 20);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.left = -25;
+        dirLight.shadow.camera.right = 25;
+        dirLight.shadow.camera.top = 25;
+        dirLight.shadow.camera.bottom = -25;
+        dirLight.shadow.camera.near = 0.1;
+        dirLight.shadow.camera.far = 150;
+        dirLight.shadow.bias = -0.0005;
+        scene.add(dirLight);
+        const cubeSize = 20;
+        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        const greenMat = new THREE.MeshStandardMaterial({ color: 0x228B22 });
+        const cube = new THREE.Mesh(cubeGeo, greenMat);
+        cube.position.y = -cubeSize / 2;
+        cube.receiveShadow = true;
+        scene.add(cube);
+        const textureLoader = new THREE.TextureLoader();
+        const studTextureUrl = 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/stud.png';
+        const studTexture = textureLoader.load(studTextureUrl);
+        studTexture.wrapS = THREE.RepeatWrapping;
+        studTexture.wrapT = THREE.RepeatWrapping;
+        studTexture.minFilter = THREE.LinearMipmapLinearFilter;
+        studTexture.magFilter = THREE.LinearFilter;
+        studTexture.repeat.set(40, 40);
+        const planeGeo = new THREE.PlaneGeometry(cubeSize, cubeSize);
+        const studMat = new THREE.MeshStandardMaterial({
+            color: 0x228B22,
+            map: studTexture,
+            transparent: true,
+            alphaTest: 0.1
+        });
+        const studsPlane = new THREE.Mesh(planeGeo, studMat);
+        studsPlane.rotation.x = -Math.PI / 2;
+        studsPlane.position.y = 0.01;
+        studsPlane.receiveShadow = true;
+        scene.add(studsPlane);
+        const playerGroup = new THREE.Group();
+        playerGroup.position.set(0, 0, 0);
+        scene.add(playerGroup);
+        const playerModelContainer = new THREE.Group();
+        playerGroup.add(playerModelContainer);
+        let loadedModelMaster = null;
+        const pendingRemotePlayers = [];
+        const objLoader = new OBJLoader();
+        const objUrl = 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/player.obj';
+        objLoader.load(objUrl, (obj) => {
+            const box = new THREE.Box3().setFromObject(obj);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            if (size.y > 0) {
+                const targetHeight = 2;
+                const scaleFactor = targetHeight / size.y;
+                obj.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                obj.position.x = -center.x * scaleFactor;
+                obj.position.y = -box.min.y * scaleFactor;
+                obj.position.z = -center.z * scaleFactor;
+                obj.rotation.y = Math.PI / 2;
+                obj.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.computeVertexNormals();
+                        child.material = new THREE.MeshStandardMaterial({ 
+                            color: 0xe0e0e0,
+                            side: THREE.DoubleSide
+                        });
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                loadedModelMaster = obj;
+                playerModelContainer.add(obj.clone());
+                pendingRemotePlayers.forEach((id) => {
+                    if (remotePlayers[id]) {
+                        upgradeRemoteToMesh(id);
+                    }
+                });
+                pendingRemotePlayers.length = 0;
+            }
+        }, undefined, (err) => {
+            const fallbackGeo = new THREE.BoxGeometry(1, 2, 1);
+            const fallbackMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0 });
+            const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
+            fallbackMesh.position.y = 1;
+            fallbackMesh.castShadow = true;
+            playerModelContainer.add(fallbackMesh);
+        });
+        function createRemotePlayerMesh(id) {
+            const pGroup = new THREE.Group();
+            if (loadedModelMaster) {
+                const clone = loadedModelMaster.clone();
+                clone.traverse((child) => {
+                    if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: 0xffa500, side: THREE.DoubleSide });
+                });
+                pGroup.add(clone);
+            } else {
+                const fallbackGeo = new THREE.BoxGeometry(1, 2, 1);
+                const mat = new THREE.MeshStandardMaterial({ color: 0xffa500 });
+                const mesh = new THREE.Mesh(fallbackGeo, mat);
+                mesh.position.y = 1;
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                pGroup.add(mesh);
+                pendingRemotePlayers.push(id);
+            }
+            scene.add(pGroup);
+            return pGroup;
+        }
+        function upgradeRemoteToMesh(id) {
+            const oldGroup = remotePlayers[id];
+            if (!oldGroup || !loadedModelMaster) return;
+            while(oldGroup.children.length > 0){
+                oldGroup.remove(oldGroup.children[0]);
+            }
+            const clone = loadedModelMaster.clone();
+            clone.traverse((child) => {
+                if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: 0xffa500, side: THREE.DoubleSide });
+            });
+            oldGroup.add(clone);
+        }
+        socket.on('currentPlayers', (players) => {
+            Object.keys(players).forEach((id) => {
+                if (id !== socket.id && !remotePlayers[id]) {
+                    remotePlayers[id] = createRemotePlayerMesh(id);
+                    remotePlayers[id].position.set(players[id].x, players[id].y, players[id].z);
+                    remotePlayers[id].rotation.y = players[id].ry;
+                }
+            });
+        });
+        socket.on('newPlayer', (playerInfo) => {
+            if (!remotePlayers[playerInfo.id]) {
+                remotePlayers[playerInfo.id] = createRemotePlayerMesh(playerInfo.id);
+                remotePlayers[playerInfo.id].position.set(playerInfo.x, playerInfo.y, playerInfo.z);
+            }
+        });
+        socket.on('playerMoved', (playerInfo) => {
+            if (remotePlayers[playerInfo.id]) {
+                remotePlayers[playerInfo.id].position.set(playerInfo.x, playerInfo.y, playerInfo.z);
+                remotePlayers[playerInfo.id].rotation.y = playerInfo.ry;
+            }
+        });
+        socket.on('playerDisconnected', (id) => {
+            if (remotePlayers[id]) {
+                scene.remove(remotePlayers[id]);
+                delete remotePlayers[id];
+            }
+        });
+        let cameraDistance = 10;
+        let cameraPitch = 0.3;
+        let cameraYaw = 0;
+        let isShiftLock = false;
+        let isRightMouseDown = false;
+        const keys = { w: false, a: false, s: false, d: false };
+        let velocityY = 0;
+        let isGrounded = true;
+        const gravity = -30;
+        const jumpForce = 12;
+        const moveSpeed = 8;
+        let lastPosition = new THREE.Vector3();
+        let lastRotationY = 0;
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'w') keys.w = true;
+            if (e.key.toLowerCase() === 'a') keys.a = true;
+            if (e.key.toLowerCase() === 's') keys.s = true;
+            if (e.key.toLowerCase() === 'd') keys.d = true;
+            if (e.key === ' ') {
+                if (isGrounded) {
+                    velocityY = jumpForce;
+                    isGrounded = false;
+                }
+            }
+            if (e.key === 'Shift') {
+                isShiftLock = !isShiftLock;
+                if (isShiftLock) {
+                    container.requestPointerLock();
+                } else {
+                    document.exitPointerLock();
+                }
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key.toLowerCase() === 'w') keys.w = false;
+            if (e.key.toLowerCase() === 'a') keys.a = false;
+            if (e.key.toLowerCase() === 's') keys.s = false;
+            if (e.key.toLowerCase() === 'd') keys.d = false;
+        });
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 2) {
+                isRightMouseDown = true;
+            }
+        });
+        window.addEventListener('mouseup', (e) => {
+            if (e.button === 2) {
+                isRightMouseDown = false;
+            }
+        });
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+        window.addEventListener('wheel', (e) => {
+            cameraDistance += e.deltaY * 0.01;
+            cameraDistance = Math.max(0, Math.min(25, cameraDistance));
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (isShiftLock || document.pointerLockElement === container || isRightMouseDown) {
+                cameraYaw -= e.movementX * 0.005;
+                cameraPitch -= e.movementY * 0.005;
+                cameraPitch = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, cameraPitch));
+            }
+        });
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement !== container) {
+                isShiftLock = false;
+            }
+        });
+        const clock = new THREE.Clock();
+        const raycaster = new THREE.Raycaster();
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            velocityY += gravity * delta;
+            playerGroup.position.y += velocityY * delta;
+            if (playerGroup.position.y <= 0) {
+                playerGroup.position.y = 0;
+                velocityY = 0;
+                isGrounded = true;
+            }
+            let moveX = 0;
+            let moveZ = 0;
+            if (keys.w) moveZ -= 1;
+            if (keys.s) moveZ += 1;
+            if (keys.a) moveX -= 1;
+            if (keys.d) moveX += 1;
+            const isFirstPerson = cameraDistance < 1.5;
+            playerModelContainer.visible = !isFirstPerson;
+            if (moveX !== 0 || moveZ !== 0) {
+                const camForward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
+                const camRight = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
+                const moveDir = new THREE.Vector3()
+                    .addScaledVector(camForward, -moveZ)
+                    .addScaledVector(camRight, moveX)
+                    .normalize();
+                playerGroup.position.addScaledVector(moveDir, moveSpeed * delta);
+                if (!isShiftLock && !isFirstPerson) {
+                    const targetAngle = Math.atan2(moveDir.x, moveDir.z);
+                    const currentRotation = playerModelContainer.rotation.y;
+                    const deltaRotation = ((targetAngle - currentRotation + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+                    playerModelContainer.rotation.y += deltaRotation * 15 * delta;
+                }
+            }
+            if (isShiftLock || isFirstPerson) {
+                playerModelContainer.rotation.y = cameraYaw + Math.PI;
+            }
+            const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 1.5, playerGroup.position.z);
+            let cameraTargetPosition = new THREE.Vector3();
+            if (isFirstPerson) {
+                camera.position.copy(centerTarget);
+                const lookTarget = new THREE.Vector3(
+                    centerTarget.x - Math.sin(cameraYaw) * Math.cos(cameraPitch),
+                    centerTarget.y + Math.sin(cameraPitch),
+                    centerTarget.z - Math.cos(cameraYaw) * Math.cos(cameraPitch)
+                );
+                camera.lookAt(lookTarget);
+            } else {
+                let offsetCamDistance = cameraDistance;
+                let currentYawOffset = cameraYaw;
+                if (isShiftLock) {
+                    const rightOffset = new THREE.Vector3(0.4, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
+                    centerTarget.add(rightOffset);
+                }
+                const preferredCamPos = new THREE.Vector3(
+                    centerTarget.x + offsetCamDistance * Math.sin(currentYawOffset) * Math.cos(cameraPitch),
+                    centerTarget.y + offsetCamDistance * Math.sin(cameraPitch),
+                    centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch)
+                );
+                const rayDirection = new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize();
+                raycaster.set(centerTarget, rayDirection);
+                const intersects = raycaster.intersectObject(cube);
+                if (intersects.length > 0 && intersects[0].distance < offsetCamDistance) {
+                    cameraTargetPosition.copy(intersects[0].point).addScaledVector(rayDirection, -0.2);
+                } else {
+                    cameraTargetPosition.copy(preferredCamPos);
+                }
+                camera.position.copy(cameraTargetPosition);
+                camera.lookAt(centerTarget);
+            }
+            if (playerGroup.position.distanceTo(lastPosition) > 0.001 || Math.abs(playerModelContainer.rotation.y - lastRotationY) > 0.01) {
+                socket.emit('playerMovement', {
+                    x: playerGroup.position.x,
+                    y: playerGroup.position.y,
+                    z: playerGroup.position.z,
+                    ry: playerModelContainer.rotation.y
+                });
+                lastPosition.copy(playerGroup.position);
+                lastRotationY = playerModelContainer.rotation.y;
+            }
+            renderer.render(scene, camera);
+        }
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        animate();
+    </script>
+</body>
+</html>
