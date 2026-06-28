@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fourblox</title>
+    <title>3D Multiplayer Space</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #87CEEB; }
         #canvas-container { width: 100vw; height: 100vh; display: block; }
@@ -75,7 +75,7 @@
         studTexture.wrapT = THREE.RepeatWrapping;
         studTexture.minFilter = THREE.LinearMipmapLinearFilter;
         studTexture.magFilter = THREE.LinearFilter;
-        studTexture.repeat.set(40, 40);
+        studTexture.repeat.set(cubeSize, cubeSize);
         const planeGeo = new THREE.PlaneGeometry(cubeSize, cubeSize);
         const studMat = new THREE.MeshStandardMaterial({
             color: 0x228B22,
@@ -90,7 +90,7 @@
         scene.add(studsPlane);
         const masters = { head: null, torso: null, limb: null };
         const partLayouts = {
-            head: { pos: [0, 4.5, 0], size: [1, 1, 1] },
+            head: { pos: [0, 4.55, 0], size: [1.1, 1.1, 1.1] },
             torso: { pos: [0, 3.0, 0], size: [2, 2, 1] },
             leftArm: { pos: [-1.5, 3.0, 0], size: [1, 2, 1] },
             rightArm: { pos: [1.5, 3.0, 0], size: [1, 2, 1] },
@@ -133,7 +133,7 @@
             obj.position.set(-center.x, -center.y, -center.z);
             const wrapper = new THREE.Group();
             wrapper.add(obj);
-            const layoutSize = key === 'head' ? [1, 1, 1] : (key === 'torso' ? [2, 2, 1] : [1, 2, 1]);
+            const layoutSize = key === 'head' ? [1.1, 1.1, 1.1] : (key === 'torso' ? [2, 2, 1] : [1, 2, 1]);
             wrapper.scale.set(layoutSize[0] / size.x, layoutSize[1] / size.y, layoutSize[2] / size.z);
             masters[key] = wrapper;
         }
@@ -335,7 +335,7 @@
             if (isShiftLock || isFirstPerson) {
                 playerModelContainer.rotation.y = cameraYaw + Math.PI;
             }
-            const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 3.0, playerGroup.position.z);
+            const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 2.5, playerGroup.position.z);
             let cameraTargetPosition = new THREE.Vector3();
             if (isFirstPerson) {
                 camera.position.copy(centerTarget);
