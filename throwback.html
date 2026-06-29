@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fourblox Platform</title>
+<title>Fourblox</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -99,8 +99,8 @@ body{margin:0;font-family:Arial,sans-serif;background-color:#f0f0f0;color:#000;u
 <div id="login-page">
 <h2>Fourblox Login</h2>
 <div class="login-container">
-<input type="text" id="login-username" placeholder="Username">
-<input type="email" id="login-email" placeholder="Email (For Registration)">
+<input type="text" id="login-username" placeholder="Username or Email">
+<input type="email" id="login-email" placeholder="Email (For Registration Only)">
 <input type="password" id="login-password" placeholder="Password">
 <button onclick="handleLogin()">Log In</button>
 <button onclick="handleRegister()" style="background:#444;">Register Account</button>
@@ -268,7 +268,7 @@ currentBadges.push("eliteadministrator.png");
 userDocRef.update({ badges: currentBadges });
 }
 }
-if (currentUserData.banned) {
+if (currentUserData.banned && currentUserData.username.toLowerCase() !== "fourblox") {
 alert("Your account is banned.");
 auth.signOut();
 return;
@@ -289,14 +289,19 @@ currentUserData = null;
 }
 });
 async function handleLogin() {
-const usernameInput = document.getElementById("login-username").value.trim().toLowerCase();
+const loginInput = document.getElementById("login-username").value.trim();
 const passwordInput = document.getElementById("login-password").value;
-if (!usernameInput || !passwordInput) return alert("Fill in username and password.");
+if (!loginInput || !passwordInput) return alert("Fill in username/email and password.");
 try {
-const userDoc = await db.collection("usernames").doc(usernameInput).get();
+if (loginInput.includes("@")) {
+await auth.signInWithEmailAndPassword(loginInput, passwordInput);
+} else {
+const userDoc = await db.collection("usernames").doc(loginInput.toLowerCase()).get();
 if (!userDoc.exists || !userDoc.data()) return alert("Username does not exist.");
 const email = userDoc.data().email;
+if (!email) return alert("This account is missing an email address in the database database profile.");
 await auth.signInWithEmailAndPassword(email, passwordInput);
+}
 } catch (err) {
 alert(err.message);
 }
