@@ -1,833 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Cube</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: sans-serif; }
-        #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .auth-box { padding: 30px; border: 1px solid #ccc; border-radius: 8px; width: 320px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .auth-box input, .auth-box select, .auth-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        .auth-box button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .auth-box button:hover { background: #0056b3; }
-        .auth-toggle { text-align: center; color: #007bff; cursor: pointer; font-size: 13px; text-decoration: underline; }
-        #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; }
-        #nav-bar { background: #222; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 40px; z-index: 500; }
-        .nav-tabs { display: flex; gap: 20px; }
-        .nav-tab { cursor: pointer; font-weight: bold; font-size: 15px; opacity: 0.7; transition: opacity 0.2s; }
-        .nav-tab.active { opacity: 1; border-bottom: 2px solid #fff; }
-        .search-container { position: relative; width: 250px; }
-        .search-container input { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #555; background: #333; color: #fff; box-sizing: border-box; }
-        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #333; border-radius: 4px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #444; font-size: 13px; }
-        .search-item:hover { background: #444; }
-        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 60px); display: none; }
-        .tab-view.active { display: block; }
-        #canvas-container { width: 100%; height: 100%; display: block; }
-        #avatar-view-container { width: 100%; height: 100%; display: flex; background: #f0f0f0; }
-        .avatar-preview-pane { flex: 1; height: 100%; position: relative; }
-        .avatar-ui-pane { width: 300px; background: rgba(0,0,0,0.85); color: #fff; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
-        .avatar-ui-pane label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .avatar-ui-pane input[type="color"] { border: none; background: transparent; width: 50px; height: 28px; cursor: pointer; }
-        #settings-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #fafafa; }
-        .settings-box { background: white; padding: 40px; border: 1px solid #ddd; border-radius: 8px; width: 350px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .settings-box input, .settings-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        .settings-box button.danger-btn { background: #dc3545; color: white; border: none; cursor: pointer; }
-        .settings-box button.danger-btn:hover { background: #bd2130; }
-        .settings-box button.save-btn { background: #28a745; color: white; border: none; cursor: pointer; }
-        .settings-box button.save-btn:hover { background: #218838; }
-        #profile-modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .profile-card { background: white; border-radius: 12px; width: 550px; height: 400px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .profile-left { flex: 1; background: #e9e9e9; position: relative; height: 100%; }
-        .profile-right { width: 250px; padding: 25px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
-        .profile-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; color: #333; z-index: 2010; }
-        .profile-name-container { display: flex; flex-direction: column; }
-        .profile-display { font-size: 22px; font-weight: bold; color: #111; }
-        .profile-username-sub { font-size: 13px; color: #777; }
-        .profile-username-main { font-size: 22px; font-weight: bold; color: #111; }
-        .profile-meta { font-size: 13px; color: #444; margin-top: 5px; display: flex; flex-direction: column; gap: 4px; }
-    </style>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script src="/socket.io/socket.io.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fourblox Platform</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background-color:#f0f0f0;color:#000;}
+.hidden{display:none !important;}
+#login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background-color:#d00000;color:white;}
+.login-container{background:white;padding:30px;border-radius:8px;color:black;box-shadow:0 4px 6px rgba(0,0,0,0.2);width:300px;display:flex;flex-direction:column;gap:15px;}
+.login-container input{padding:10px;border:1px solid #ccc;border-radius:4px;font-size:14px;}
+.login-container button{padding:10px;background:#d00000;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:bold;font-size:14px;}
+.login-container button:hover{background:#a00000;}
+.header{background-color:#d00000;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #a00000;}
+.nav-buttons{display:flex;gap:5px;}
+.nav-btn{padding:5px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:3px;cursor:pointer;color:#fff;background:transparent;}
+.nav-btn.selected{background-color:#a00000;font-weight:bold;border-color:#fff;}
+.search-bar{padding:5px;border-radius:3px;border:1px solid #ccc;width:200px;}
+.page{display:none;padding:20px;max-width:1000px;margin:0 auto;}
+.page.active{display:block;}
+.badge-icon{height:20px;vertical-align:middle;margin-left:5px;}
+.avatar-circle{width:100px;height:100px;background:#fff;border-radius:50%;display:flex;justify-content:center;align-items:center;text-align:center;font-size:10px;color:#555;border:1px solid #ccc;}
+.card-container{display:flex;gap:15px;margin-top:10px;flex-wrap:wrap;}
+.card{background:#fff;border-radius:8px;padding:15px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+.friend-card{width:80px;text-align:center;cursor:pointer;}
+.friend-card .avatar-circle{width:60px;height:60px;margin:0 auto 10px auto;font-size:8px;}
+.game-card{width:120px;text-align:center;cursor:pointer;}
+.game-card .thumb{width:100px;height:100px;background:#ddd;margin:0 auto 10px auto;border-radius:8px;}
+.profile-header{display:flex;align-items:center;gap:20px;margin-bottom:20px;}
+.profile-name h1{margin:0;font-size:32px;display:flex;align-items:center;gap:5px;}
+.profile-name h2{margin:0;font-size:20px;color:#888;font-weight:normal;}
+.profile-layout{display:flex;gap:20px;}
+.profile-3d{width:300px;height:300px;background:#333;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:8px;text-align:center;}
+.profile-empty{flex-grow:1;background:#fff;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #ddd;font-size:20px;}
+.profile-footer{display:flex;justify-content:space-around;margin-top:40px;border-top:1px solid #ccc;padding-top:20px;}
+.profile-footer div{text-align:center;}
+.game-layout{display:flex;gap:20px;}
+.game-thumbnail{flex-grow:1;height:400px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid #ddd;font-size:20px;}
+.game-info{width:300px;text-align:right;}
+.game-info h1{margin:0;font-size:28px;}
+.game-info h2{margin:5px 0 20px 0;font-size:16px;color:#888;cursor:pointer;}
+.ratio-bar{display:flex;height:8px;width:100%;margin:10px 0;background:#cc0000;}
+.ratio-likes{background:#00cc00;height:100%;}
+.counters{display:flex;justify-content:space-between;font-size:14px;color:#555;}
+.play-btn{margin-top:20px;cursor:pointer;display:inline-block;}
+.play-btn img{width:200px;}
+.avatar-layout{display:flex;gap:20px;flex-wrap:wrap;}
+.avatar-col{display:flex;flex-direction:column;gap:20px;}
+.avatar-viewer{width:250px;height:300px;background:#444;border-radius:12px;position:relative;display:flex;align-items:center;justify-content:center;}
+.avatar-viewer-btn{position:absolute;bottom:10px;right:10px;background:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:bold;}
+.body-colors{width:250px;background:#fff;border-radius:12px;padding:20px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+.bc-head{width:40px;height:40px;background:red;border-radius:5px;}
+.bc-mid{display:flex;gap:5px;margin:5px 0;}
+.bc-arm{width:30px;height:80px;background:red;border-radius:5px;}
+.bc-torso{width:80px;height:80px;background:#4CAF50;border-radius:5px;}
+.bc-legs{display:flex;gap:5px;}
+.bc-leg{width:37px;height:80px;background:#2E7D32;border-radius:5px;}
+.admin-panel{background:#fff;padding:15px;border-radius:8px;margin-bottom:20px;border:2px solid #d00000;display:flex;gap:10px;align-items:center;}
+.banned-message{color:#cc0000;font-weight:bold;font-size:24px;text-align:center;margin-top:50px;}
+</style>
 </head>
 <body>
-    <div id="auth-screen">
-        <div class="auth-box" id="login-box">
-            <h2 style="margin:0 0 10px 0; text-align:center;">Login</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-pass" placeholder="Password">
-            <button id="btn-login">Sign In</button>
-            <div class="auth-toggle" id="to-register">Don't have an account? Register</div>
-        </div>
-        <div class="auth-box" id="register-box" style="display:none;">
-            <h2 style="margin:0 0 10px 0; text-align:center;">Register</h2>
-            <input type="text" id="reg-user" placeholder="Username (Unique)">
-            <input type="text" id="reg-display" placeholder="Display Name (Optional)">
-            <select id="reg-gender">
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select>
-            <input type="email" id="reg-email" placeholder="Email">
-            <input type="password" id="reg-pass" placeholder="Password">
-            <button id="btn-register">Create Account</button>
-            <div class="auth-toggle" id="to-login">Already have an account? Login</div>
-        </div>
-    </div>
-    <div id="main-app">
-        <div id="nav-bar">
-            <div class="nav-tabs">
-                <div class="nav-tab active" data-tab="home">Home</div>
-                <div class="nav-tab" data-tab="avatar">Avatar</div>
-                <div class="nav-tab" data-tab="settings">Settings</div>
-            </div>
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search users...">
-                <div class="search-results" id="search-results"></div>
-            </div>
-        </div>
-        <div id="tab-home" class="tab-view active">
-            <div id="canvas-container"></div>
-        </div>
-        <div id="tab-avatar" class="tab-view">
-            <div id="avatar-view-container">
-                <div class="avatar-preview-pane" id="avatar-preview-pane"></div>
-                <div class="avatar-ui-pane">
-                    <h3 style="margin:0 0 10px 0; text-align:center;">Edit Colors</h3>
-                    <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
-                    <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
-                    <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
-                    <label>R. Arm <input type="color" id="col-rightArm" value="#e0e0e0"></label>
-                    <label>L. Leg <input type="color" id="col-leftLeg" value="#e0e0e0"></label>
-                    <label>R. Leg <input type="color" id="col-rightLeg" value="#e0e0e0"></label>
-                </div>
-            </div>
-        </div>
-        <div id="tab-settings" class="tab-view">
-            <div id="settings-view-container">
-                <div class="settings-box">
-                    <h3 style="margin:0 0 5px 0;">Account Settings</h3>
-                    <input type="text" id="settings-display" placeholder="New Display Name">
-                    <button class="save-btn" id="btn-save-display">Update Display Name</button>
-                    <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
-                    <input type="password" id="settings-pass" placeholder="New Password">
-                    <button class="save-btn" id="btn-save-pass">Update Password</button>
-                    <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
-                    <button class="danger-btn" id="btn-logout">Log Out</button>
-                    <button class="danger-btn" id="btn-delete-account">Delete Account</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="profile-modal">
-        <div class="profile-card">
-            <div class="profile-close" id="profile-close">&times;</div>
-            <div class="profile-left" id="profile-preview-pane"></div>
-            <div class="profile-right">
-                <div class="profile-name-container" id="profile-names"></div>
-                <div class="profile-meta" id="profile-meta-details"></div>
-            </div>
-        </div>
-    </div>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import * as THREE from 'three';
-        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-        const firebaseConfig = {
-            apiKey: "PASTE_YOUR_API_KEY_HERE",
-            authDomain: "fourblox-89581.firebaseapp.com",
-            projectId: "fourblox-89581",
-            storageBucket: "fourblox-89581.firebasestorage.app",
-            messagingSenderId: "976102989359",
-            appId: "1:976102989359:web:7d3e40fdf23dbcb20fb0da",
-            measurementId: "G-4H7GERJ41S"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        document.getElementById('to-register').addEventListener('click', () => {
-            document.getElementById('login-box').style.display = 'none';
-            document.getElementById('register-box').style.display = 'flex';
-        });
-        document.getElementById('to-login').addEventListener('click', () => {
-            document.getElementById('register-box').style.display = 'none';
-            document.getElementById('login-box').style.display = 'flex';
-        });
-        document.getElementById('btn-register').addEventListener('click', async () => {
-            const username = document.getElementById('reg-user').value.trim();
-            const displayName = document.getElementById('reg-display').value.trim();
-            const gender = document.getElementById('reg-gender').value;
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-pass').value;
-            if(!username || !email || !password) return alert('Fill in all required fields');
-            try {
-                const usernameLower = username.toLowerCase();
-                const usernameRef = doc(db, "usernames", usernameLower);
-                let registrationError = null;
-                await runTransaction(db, async (transaction) => {
-                    const usernameDoc = await transaction.get(usernameRef);
-                    if(usernameDoc.exists()) {
-                        registrationError = "Username is already taken";
-                        return;
-                    }
-                });
-                if(registrationError) return alert(registrationError);
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                const counterRef = doc(db, "counters", "users");
-                let nextId = 1;
-                await runTransaction(db, async (transaction) => {
-                    const counterDoc = await transaction.get(counterRef);
-                    if(counterDoc.exists()) {
-                        nextId = counterDoc.data().current + 1;
-                    }
-                    transaction.set(counterRef, { current: nextId }, { merge: true });
-                    transaction.set(usernameRef, { uid: user.uid });
-                    transaction.set(doc(db, "users", user.uid), {
-                        uid: user.uid,
-                        username: username,
-                        displayName: displayName,
-                        gender: gender,
-                        userId: nextId,
-                        colors: currentLocalColors,
-                        createdAt: new Date().toLocaleDateString(),
-                        friends: [],
-                        following: []
-                    });
-                });
-            } catch(err) {
-                alert(err.message);
-            }
-        });
-        document.getElementById('btn-login').addEventListener('click', async () => {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-pass').value;
-            if(!email || !password) return alert('Fill in all fields');
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch(err) {
-                alert(err.message);
-            }
-        });
-        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
-        document.getElementById('btn-save-display').addEventListener('click', async () => {
-            const newDisplay = document.getElementById('settings-display').value.trim();
-            if(!auth.currentUser) return;
-            try {
-                await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: newDisplay });
-                alert("Display name updated!");
-            } catch(err) {
-                alert(err.message);
-            }
-        });
-        document.getElementById('btn-save-pass').addEventListener('click', async () => {
-            const newPass = document.getElementById('settings-pass').value;
-            if(!auth.currentUser || !newPass) return;
-            try {
-                await updatePassword(auth.currentUser, newPass);
-                alert("Password updated!");
-                document.getElementById('settings-pass').value = '';
-            } catch(err) {
-                alert(err.message);
-            }
-        });
-        document.getElementById('btn-delete-account').addEventListener('click', async () => {
-            if(!auth.currentUser) return;
-            if(!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
-            try {
-                const uid = auth.currentUser.uid;
-                const userDoc = await getDoc(doc(db, "users", uid));
-                if(userDoc.exists()) {
-                    const usernameLower = userDoc.data().username.toLowerCase();
-                    await deleteDoc(doc(db, "usernames", usernameLower));
-                    await deleteDoc(doc(db, "users", uid));
-                }
-                await deleteUser(auth.currentUser);
-            } catch(err) {
-                alert(err.message);
-            }
-        });
-        let currentUserData = null;
-        let socketInitialized = false;
-        let socket = null;
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) {
-                    currentUserData = userDoc.data();
-                    Object.assign(currentLocalColors, currentUserData.colors);
-                    ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
-                        document.getElementById(`col-${part}`).value = currentLocalColors[part];
-                    });
-                    applyColorsToParts(localPlayerParts, currentLocalColors);
-                    if (avatarTabParts) applyColorsToParts(avatarTabParts, currentLocalColors);
-                    document.getElementById('settings-display').value = currentUserData.displayName || '';
-                }
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'flex';
-                if(!socketInitialized) {
-                    initSocketConnection();
-                }
-            } else {
-                document.getElementById('main-app').style.display = 'none';
-                document.getElementById('auth-screen').style.display = 'flex';
-                currentUserData = null;
-                if(socket) {
-                    socket.disconnect();
-                    socketInitialized = false;
-                }
-            }
-        });
-        const remotePlayers = {};
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB);
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(renderer.domElement);
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(30, 40, 20);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.left = -60;
-        dirLight.shadow.camera.right = 60;
-        dirLight.shadow.camera.top = 60;
-        dirLight.shadow.camera.bottom = -60;
-        dirLight.shadow.camera.near = 0.1;
-        dirLight.shadow.camera.far = 150;
-        dirLight.shadow.bias = -0.0005;
-        scene.add(dirLight);
-        const cubeSize = 100;
-        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-        const greenMat = new THREE.MeshStandardMaterial({ color: 0x228B22 });
-        const cube = new THREE.Mesh(cubeGeo, greenMat);
-        cube.position.y = -cubeSize / 2;
-        cube.receiveShadow = true;
-        scene.add(cube);
-        const textureLoader = new THREE.TextureLoader();
-        const studTextureUrl = 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/stud.png';
-        const studTexture = textureLoader.load(studTextureUrl);
-        studTexture.wrapS = THREE.RepeatWrapping;
-        studTexture.wrapT = THREE.RepeatWrapping;
-        studTexture.minFilter = THREE.LinearMipmapLinearFilter;
-        studTexture.magFilter = THREE.LinearFilter;
-        studTexture.repeat.set(cubeSize, cubeSize);
-        const planeGeo = new THREE.PlaneGeometry(cubeSize, cubeSize);
-        const studMat = new THREE.MeshStandardMaterial({
-            color: 0x228B22,
-            map: studTexture,
-            transparent: true,
-            alphaTest: 0.1
-        });
-        const studsPlane = new THREE.Mesh(planeGeo, studMat);
-        studsPlane.rotation.x = -Math.PI / 2;
-        studsPlane.position.y = 0.01;
-        studsPlane.receiveShadow = true;
-        scene.add(studsPlane);
-        const masters = { head: null, torso: null, limb: null };
-        const partLayouts = {
-            head: { pos: [0, 4.55, 0], size: [1.1, 1.1, 1.1] },
-            torso: { pos: [0, 3.0, 0], size: [2, 2, 1] },
-            leftArm: { pos: [-1.5, 3.0, 0], size: [1, 2, 1] },
-            rightArm: { pos: [1.5, 3.0, 0], size: [1, 2, 1] },
-            leftLeg: { pos: [-0.5, 1.0, 0], size: [1, 2, 1] },
-            rightLeg: { pos: [0.5, 1.0, 0], size: [1, 2, 1] }
-        };
-        const currentLocalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-        function createCharacterFigure(isRemote, baseColors) {
-            const group = new THREE.Group();
-            const parts = {};
-            Object.keys(partLayouts).forEach(partName => {
-                const layout = partLayouts[partName];
-                const partGroup = new THREE.Group();
-                partGroup.position.set(layout.pos[0], layout.pos[1], layout.pos[2]);
-                let visualMesh;
-                const masterKey = (partName === 'head' || partName === 'torso') ? partName : 'limb';
-                const assignedColor = baseColors ? (baseColors[partName] || '#e0e0e0') : (isRemote ? '#ffa500' : '#e0e0e0');
-                if (masters[masterKey]) {
-                    visualMesh = masters[masterKey].clone();
-                    visualMesh.traverse(child => {
-                        if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(assignedColor), side: THREE.DoubleSide });
-                    });
-                } else {
-                    const geo = new THREE.BoxGeometry(layout.size[0], layout.size[1], layout.size[2]);
-                    const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(assignedColor) });
-                    visualMesh = new THREE.Mesh(geo, mat);
-                }
-                visualMesh.castShadow = true;
-                visualMesh.receiveShadow = true;
-                partGroup.add(visualMesh);
-                group.add(partGroup);
-                parts[partName] = partGroup;
-            });
-            return { group, parts };
-        }
-        function setupMasterModel(key, obj) {
-            const box = new THREE.Box3().setFromObject(obj);
-            const size = box.getSize(new THREE.Vector3());
-            const center = box.getCenter(new THREE.Vector3());
-            obj.position.set(-center.x, -center.y, -center.z);
-            const wrapper = new THREE.Group();
-            wrapper.add(obj);
-            const layoutSize = key === 'head' ? [1.1, 1.1, 1.1] : (key === 'torso' ? [2, 2, 1] : [1, 2, 1]);
-            wrapper.scale.set(layoutSize[0] / size.x, layoutSize[1] / size.y, layoutSize[2] / size.z);
-            masters[key] = wrapper;
-        }
-        function upgradePartVisual(partsObj, key, baseColors) {
-            Object.keys(partsObj).forEach(partName => {
-                const masterKey = (partName === 'head' || partName === 'torso') ? partName : 'limb';
-                if (masterKey !== key) return;
-                const partGroup = partsObj[partName];
-                while (partGroup.children.length > 0) partGroup.remove(partGroup.children[0]);
-                const visual = masters[key].clone();
-                const col = baseColors[partName] || '#e0e0e0';
-                visual.traverse(child => {
-                    if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(col), side: THREE.DoubleSide });
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-                partGroup.add(visual);
-            });
-        }
-        function upgradeAllPlayersForPart(key) {
-            if (!masters[key]) return;
-            Object.keys(remotePlayers).forEach(id => {
-                const rp = remotePlayers[id];
-                if (rp && rp.parts) upgradePartVisual(rp.parts, key, rp.colors);
-            });
-            if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
-            if (avatarTabParts) upgradePartVisual(avatarTabParts, key, currentLocalColors);
-            if (profileModalParts) upgradePartVisual(profileModalParts, key, profileModalColors);
-        }
-        function applyColorsToParts(partsObj, colors) {
-            if(!partsObj) return;
-            Object.keys(partsObj).forEach(partName => {
-                const partGroup = partsObj[partName];
-                const col = colors[partName] || '#e0e0e0';
-                partGroup.traverse(child => {
-                    if (child.isMesh) child.material.color.set(col);
-                });
-            });
-        }
-        const playerGroup = new THREE.Group();
-        playerGroup.position.set(0, 0, 0);
-        scene.add(playerGroup);
-        const playerModelContainer = new THREE.Group();
-        playerGroup.add(playerModelContainer);
-        const { group: localVisualGroup, parts: localPlayerParts } = createCharacterFigure(false, currentLocalColors);
-        playerModelContainer.add(localVisualGroup);
-        const objLoader = new OBJLoader();
-        const assets = [
-            { key: 'head', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/head.obj' },
-            { key: 'torso', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/torso.obj' },
-            { key: 'limb', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/limb.obj' }
-        ];
-        assets.forEach(asset => {
-            objLoader.load(asset.url, (obj) => {
-                setupMasterModel(asset.key, obj);
-                upgradeAllPlayersForPart(asset.key);
-            }, undefined, (err) => {});
-        });
-        function initSocketConnection() {
-            socket = io();
-            socketInitialized = true;
-            socket.on('currentPlayers', (players) => {
-                Object.keys(players).forEach((id) => {
-                    if (id !== socket.id && !remotePlayers[id]) {
-                        const { group, parts } = createCharacterFigure(true, players[id].colors);
-                        scene.add(group);
-                        remotePlayers[id] = { group, parts, colors: players[id].colors };
-                        remotePlayers[id].group.position.set(players[id].x, players[id].y, players[id].z);
-                        remotePlayers[id].group.rotation.y = players[id].ry;
-                    }
-                });
-            });
-            socket.on('newPlayer', (playerInfo) => {
-                if (!remotePlayers[playerInfo.id]) {
-                    const { group, parts } = createCharacterFigure(true, playerInfo.colors);
-                    scene.add(group);
-                    remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
-                    remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
-                }
-            });
-            socket.on('playerMoved', (playerInfo) => {
-                if (remotePlayers[playerInfo.id]) {
-                    remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
-                    remotePlayers[playerInfo.id].group.rotation.y = playerInfo.ry;
-                }
-            });
-            socket.on('playerColorsChanged', (data) => {
-                if (remotePlayers[data.id]) {
-                    remotePlayers[data.id].colors = data.colors;
-                    applyColorsToParts(remotePlayers[data.id].parts, data.colors);
-                }
-            });
-            socket.on('playerDisconnected', (id) => {
-                if (remotePlayers[id]) {
-                    scene.remove(remotePlayers[id].group);
-                    delete remotePlayers[id];
-                }
-            });
-        }
-        ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
-            document.getElementById(`col-${part}`).addEventListener('input', async (e) => {
-                currentLocalColors[part] = e.target.value;
-                applyColorsToParts(localPlayerParts, currentLocalColors);
-                applyColorsToParts(avatarTabParts, currentLocalColors);
-                if(socket && socket.connected) {
-                    socket.emit('playerColorUpdate', currentLocalColors);
-                }
-                if(auth.currentUser) {
-                    await updateDoc(doc(db, "users", auth.currentUser.uid), { colors: currentLocalColors });
-                }
-            });
-        });
-        let cameraDistance = 20.4;
-        let cameraPitch = 0.3;
-        let cameraYaw = 0;
-        let isShiftLock = false;
-        let isRightMouseDown = false;
-        const keys = { w: false, a: false, s: false, d: false };
-        let velocityY = 0;
-        let isGrounded = true;
-        const gravity = -30;
-        const jumpForce = 12;
-        const moveSpeed = 8;
-        let lastPosition = new THREE.Vector3();
-        let lastRotationY = 0;
-        let activeTab = 'home';
-        window.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
-            if (e.key.toLowerCase() === 'w') keys.w = true;
-            if (e.key.toLowerCase() === 'a') keys.a = true;
-            if (e.key.toLowerCase() === 's') keys.s = true;
-            if (e.key.toLowerCase() === 'd') keys.d = true;
-            if (e.key === ' ') {
-                if (isGrounded) {
-                    velocityY = jumpForce;
-                    isGrounded = false;
-                }
-            }
-            if (e.key === 'Shift') {
-                isShiftLock = !isShiftLock;
-                if (isShiftLock || cameraDistance < 1.5) {
-                    container.requestPointerLock();
-                } else if (!isRightMouseDown) {
-                    document.exitPointerLock();
-                }
-            }
-        });
-        window.addEventListener('keyup', (e) => {
-            if (e.key.toLowerCase() === 'w') keys.w = false;
-            if (e.key.toLowerCase() === 'a') keys.a = false;
-            if (e.key.toLowerCase() === 's') keys.s = false;
-            if (e.key.toLowerCase() === 'd') keys.d = false;
-        });
-        window.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
-            if (e.button === 2) {
-                isRightMouseDown = true;
-                container.requestPointerLock();
-            }
-        });
-        window.addEventListener('mouseup', (e) => {
-            if (e.button === 2) {
-                isRightMouseDown = false;
-                if (!isShiftLock && cameraDistance >= 1.5) {
-                    document.exitPointerLock();
-                }
-            }
-        });
-        window.addEventListener('contextmenu', (e) => e.preventDefault());
-        window.addEventListener('wheel', (e) => {
-            if (activeTab !== 'home') return;
-            cameraDistance += e.deltaY * 0.017;
-            cameraDistance = Math.max(0, Math.min(42.5, cameraDistance));
-            if (cameraDistance < 1.5) {
-                if (document.pointerLockElement !== container) {
-                    container.requestPointerLock();
-                }
-            } else if (!isShiftLock && !isRightMouseDown && document.pointerLockElement === container) {
-                document.exitPointerLock();
-            }
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (activeTab !== 'home') return;
-            if (isShiftLock || document.pointerLockElement === container || isRightMouseDown || cameraDistance < 1.5) {
-                cameraYaw -= e.movementX * 0.005;
-                cameraPitch -= e.movementY * 0.005;
-                cameraPitch = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, cameraPitch));
-            }
-        });
-        document.addEventListener('pointerlockchange', () => {
-            if (document.pointerLockElement !== container) {
-                isShiftLock = false;
-                isRightMouseDown = false;
-                if (cameraDistance < 1.5 && activeTab === 'home') {
-                    cameraDistance = 1.5;
-                }
-            }
-        });
-        const avatarScene = new THREE.Scene();
-        avatarScene.background = new THREE.Color(0xf0f0f0);
-        const avatarCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        avatarCamera.position.set(0, 3, 8);
-        avatarCamera.lookAt(0, 2.5, 0);
-        const avatarRenderer = new THREE.WebGLRenderer({ antialias: true });
-        document.getElementById('avatar-preview-pane').appendChild(avatarRenderer.domElement);
-        const avLight1 = new THREE.AmbientLight(0xffffff, 0.7);
-        avatarScene.add(avLight1);
-        const avLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
-        avLight2.position.set(5, 10, 5);
-        avatarScene.add(avLight2);
-        const { group: avatarTabGroup, parts: avatarTabParts } = createCharacterFigure(false, currentLocalColors);
-        avatarScene.add(avatarTabGroup);
-        const profileScene = new THREE.Scene();
-        profileScene.background = new THREE.Color(0xe9e9e9);
-        const profileCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        profileCamera.position.set(0, 3, 8);
-        profileCamera.lookAt(0, 2.5, 0);
-        const profileRenderer = new THREE.WebGLRenderer({ antialias: true });
-        document.getElementById('profile-preview-pane').appendChild(profileRenderer.domElement);
-        const profLight1 = new THREE.AmbientLight(0xffffff, 0.7);
-        profileScene.add(profLight1);
-        const profLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
-        profLight2.position.set(5, 10, 5);
-        profileScene.add(profLight2);
-        let profileModalParts = null;
-        let profileModalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-        let profileModalGroup = null;
-        function openUserProfile(userData) {
-            const namesContainer = document.getElementById('profile-names');
-            namesContainer.innerHTML = '';
-            if(userData.displayName) {
-                const disp = document.createElement('div');
-                disp.className = 'profile-display';
-                disp.textContent = userData.displayName;
-                const userSub = document.createElement('div');
-                userSub.className = 'profile-username-sub';
-                userSub.textContent = `@${userData.username}`;
-                namesContainer.appendChild(disp);
-                namesContainer.appendChild(userSub);
-            } else {
-                const userMain = document.createElement('div');
-                userMain.className = 'profile-username-main';
-                userMain.textContent = userData.username;
-                namesContainer.appendChild(userMain);
-            }
-            const metaContainer = document.getElementById('profile-meta-details');
-            metaContainer.innerHTML = `
-                <div><strong>User ID:</strong> ${userData.userId}</div>
-                <div><strong>Gender:</strong> ${userData.gender || 'Not Specified'}</div>
-                <div><strong>Friends:</strong> ${userData.friends ? userData.friends.length : 0}</div>
-                <div><strong>Following:</strong> ${userData.following ? userData.following.length : 0}</div>
-                <div><strong>Joined:</strong> ${userData.createdAt || 'Unknown'}</div>
-            `;
-            if(profileModalGroup) profileScene.remove(profileModalGroup);
-            profileModalColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-            const { group, parts } = createCharacterFigure(false, profileModalColors);
-            profileModalGroup = group;
-            profileModalParts = parts;
-            profileScene.add(profileModalGroup);
-            const masterKeys = ['head', 'torso', 'limb'];
-            masterKeys.forEach(k => {
-                if(masters[k]) upgradePartVisual(profileModalParts, k, profileModalColors);
-            });
-            document.getElementById('profile-modal').style.display = 'flex';
-            resizeProfileCanvas();
-        }
-        document.getElementById('profile-close').addEventListener('click', () => {
-            document.getElementById('profile-modal').style.display = 'none';
-        });
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
-        searchInput.addEventListener('input', async () => {
-            const val = searchInput.value.trim();
-            if(!val) {
-                searchResults.style.display = 'none';
-                return;
-            }
-            try {
-                const q = query(collection(db, "users"), where("username", ">=", val), where("username", "<=", val + '\uf8ff'));
-                const querySnapshot = await getDocs(q);
-                searchResults.innerHTML = '';
-                if(querySnapshot.empty) {
-                    const noRes = document.createElement('div');
-                    noRes.className = 'search-item';
-                    noRes.textContent = 'No users found';
-                    searchResults.appendChild(noRes);
-                } else {
-                    querySnapshot.forEach((doc) => {
-                        const uData = doc.data();
-                        const item = document.createElement('div');
-                        item.className = 'search-item';
-                        item.textContent = uData.displayName ? `${uData.displayName} (@${uData.username})` : uData.username;
-                        item.addEventListener('click', () => {
-                            searchResults.style.display = 'none';
-                            searchInput.value = '';
-                            openUserProfile(uData);
-                        });
-                        searchResults.appendChild(item);
-                    });
-                }
-                searchResults.style.display = 'flex';
-            } catch(err) {}
-        });
-        document.addEventListener('click', (e) => {
-            if(!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.style.display = 'none';
-            }
-        });
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-                tab.classList.add('active');
-                activeTab = tab.getAttribute('data-tab');
-                document.getElementById(`tab-${activeTab}`).classList.add('active');
-                if(activeTab !== 'home') {
-                    document.exitPointerLock();
-                }
-                if(activeTab === 'avatar') {
-                    resizeAvatarCanvas();
-                }
-            });
-        });
-        function resizeAvatarCanvas() {
-            const pane = document.getElementById('avatar-preview-pane');
-            if(pane.clientWidth > 0 && pane.clientHeight > 0) {
-                avatarCamera.aspect = pane.clientWidth / pane.clientHeight;
-                avatarCamera.updateProjectionMatrix();
-                avatarRenderer.setSize(pane.clientWidth, pane.clientHeight);
-            }
-        }
-        function resizeProfileCanvas() {
-            const pane = document.getElementById('profile-preview-pane');
-            if(pane.clientWidth > 0 && pane.clientHeight > 0) {
-                profileCamera.aspect = pane.clientWidth / pane.clientHeight;
-                profileCamera.updateProjectionMatrix();
-                profileRenderer.setSize(pane.clientWidth, pane.clientHeight);
-            }
-        }
-        const clock = new THREE.Clock();
-        const raycaster = new THREE.Raycaster();
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            if(activeTab === 'home') {
-                velocityY += gravity * delta;
-                playerGroup.position.y += velocityY * delta;
-                if (playerGroup.position.y <= 0) {
-                    playerGroup.position.y = 0;
-                    velocityY = 0;
-                    isGrounded = true;
-                }
-                let moveX = 0;
-                let moveZ = 0;
-                if (keys.w) moveZ -= 1;
-                if (keys.s) moveZ += 1;
-                if (keys.a) moveX -= 1;
-                if (keys.d) moveX += 1;
-                const isFirstPerson = cameraDistance < 1.5;
-                playerModelContainer.visible = !isFirstPerson;
-                if (moveX !== 0 || moveZ !== 0) {
-                    const camForward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
-                    const camRight = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
-                    const moveDir = new THREE.Vector3()
-                        .addScaledVector(camForward, -moveZ)
-                        .addScaledVector(camRight, moveX)
-                        .normalize();
-                    playerGroup.position.addScaledVector(moveDir, moveSpeed * delta);
-                    if (!isShiftLock && !isFirstPerson) {
-                        const targetAngle = Math.atan2(moveDir.x, moveDir.z);
-                        const currentRotation = playerModelContainer.rotation.y;
-                        const deltaRotation = ((targetAngle - currentRotation + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
-                        playerModelContainer.rotation.y += deltaRotation * 15 * delta;
-                    }
-                }
-                if (isShiftLock || isFirstPerson) {
-                    playerModelContainer.rotation.y = cameraYaw + Math.PI;
-                }
-                const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 2.5, playerGroup.position.z);
-                let cameraTargetPosition = new THREE.Vector3();
-                if (isFirstPerson) {
-                    camera.position.copy(centerTarget);
-                    const lookTarget = new THREE.Vector3(
-                        centerTarget.x - Math.sin(cameraYaw) * Math.cos(cameraPitch),
-                        centerTarget.y + Math.sin(cameraPitch),
-                        centerTarget.z - Math.cos(cameraYaw) * Math.cos(cameraPitch)
-                    );
-                    camera.lookAt(lookTarget);
-                } else {
-                    let offsetCamDistance = cameraDistance;
-                    let currentYawOffset = cameraYaw;
-                    if (isShiftLock) {
-                        const rightOffset = new THREE.Vector3(0.4, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
-                        centerTarget.add(rightOffset);
-                    }
-                    const preferredCamPos = new THREE.Vector3(
-                        centerTarget.x + offsetCamDistance * Math.sin(currentYawOffset) * Math.cos(cameraPitch),
-                        centerTarget.y + offsetCamDistance * Math.sin(cameraPitch),
-                        centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch)
-                    );
-                    raycaster.set(centerTarget, new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize());
-                    const intersects = raycaster.intersectObject(cube);
-                    if (intersects.length > 0 && intersects[0].distance < offsetCamDistance) {
-                        cameraTargetPosition.copy(intersects[0].point).addScaledVector(new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize(), -0.2);
-                    } else {
-                        cameraTargetPosition.copy(preferredCamPos);
-                    }
-                    camera.position.copy(cameraTargetPosition);
-                    camera.lookAt(centerTarget);
-                }
-                if (playerGroup.position.distanceTo(lastPosition) > 0.001 || Math.abs(playerModelContainer.rotation.y - lastRotationY) > 0.01) {
-                    if(socket && socket.connected) {
-                        socket.emit('playerMovement', {
-                            x: playerGroup.position.x,
-                            y: playerGroup.position.y,
-                            z: playerGroup.position.z,
-                            ry: playerModelContainer.rotation.y
-                        });
-                    }
-                    lastPosition.copy(playerGroup.position);
-                    lastRotationY = playerModelContainer.rotation.y;
-                }
-                renderer.render(scene, camera);
-            } else if(activeTab === 'avatar') {
-                avatarTabGroup.rotation.y += 1 * delta;
-                avatarRenderer.render(avatarScene, avatarCamera);
-            }
-            if(document.getElementById('profile-modal').style.display === 'flex' && profileModalGroup) {
-                profileModalGroup.rotation.y += 1 * delta;
-                profileRenderer.render(profileScene, profileCamera);
-            }
-        }
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            resizeAvatarCanvas();
-            resizeProfileCanvas();
-        });
-        animate();
-    </script>
+<div id="login-page">
+<h2>Fourblox Login</h2>
+<div class="login-container">
+<input type="text" id="login-username" placeholder="Username">
+<input type="email" id="login-email" placeholder="Email (For Registration)">
+<input type="password" id="login-password" placeholder="Password">
+<button onclick="handleLogin()">Log In</button>
+<button onclick="handleRegister()" style="background:#444;">Register Account</button>
+</div>
+</div>
+<div id="main-app" class="hidden">
+<div class="header">
+<div class="nav-buttons">
+<button class="nav-btn selected" onclick="nav('home')">Home</button>
+<button class="nav-btn" onclick="nav('profile')">Profile</button>
+<button class="nav-btn" onclick="nav('avatar')">Avatar</button>
+<button class="nav-btn" onclick="nav('game')">Games</button>
+</div>
+<input type="text" class="search-bar" id="global-search" placeholder="search username..." onkeypress="handleSearch(event)">
+</div>
+<div id="home" class="page active">
+<div class="profile-header">
+<div class="avatar-circle">put the<br>avatar's head<br>with torso and<br>arms underneath</div>
+<div class="profile-name">
+<h1 id="home-display">Hello, displayname</h1>
+<h2 id="home-user">@username</h2>
+</div>
+</div>
+<h2>Friends (<span id="friend-count">0</span>)</h2>
+<div class="card-container" id="home-friends"></div>
+<h2>Games</h2>
+<div class="card-container">
+<div class="card game-card" onclick="nav('game')">
+<div class="thumb"></div>
+<div>Game's name</div>
+</div>
+</div>
+</div>
+<div id="profile" class="page">
+<div id="profile-content">
+<div class="profile-header">
+<div class="avatar-circle">put the<br>avatar's head<br>with torso and<br>arms underneath</div>
+<div class="profile-name">
+<h1><span id="prof-display">Displayname</span><span id="prof-badges"></span></h1>
+<h2 id="prof-user">@username</h2>
+</div>
+</div>
+<div id="admin-controls" class="admin-panel" style="display:none;">
+<strong>Admin Controls:</strong>
+<span id="badge-controls" style="display:none;">
+<select id="badge-select">
+<option value="administrator.png">Administrator</option>
+<option value="goodadministrator.png">Good Administrator</option>
+<option value="eliteadministrator.png">Elite Administrator</option>
+<option value="verified.png">Verified</option>
+</select>
+<button onclick="grantBadge()">Grant Badge</button>
+</span>
+<span id="ban-controls" style="display:none;">
+<button onclick="banUser()" style="background:#cc0000;color:white;border:none;padding:5px 10px;border-radius:3px;cursor:pointer;">Ban User</button>
+</span>
+</div>
+<div class="profile-layout">
+<div class="profile-3d">3d model of player's<br>avatar here</div>
+<div class="profile-empty">Empty for now</div>
+</div>
+<h2>Friends (<span id="prof-friend-count">0</span>)</h2>
+<div class="card-container" id="prof-friends"></div>
+<div class="profile-footer">
+<div>
+<h3>Creation date</h3>
+<div id="prof-date">DD/MM/YYYY<br>HH:MM:SS UTC</div>
+</div>
+<div>
+<h3>User ID</h3>
+<div id="prof-id">1</div>
+</div>
+</div>
+</div>
+<div id="profile-banned" class="banned-message hidden">This user has been banned.</div>
+</div>
+<div id="avatar" class="page">
+<div class="profile-name" style="margin-bottom:20px;">
+<h1 id="avatar-title">Your avatar, @displayname</h1>
+</div>
+<div class="avatar-layout">
+<div class="avatar-col">
+<div class="avatar-viewer">
+<div style="display:flex;flex-direction:column;align-items:center;">
+<div class="bc-head"></div>
+<div class="bc-mid"><div class="bc-arm"></div><div class="bc-torso"></div><div class="bc-arm"></div></div>
+<div class="bc-legs"><div class="bc-leg"></div><div class="bc-leg"></div></div>
+</div>
+<button class="avatar-viewer-btn">2D</button>
+</div>
+<div class="body-colors">
+<div style="font-size:12px;width:100%;text-align:left;margin-bottom:10px;font-weight:bold;">Body colors</div>
+<div class="bc-head"></div>
+<div class="bc-mid"><div class="bc-arm"></div><div class="bc-torso"></div><div class="bc-arm"></div></div>
+<div class="bc-legs"><div class="bc-leg"></div><div class="bc-leg"></div></div>
+</div>
+</div>
+<div class="profile-empty" style="min-height:500px;width:400px;">this will have nothing in it for now</div>
+</div>
+</div>
+<div id="game" class="page">
+<div class="game-layout">
+<div class="game-thumbnail">Thumbnail</div>
+<div class="game-info">
+<h1>Game's name</h1>
+<h2 onclick="viewProfile('devuser')">Created by @devuser</h2>
+<div class="ratio-bar">
+<div class="ratio-likes" style="width:75%;"></div>
+</div>
+<div class="counters"><span>15,000 Likes</span><span>5,000 Dislikes</span></div>
+<div class="play-btn"><img src="playbutton.png" alt="Play"></div>
+</div>
+</div>
+</div>
+</div>
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyAoJw-xTqs_zoLj8fvehZTCixDnHjNf-g0",
+authDomain: "fourblox-89581.firebaseapp.com",
+projectId: "fourblox-89581",
+storageBucket: "fourblox-89581.appspot.com",
+messagingSenderId: "591248592185",
+appId: "1:591248592185:web:8fafba8dafba"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUserData = null;
+let viewingUsername = "";
+auth.onAuthStateChanged(async (user) => {
+if (user) {
+const uidSnap = await db.collection("users").doc(user.uid).get();
+if (uidSnap.exists) {
+const username = uidSnap.data().username;
+const userDocRef = db.collection("usernames").doc(username?.toLowerCase() || "");
+userDocRef.onSnapshot((doc) => {
+if (doc.exists) {
+currentUserData = doc.data();
+if (currentUserData.username === "fourblox" && (!currentUserData.badges || !currentUserData.badges.includes("eliteadministrator.png"))) {
+let currentBadges = currentUserData.badges || [];
+if (!currentBadges.includes("eliteadministrator.png")) {
+currentBadges.push("eliteadministrator.png");
+userDocRef.update({ badges: currentBadges });
+}
+}
+if (currentUserData.banned) {
+alert("Your account is banned.");
+auth.signOut();
+return;
+}
+document.getElementById("login-page").classList.add("hidden");
+document.getElementById("main-app").classList.remove("hidden");
+viewingUsername = currentUserData.username;
+renderHome();
+}
+});
+}
+} else {
+document.getElementById("login-page").classList.remove("hidden");
+document.getElementById("main-app").classList.add("hidden");
+currentUserData = null;
+}
+});
+async function handleLogin() {
+const usernameInput = document.getElementById("login-username").value.trim().toLowerCase();
+const passwordInput = document.getElementById("login-password").value;
+if (!usernameInput || !passwordInput) return alert("Fill in username and password.");
+try {
+const userDoc = await db.collection("usernames").doc(usernameInput).get();
+if (!userDoc.exists) return alert("Username does not exist.");
+const email = userDoc.data().email;
+await auth.signInWithEmailAndPassword(email, passwordInput);
+} catch (err) {
+alert(err.message);
+}
+}
+async function handleRegister() {
+const usernameInput = document.getElementById("login-username").value.trim();
+const usernameLower = usernameInput.toLowerCase();
+const emailInput = document.getElementById("login-email").value.trim();
+const passwordInput = document.getElementById("login-password").value;
+if (!usernameInput || !emailInput || !passwordInput) return alert("Fill in username, email, and password.");
+try {
+const userCheck = await db.collection("usernames").doc(usernameLower).get();
+if (userCheck.exists) return alert("Username is already taken.");
+const userCred = await auth.createUserWithEmailAndPassword(emailInput, passwordInput);
+const now = new Date();
+const createdStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}<br>${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} UTC`;
+const initialBadges = usernameLower === "fourblox" ? ["eliteadministrator.png"] : [];
+const newUserData = {
+username: usernameInput,
+displayname: usernameInput,
+email: emailInput,
+id: Math.floor(100000 + Math.random() * 900000),
+created: createdStr,
+badges: initialBadges,
+friends: [],
+banned: false
+};
+await db.collection("usernames").doc(usernameLower).set(newUserData);
+await db.collection("users").doc(userCred.user.uid).set({ username: usernameInput });
+} catch (err) {
+alert(err.message);
+}
+}
+function nav(pageId) {
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('selected'));
+document.getElementById(pageId).classList.add('active');
+if (event && event.currentTarget) event.currentTarget.classList.add('selected');
+if (pageId === 'profile') renderProfile(viewingUsername);
+if (pageId === 'home') renderHome();
+if (pageId === 'avatar' && currentUserData) document.getElementById('avatar-title').innerText = `Your avatar, @${currentUserData.username}`;
+}
+function renderHome() {
+if (!currentUserData) return;
+document.getElementById('home-display').innerText = `Hello, ${currentUserData.displayname}`;
+document.getElementById('home-user').innerText = `@${currentUserData.username}`;
+const fc = document.getElementById('home-friends');
+fc.innerHTML = '';
+if (!currentUserData.friends || currentUserData.friends.length === 0) {
+document.getElementById('friend-count').innerText = '0';
+fc.innerHTML = '<span style="color:grey;">No friends</span>';
+} else {
+document.getElementById('friend-count').innerText = currentUserData.friends.length;
+currentUserData.friends.forEach(async (f) => {
+const fDoc = await db.collection("usernames").doc(f.toLowerCase()).get();
+if (fDoc.exists) {
+fc.innerHTML += `<div class="card friend-card" onclick="viewProfile('${fDoc.data().username}')"><div class="avatar-circle">avatar<br>here</div><div>${fDoc.data().displayname}</div></div>`;
+}
+});
+}
+}
+function renderProfile(username) {
+viewingUsername = username;
+db.collection("usernames").doc(username.toLowerCase()).onSnapshot((doc) => {
+if (!doc.exists) return;
+const user = doc.data();
+if (user.banned) {
+document.getElementById('profile-content').classList.add('hidden');
+document.getElementById('profile-banned').classList.remove('hidden');
+return;
+}
+document.getElementById('profile-content').classList.remove('hidden');
+document.getElementById('profile-banned').classList.add('hidden');
+document.getElementById('prof-display').innerText = user.displayname;
+document.getElementById('prof-user').innerText = `@${user.username}`;
+document.getElementById('prof-date').innerHTML = user.created;
+document.getElementById('prof-id').innerText = user.id;
+const badgeContainer = document.getElementById('prof-badges');
+badgeContainer.innerHTML = '';
+if (user.badges) {
+user.badges.forEach(b => {
+badgeContainer.innerHTML += `<img src="${b}" class="badge-icon" title="${b}">`;
+});
+}
+const fc = document.getElementById('prof-friends');
+fc.innerHTML = '';
+if (!user.friends || user.friends.length === 0) {
+document.getElementById('prof-friend-count').innerText = '0';
+fc.innerHTML = '<span style="color:grey;">No friends</span>';
+} else {
+document.getElementById('prof-friend-count').innerText = user.friends.length;
+user.friends.forEach(async (f) => {
+const fDoc = await db.collection("usernames").doc(f.toLowerCase()).get();
+if (fDoc.exists) {
+fc.innerHTML += `<div class="card friend-card" onclick="viewProfile('${fDoc.data().username}')"><div class="avatar-circle">avatar<br>here</div><div>${fDoc.data().displayname}</div></div>`;
+}
+});
+}
+const adminPanel = document.getElementById('admin-controls');
+const badgeCtrls = document.getElementById('badge-controls');
+const banCtrls = document.getElementById('ban-controls');
+adminPanel.style.display = 'none';
+badgeCtrls.style.display = 'none';
+banCtrls.style.display = 'none';
+const currentBadges = currentUserData?.badges || [];
+const isEliteAdmin = currentUserData?.username === "fourblox" || currentBadges.includes('eliteadministrator.png');
+const isAdmin = currentBadges.includes('administrator.png') || currentBadges.includes('goodadministrator.png');
+if (isEliteAdmin || isAdmin) {
+adminPanel.style.display = 'flex';
+if (isEliteAdmin) {
+badgeCtrls.style.display = 'inline-block';
+banCtrls.style.display = 'inline-block';
+} else if (isAdmin) {
+banCtrls.style.display = 'inline-block';
+}
+}
+});
+}
+function viewProfile(username) {
+viewingUsername = username;
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.getElementById('profile').classList.add('active');
+document.querySelectorAll('.nav-btn').forEach(b => {
+if (b.innerText === 'Profile') b.classList.add('selected');
+else b.classList.remove('selected');
+});
+renderProfile(username);
+}
+async function grantBadge() {
+const badge = document.getElementById('badge-select').value;
+const userRef = db.collection("usernames").doc(viewingUsername.toLowerCase());
+const doc = await userRef.get();
+if (doc.exists) {
+let badges = doc.data().badges || [];
+if (!badges.includes(badge)) {
+badges.push(badge);
+await userRef.update({ badges: badges });
+alert(`Granted ${badge} to ${viewingUsername}`);
+} else {
+alert(`${viewingUsername} already has this badge.`);
+}
+}
+}
+async function banUser() {
+if (confirm(`Are you sure you want to ban ${viewingUsername}?`)) {
+await db.collection("usernames").doc(viewingUsername.toLowerCase()).update({ banned: true });
+alert(`${viewingUsername} has been banned!`);
+}
+}
+async function handleSearch(e) {
+if (e.key === 'Enter') {
+const query = document.getElementById('global-search').value.trim().toLowerCase();
+if (!query) return;
+const doc = await db.collection("usernames").doc(query).get();
+if (doc.exists) {
+viewProfile(doc.data().username);
+} else {
+alert("User not found.");
+}
+}
+}
+</script>
 </body>
 </html>
