@@ -91,6 +91,14 @@
         #control-panel-modal input[type="text"], #control-panel-modal button { padding: 8px; background: #1a1a1a; border: 1px solid #2a2a2a; color: #fff; border-radius: 4px; outline: none; }
         #control-panel-modal button { background: #ff1e3a; font-weight: bold; cursor: pointer; border: none; }
         .control-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .profile-actions-container { display: flex; gap: 10px; margin-top: 10px; }
+        .profile-action-btn { padding: 6px 12px; font-size: 13px; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; background: #fff; color: #000; cursor: pointer; }
+        .profile-action-btn:hover { background: #f0f0f0; }
+        .friend-requests-section { border-top: 1px solid #cccccc; padding-top: 20px; margin-top: 20px; }
+        .request-item { display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #dddddd; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+        .request-btn { padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; }
+        .request-accept { background: #2ecc71; color: white; }
+        .request-decline { background: #e74c3c; color: white; margin-left: 5px; }
     </style>
     <script type="importmap">
         {
@@ -149,6 +157,10 @@
             </div>
             <div class="section-title" id="home-friends-title">Friends (#)</div>
             <div class="friends-container" id="home-friends-container"></div>
+            <div class="friend-requests-section" id="home-requests-section" style="display:none;">
+                <div class="section-title">Pending Friend Requests</div>
+                <div id="home-requests-container"></div>
+            </div>
             <div class="section-title">Games</div>
             <div class="games-container">
                 <div class="game-card" id="game-card-democube">
@@ -163,6 +175,10 @@
                 <div class="user-hero-info">
                     <h1 id="profile-display-fullname">Displayname</h1>
                     <p id="profile-display-username"><span>@username</span><span id="profile-username-badges" style="display:inline-flex; gap:4px; align-items:center;"></span></p>
+                    <div class="profile-actions-container" id="profile-actions-bar" style="display:none;">
+                        <button class="profile-action-btn" id="btn-profile-friend">Add Friend</button>
+                        <button class="profile-action-btn" id="btn-profile-follow">Follow</button>
+                    </div>
                 </div>
             </div>
             <div class="profile-layout-blocks">
@@ -276,6 +292,14 @@
         const db = getFirestore(app);
         let isVoting = false;
         let gameCreatorData = null;
+        function filterText(text) {
+            const forbidden = [/nigger/gi, /nigga/gi, /faggot/gi, /retard/gi, /bitch/gi, /shit/gi, /fuck/gi, /cunt/gi, /asshole/gi, /dick/gi, /pussy/gi, /rape/gi, /nazis/gi, /hitler/gi];
+            let clean = text;
+            forbidden.forEach(regex => {
+                clean = clean.replace(regex, (match) => "*".repeat(match.length));
+            });
+            return clean;
+        }
         function renderUsernameBadges(containerId, username, profileBadgesArray) {
             const container = document.getElementById(containerId);
             if(!container) return;
@@ -363,12 +387,14 @@
             document.getElementById('login-box').style.display = 'flex';
         });
         document.getElementById('btn-register').addEventListener('click', async () => {
-            const username = document.getElementById('reg-user').value.trim();
-            const displayName = document.getElementById('reg-display').value.trim();
+            let username = document.getElementById('reg-user').value.trim();
+            let displayName = document.getElementById('reg-display').value.trim();
             const gender = document.getElementById('reg-gender').value;
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-pass').value;
             if(!username || !email || !password) return alert('Fill in all required fields');
+            username = filterText(username);
+            if(displayName) displayName = filterText(displayName);
             try {
                 const usernameLower = username.toLowerCase();
                 const usernameRef = doc(db, "usernames", usernameLower);
@@ -409,6 +435,7 @@
                         colors: currentLocalColors,
                         createdAt: createdStr,
                         friends: [],
+                        friendRequests: [],
                         following: [],
                         badges: ["Welcome Player", "Beta Tester"],
                         profileBadges: []
@@ -430,8 +457,9 @@
         });
         document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
         document.getElementById('btn-save-display').addEventListener('click', async () => {
-            const newDisplay = document.getElementById('settings-display').value.trim();
+            let newDisplay = document.getElementById('settings-display').value.trim();
             if(!auth.currentUser) return;
+            if(newDisplay) newDisplay = filterText(newDisplay);
             try {
                 await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: newDisplay });
                 alert("Display name updated!");
@@ -473,34 +501,53 @@
         let currentUserData = null;
         let socketInitialized = false;
         let socket = null;
+        let unsubscribeUserSnapshot = null;
         onAuthStateChanged(auth, async (user) => {
+            if (unsubscribeUserSnapshot) {
+                unsubscribeUserSnapshot();
+                unsubscribeUserSnapshot = null;
+            }
             if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if(userDoc.exists()) {
-                    currentUserData = userDoc.data();
-                    Object.assign(currentLocalColors, currentUserData.colors);
-                    ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
-                        document.getElementById(`col-${part}`).value = currentLocalColors[part];
-                        document.getElementById(`grid-color-${part}`).style.backgroundColor = currentLocalColors[part];
-                    });
-                    applyColorsToParts(localPlayerParts, currentLocalColors);
-                    if (avatarTabParts) applyColorsToParts(avatarTabParts, currentLocalColors);
-                    document.getElementById('settings-display').value = currentUserData.displayName || '';
-                    if (!playerGroup.userData.hasNametag) {
-                        const localName = currentUserData.displayName || currentUserData.username;
-                        const nametag = createNametagSprite(localName);
-                        nametag.position.set(0, 5.8, 0);
-                        playerModelContainer.add(nametag);
-                        playerGroup.userData.hasNametag = true;
+                unsubscribeUserSnapshot = onSnapshot(doc(db, "users", user.uid), (userDoc) => {
+                    if (userDoc.exists()) {
+                        currentUserData = userDoc.data();
+                        Object.assign(currentLocalColors, currentUserData.colors);
+                        ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
+                            document.getElementById(`col-${part}`).value = currentLocalColors[part];
+                            document.getElementById(`grid-color-${part}`).style.backgroundColor = currentLocalColors[part];
+                        });
+                        applyColorsToParts(localPlayerParts, currentLocalColors);
+                        if (avatarTabParts) applyColorsToParts(avatarTabParts, currentLocalColors);
+                        document.getElementById('settings-display').value = currentUserData.displayName || '';
+                        if (!playerGroup.userData.hasNametag) {
+                            const localName = currentUserData.displayName || currentUserData.username;
+                            const nametag = createNametagSprite(localName);
+                            nametag.position.set(0, 5.8, 0);
+                            playerModelContainer.add(nametag);
+                            playerGroup.userData.hasNametag = true;
+                        } else {
+                            const localName = currentUserData.displayName || currentUserData.username;
+                            playerModelContainer.children.forEach(child => {
+                                if (child.isSprite) {
+                                    playerModelContainer.remove(child);
+                                }
+                            });
+                            const nametag = createNametagSprite(localName);
+                            nametag.position.set(0, 5.8, 0);
+                            playerModelContainer.add(nametag);
+                        }
+                        if (currentUserData.username && currentUserData.username.toLowerCase() === 'fourblox') {
+                            document.getElementById('control-panel-toggle').style.display = 'block';
+                        } else {
+                            document.getElementById('control-panel-toggle').style.display = 'none';
+                            document.getElementById('control-panel-modal').style.display = 'none';
+                        }
+                        updateUIForUser(currentUserData);
+                        if (activeTab === 'profile' && viewedProfileUid === currentUserData.uid) {
+                            openUserProfile(currentUserData);
+                        }
                     }
-                    if (currentUserData.username && currentUserData.username.toLowerCase() === 'fourblox') {
-                        document.getElementById('control-panel-toggle').style.display = 'block';
-                    } else {
-                        document.getElementById('control-panel-toggle').style.display = 'none';
-                        document.getElementById('control-panel-modal').style.display = 'none';
-                    }
-                    updateUIForUser(currentUserData);
-                }
+                });
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'flex';
                 if(!socketInitialized) {
@@ -566,14 +613,95 @@
                     card.appendChild(av);
                     card.appendChild(lbl);
                     hFriends.appendChild(card);
-                    initCircleRenderer(av, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                    const qF = query(collection(db, "users"), where("username", "==", f));
+                    getDocs(qF).then(snap => {
+                        if(!snap.empty) {
+                            snap.forEach(d => {
+                                initCircleRenderer(av, d.data().colors);
+                            });
+                        } else {
+                            initCircleRenderer(av, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                        }
+                    });
+                    card.addEventListener('click', () => {
+                        const qUser = query(collection(db, "users"), where("username", "==", f));
+                        getDocs(qUser).then(snap => {
+                            if(!snap.empty) {
+                                snap.forEach(d => {
+                                    switchTabView('profile');
+                                    openUserProfile(d.data());
+                                });
+                            }
+                        });
+                    });
                 });
             } else {
                 hFriends.innerHTML = '<div style="color: #888888; font-size: 14px;">No friends</div>';
             }
+            const hRequestsSec = document.getElementById('home-requests-section');
+            const hRequestsCont = document.getElementById('home-requests-container');
+            hRequestsCont.innerHTML = '';
+            if (userData.friendRequests && userData.friendRequests.length > 0) {
+                hRequestsSec.style.display = 'block';
+                userData.friendRequests.forEach(reqUsername => {
+                    const reqItem = document.createElement('div');
+                    reqItem.className = 'request-item';
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = reqUsername;
+                    nameSpan.style.color = '#000';
+                    nameSpan.style.fontWeight = 'bold';
+                    const btnCont = document.createElement('div');
+                    const accBtn = document.createElement('button');
+                    accBtn.className = 'request-btn request-accept';
+                    accBtn.textContent = 'Accept';
+                    accBtn.addEventListener('click', () => handleFriendRequest(reqUsername, true));
+                    const decBtn = document.createElement('button');
+                    decBtn.className = 'request-btn request-decline';
+                    decBtn.textContent = 'Decline';
+                    decBtn.addEventListener('click', () => handleFriendRequest(reqUsername, false));
+                    btnCont.appendChild(accBtn);
+                    btnCont.appendChild(decBtn);
+                    reqItem.appendChild(nameSpan);
+                    reqItem.appendChild(btnCont);
+                    hRequestsCont.appendChild(reqItem);
+                });
+            } else {
+                hRequestsSec.style.display = 'none';
+            }
             if (activeTab === 'home') {
                 initCircleRenderer(document.getElementById('home-avatar-circle-container'), userData.colors);
                 renderUsernameBadges('home-username-badges', userData.username, userData.profileBadges);
+            }
+        }
+        async function handleFriendRequest(senderUsername, accept) {
+            if (!auth.currentUser || !currentUserData) return;
+            const myUid = auth.currentUser.uid;
+            const myUsername = currentUserData.username;
+            try {
+                const qSender = query(collection(db, "users"), where("username", "==", senderUsername));
+                const senderSnap = await getDocs(qSender);
+                if (senderSnap.empty) return alert('User not found');
+                let senderUid = null;
+                let senderFriends = [];
+                senderSnap.forEach(doc => {
+                    senderUid = doc.id;
+                    senderFriends = doc.data().friends || [];
+                });
+                let myRequests = currentUserData.friendRequests || [];
+                myRequests = myRequests.filter(u => u !== senderUsername);
+                if (accept) {
+                    let myFriends = currentUserData.friends || [];
+                    if (!myFriends.includes(senderUsername)) myFriends.push(senderUsername);
+                    if (!senderFriends.includes(myUsername)) senderFriends.push(myUsername);
+                    await updateDoc(doc(db, "users", myUid), { friends: myFriends, friendRequests: myRequests });
+                    await updateDoc(doc(db, "users", senderUid), { friends: senderFriends });
+                    alert(`You are now friends with ${senderUsername}!`);
+                } else {
+                    await updateDoc(doc(db, "users", myUid), { friendRequests: myRequests });
+                    alert('Friend request declined.');
+                }
+            } catch (err) {
+                alert(err.message);
             }
         }
         const remotePlayers = {};
@@ -729,7 +857,19 @@
                 if(pCircle) initCircleRenderer(pCircle, profileFullColors);
             }
             document.querySelectorAll('.friend-circle-render').forEach(c => {
-                initCircleRenderer(c, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                const fname = c.dataset.friendname;
+                if(fname) {
+                    const q = query(collection(db, "users"), where("username", "==", fname));
+                    getDocs(q).then(snap => {
+                        if(!snap.empty) {
+                            snap.forEach(d => {
+                                initCircleRenderer(c, d.data().colors);
+                            });
+                        }
+                    });
+                } else {
+                    initCircleRenderer(c, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                }
             });
         }
         function applyColorsToParts(partsObj, colors) {
@@ -764,6 +904,15 @@
         function initSocketConnection() {
             socket = io();
             socketInitialized = true;
+            socket.on('connect', () => {
+                if (currentUserData) {
+                    socket.emit('playerDataInit', {
+                        username: currentUserData.username,
+                        displayName: currentUserData.displayName,
+                        colors: currentUserData.colors
+                    });
+                }
+            });
             socket.on('currentPlayers', (players) => {
                 Object.keys(players).forEach((id) => {
                     if (id !== socket.id && !remotePlayers[id]) {
@@ -774,6 +923,10 @@
                         remotePlayers[id] = { group, parts, colors: pInfo.colors };
                         remotePlayers[id].group.position.set(pInfo.x, pInfo.y, pInfo.z);
                         remotePlayers[id].group.rotation.y = pInfo.ry;
+                        const keysToUpgrade = ['head', 'torso', 'limb'];
+                        keysToUpgrade.forEach(k => {
+                            if(masters[k]) upgradePartVisual(parts, k, pInfo.colors);
+                        });
                     }
                 });
             });
@@ -784,6 +937,10 @@
                     scene.add(group);
                     remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
                     remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
+                    const keysToUpgrade = ['head', 'torso', 'limb'];
+                    keysToUpgrade.forEach(k => {
+                        if(masters[k]) upgradePartVisual(parts, k, playerInfo.colors);
+                    });
                 }
             });
             socket.on('playerMoved', (playerInfo) => {
@@ -839,6 +996,7 @@
         let lastRotationY = 0;
         let activeTab = 'home';
         let inGameActive = false;
+        let viewedProfileUid = null;
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT' || !inGameActive) return;
             if (e.key.toLowerCase() === 'w') keys.w = true;
@@ -947,6 +1105,7 @@
         let profileFullColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
         let profileFullGroup = null;
         function openUserProfile(userData) {
+            viewedProfileUid = userData.uid;
             document.getElementById('profile-display-fullname').textContent = userData.displayName || userData.username;
             document.getElementById('profile-display-username').querySelector('span').textContent = `@${userData.username}`;
             renderUsernameBadges('profile-username-badges', userData.username, userData.profileBadges);
@@ -977,10 +1136,59 @@
                     card.appendChild(avCircle);
                     card.appendChild(nameLabel);
                     friendsGrid.appendChild(card);
-                    initCircleRenderer(avCircle, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                    const qF = query(collection(db, "users"), where("username", "==", f));
+                    getDocs(qF).then(snap => {
+                        if(!snap.empty) {
+                            snap.forEach(d => {
+                                initCircleRenderer(avCircle, d.data().colors);
+                            });
+                        } else {
+                            initCircleRenderer(avCircle, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                        }
+                    });
+                    card.addEventListener('click', () => {
+                        const qUser = query(collection(db, "users"), where("username", "==", f));
+                        getDocs(qUser).then(snap => {
+                            if(!snap.empty) {
+                                snap.forEach(d => {
+                                    openUserProfile(d.data());
+                                });
+                            }
+                        });
+                    });
                 });
             } else {
                 friendsGrid.innerHTML = '<div style="color: #888888; font-size: 14px;">No friends</div>';
+            }
+            const actionsBar = document.getElementById('profile-actions-bar');
+            const friendBtn = document.getElementById('btn-profile-friend');
+            const followBtn = document.getElementById('btn-profile-follow');
+            if (auth.currentUser && auth.currentUser.uid !== userData.uid) {
+                actionsBar.style.display = 'flex';
+                const myFriends = currentUserData ? (currentUserData.friends || []) : [];
+                const targetRequests = userData.friendRequests || [];
+                const myRequests = currentUserData ? (currentUserData.friendRequests || []) : [];
+                if (myFriends.includes(userData.username)) {
+                    friendBtn.textContent = 'Friends';
+                    friendBtn.disabled = true;
+                } else if (targetRequests.includes(currentUserData.username)) {
+                    friendBtn.textContent = 'Pending...';
+                    friendBtn.disabled = true;
+                } else if (myRequests.includes(userData.username)) {
+                    friendBtn.textContent = 'Accept Request';
+                    friendBtn.disabled = false;
+                } else {
+                    friendBtn.textContent = 'Add Friend';
+                    friendBtn.disabled = false;
+                }
+                const myFollowing = currentUserData ? (currentUserData.following || []) : [];
+                if (myFollowing.includes(userData.username)) {
+                    followBtn.textContent = 'Following';
+                } else {
+                    followBtn.textContent = 'Follow';
+                }
+            } else {
+                actionsBar.style.display = 'none';
             }
             if(profileFullGroup) profileFullScene.remove(profileFullGroup);
             profileFullColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
@@ -994,6 +1202,56 @@
             });
             initCircleRenderer(document.getElementById('profile-avatar-circle-container'), profileFullColors);
         }
+        document.getElementById('btn-profile-friend').addEventListener('click', async () => {
+            if (!auth.currentUser || !currentUserData || !viewedProfileUid) return;
+            const friendBtn = document.getElementById('btn-profile-friend');
+            if (friendBtn.textContent === 'Accept Request') {
+                const targetDoc = await getDoc(doc(db, "users", viewedProfileUid));
+                if (targetDoc.exists()) {
+                    handleFriendRequest(targetDoc.data().username, true);
+                }
+                return;
+            }
+            try {
+                const targetRef = doc(db, "users", viewedProfileUid);
+                const targetSnap = await getDoc(targetRef);
+                if (targetSnap.exists()) {
+                    let reqs = targetSnap.data().friendRequests || [];
+                    if (!reqs.includes(currentUserData.username)) {
+                        reqs.push(currentUserData.username);
+                        await updateDoc(targetRef, { friendRequests: reqs });
+                        alert('Friend request sent!');
+                        friendBtn.textContent = 'Pending...';
+                        friendBtn.disabled = true;
+                    }
+                }
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+        document.getElementById('btn-profile-follow').addEventListener('click', async () => {
+            if (!auth.currentUser || !currentUserData || !viewedProfileUid) return;
+            try {
+                const myRef = doc(db, "users", auth.currentUser.uid);
+                let following = currentUserData.following || [];
+                const targetSnap = await getDoc(doc(db, "users", viewedProfileUid));
+                if (!targetSnap.exists()) return;
+                const targetUsername = targetSnap.data().username;
+                if (following.includes(targetUsername)) {
+                    following = following.filter(u => u !== targetUsername);
+                    await updateDoc(myRef, { following: following });
+                    document.getElementById('btn-profile-follow').textContent = 'Follow';
+                    alert(`Unfollowed @${targetUsername}`);
+                } else {
+                    following.push(targetUsername);
+                    await updateDoc(myRef, { following: following });
+                    document.getElementById('btn-profile-follow').textContent = 'Following';
+                    alert(`Following @${targetUsername}!`);
+                }
+            } catch (err) {
+                alert(err.message);
+            }
+        });
         function initCircleRenderer(containerEl, colors) {
             if(!containerEl) return;
             containerEl.innerHTML = '';
