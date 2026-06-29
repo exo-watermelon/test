@@ -3,80 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fourblox</title>
+    <title>fourbox</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #0c0c0c; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #ffffff; }
+        body { margin: 0; padding: 0; background-color: #f3f3f3; font-family: Arial, sans-serif; color: #000000; overflow-x: hidden; }
         #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #0c0c0c; display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .auth-box { padding: 35px; background: #141414; border: 2px solid #ff1e3a; border-radius: 12px; width: 340px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 20px rgba(255, 30, 58, 0.2); }
         .auth-box input, .auth-box select, .auth-box button { padding: 12px; font-size: 14px; border: 1px solid #2a2a2a; border-radius: 6px; background: #1a1a1a; color: white; outline: none; }
         .auth-box input:focus, .auth-box select:focus { border-color: #ff1e3a; }
-        .auth-box button { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s, transform 0.1s; }
-        .auth-box button:hover { background: #d6152d; }
-        .auth-box button:active { transform: scale(0.98); }
+        .auth-box button { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; }
         .auth-toggle { text-align: center; color: #ff1e3a; cursor: pointer; font-size: 13px; text-decoration: none; font-weight: 500; }
         .auth-toggle:hover { text-decoration: underline; }
-        #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; }
-        #nav-bar { background: #111111; padding: 0 25px; display: flex; align-items: center; justify-content: space-between; height: 60px; z-index: 500; border-bottom: 3px solid #ff1e3a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .nav-tabs { display: flex; gap: 8px; height: 100%; align-items: center; }
-        .nav-tab { padding: 8px 16px; cursor: pointer; font-weight: 700; font-size: 14px; color: #aaaaaa; border-radius: 6px; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .nav-tab:hover { color: #ffffff; background: #1a1a1a; }
-        .nav-tab.active { color: #ffffff; background: #ff1e3a; box-shadow: 0 0 10px rgba(255, 30, 58, 0.4); }
-        .search-container { position: relative; width: 280px; }
-        .search-container input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #2a2a2a; background: #181818; color: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
-        .search-container input:focus { border-color: #ff1e3a; }
-        .search-results { position: absolute; top: 45px; left: 0; width: 100%; background: #141414; border: 1px solid #2a2a2a; border-radius: 6px; overflow: hidden; display: none; flex-direction: column; max-height: 250px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 600; }
-        .search-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; transition: background 0.2s, color 0.2s; }
-        .search-item:hover { background: #ff1e3a; color: #fff; }
-        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 60px); display: none; background: #0c0c0c; }
+        #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; position: relative; }
+        #nav-bar { background: linear-gradient(to bottom, #e50000, #b20000); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 54px; z-index: 500; border-bottom: 2px solid #800000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .nav-tabs { display: flex; gap: 5px; height: 100%; align-items: center; }
+        .nav-tab { padding: 6px 14px; cursor: pointer; font-weight: bold; font-size: 14px; color: #ffffff; border-radius: 4px; border: 1px solid transparent; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .nav-tab.active { background: linear-gradient(to bottom, #ffffff, #e0e0e0); color: #b20000; border: 1px solid #800000; text-shadow: none; }
+        .search-container { position: relative; width: 240px; }
+        .search-container input { width: 100%; padding: 6px 12px; border-radius: 15px; border: 1px solid #b20000; background: #ffffff; color: #000; box-sizing: border-box; outline: none; }
+        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #ffffff; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 600; }
+        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
+        .search-item:hover { background: #e50000; color: #fff; }
+        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 54px); display: none; box-sizing: border-box; padding: 30px; overflow-y: auto; }
         .tab-view.active { display: block; }
-        #canvas-container { width: 100%; height: 100%; display: block; }
-        #avatar-view-container { width: 100%; height: 100%; display: flex; background: #0c0c0c; }
-        .avatar-preview-pane { flex: 1; height: 100%; position: relative; background: #111111; }
-        .avatar-ui-pane { width: 340px; background: #141414; color: #fff; padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; border-left: 3px solid #ff1e3a; box-shadow: -4px 0 15px rgba(0,0,0,0.3); }
-        .avatar-ui-pane label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: #ccc; background: #1c1c1c; padding: 10px 14px; border-radius: 6px; border: 1px solid #252525; }
-        .avatar-ui-pane input[type="color"] { border: none; background: transparent; width: 40px; height: 30px; cursor: pointer; outline: none; }
-        #settings-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #0c0c0c; }
-        .settings-box { background: #141414; padding: 35px; border: 1px solid #2a2a2a; border-radius: 12px; width: 360px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .settings-box input, .settings-box button { padding: 12px; font-size: 14px; border: 1px solid #2a2a2a; border-radius: 6px; background: #1a1a1a; color: white; outline: none; }
-        .settings-box input:focus { border-color: #ff1e3a; }
-        .settings-box button.danger-btn { background: #222222; color: #ff1e3a; border: 1px solid #333333; cursor: pointer; font-weight: bold; }
-        .settings-box button.danger-btn:hover { background: #ff1e3a; color: white; border-color: #ff1e3a; }
-        .settings-box button.save-btn { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .settings-box button.save-btn:hover { background: #d6152d; }
-        #profile-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #0c0c0c; box-sizing: border-box; padding: 20px; overflow-y: auto; }
-        .profile-dashboard { background: #141414; border: 2px solid #ff1e3a; border-radius: 16px; width: 850px; max-width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .profile-top-banner { display: flex; padding: 30px; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; align-items: center; gap: 30px; position: relative; }
-        .profile-avatar-circle { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #ff1e3a; background: #111111; overflow: hidden; position: relative; box-shadow: 0 0 15px rgba(255, 30, 58, 0.3); flex-shrink: 0; }
-        .profile-user-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-        .profile-main-display { font-size: 28px; font-weight: 800; color: #ffffff; }
-        .profile-main-username { font-size: 15px; color: #ff1e3a; font-weight: 600; }
-        .profile-body-content { display: flex; padding: 30px; gap: 30px; background: #141414; }
-        .profile-left-column { flex: 1.2; display: flex; flex-direction: column; gap: 20px; }
-        .profile-right-column { flex: 1; display: flex; flex-direction: column; gap: 20px; }
-        .profile-panel-card { background: #1c1c1c; border-radius: 10px; border: 1px solid #2a2a2a; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .profile-panel-title { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #ff1e3a; border-bottom: 1px solid #2a2a2a; padding-bottom: 8px; margin: 0; }
-        .profile-grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .stat-box { background: #141414; border: 1px solid #252525; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; }
-        .stat-box-label { font-size: 11px; text-transform: uppercase; color: #888888; font-weight: 600; }
-        .stat-box-value { font-size: 15px; color: #ffffff; font-weight: 700; }
-        .friends-summary-header { display: flex; justify-content: space-between; align-items: center; }
-        .friends-count-pill { background: #ff1e3a; color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
-        .friends-grid-display { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .friend-mini-card { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #141414; padding: 10px; border-radius: 6px; border: 1px solid #252525; cursor: pointer; transition: border-color 0.2s; }
-        .friend-mini-card:hover { border-color: #ff1e3a; }
-        .friend-mini-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #333; background: #111; overflow: hidden; position: relative; }
-        .friend-mini-name { font-size: 11px; font-weight: 600; text-align: center; color: #ccc; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .profile-badges-flex { display: flex; flex-wrap: wrap; gap: 8px; }
-        .profile-badge-node { background: rgba(255, 30, 58, 0.1); border: 1px solid #ff1e3a; color: #ffffff; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; }
-        .game-info-overlay { position: absolute; top: 20px; right: 20px; background: rgba(20, 20, 20, 0.9); padding: 20px; border-radius: 10px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 600; display: flex; flex-direction: column; gap: 12px; color: #fff; border: 2px solid #ff1e3a; backdrop-filter: blur(5px); }
-        .game-info-overlay h2 { margin: 0; font-size: 20px; text-align: center; color: #ff1e3a; font-weight: 800; }
-        .ratio-bar { display: flex; height: 10px; width: 100%; background: #333333; border-radius: 5px; overflow: hidden; margin-top: 5px; }
-        .ratio-likes { background: #ff1e3a; height: 100%; width: 0%; transition: width 0.4s ease; box-shadow: 0 0 8px rgba(255, 30, 58, 0.6); }
-        .counters { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; font-weight: 600; }
-        .vote-buttons { display: flex; gap: 12px; margin-top: 4px; }
-        .vote-btn { flex: 1; padding: 10px; border: 1px solid #333; border-radius: 6px; background: #1a1a1a; color: white; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; transition: all 0.2s; outline: none; }
-        .vote-btn:hover { background: #252525; border-color: #ff1e3a; }
-        .vote-btn:active { transform: scale(0.97); }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 900; display: none; }
+        #btn-exit-game { position: absolute; top: 20px; right: 20px; z-index: 950; padding: 10px 20px; background: #ff1e3a; color: white; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; display: none; }
+        .avatar-circle-3d { width: 130px; height: 130px; border-radius: 50%; background: #ffffff; border: 1px solid #ccc; overflow: hidden; position: relative; display: inline-block; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+        .user-hero-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; margin-left: 280px; }
+        .user-hero-info h1 { margin: 0; font-size: 36px; font-weight: normal; color: #000000; }
+        .user-hero-info p { margin: 0; font-size: 18px; color: #888888; }
+        .section-title { font-size: 24px; font-weight: normal; color: #000000; margin: 25px 0 15px 0; }
+        .friends-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px; }
+        .friend-card { width: 110px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); cursor: pointer; }
+        .friend-card .avatar-circle-3d { width: 75px; height: 75px; }
+        .friend-displayname { font-size: 12px; text-align: center; color: #000000; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .games-container { display: flex; gap: 15px; flex-wrap: wrap; }
+        .game-card { width: 110px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); cursor: pointer; }
+        .game-thumbnail-placeholder { width: 85px; height: 85px; background: #cccccc; border-radius: 10px; }
+        .game-card-name { font-size: 12px; text-align: center; color: #000000; font-weight: bold; }
+        .profile-layout-blocks { display: flex; gap: 20px; max-width: 1000px; margin-bottom: 25px; }
+        .profile-3d-box { width: 300px; height: 350px; background: #3a3a3a; border-radius: 8px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .profile-3d-box-label { position: absolute; color: #ffffff; font-size: 16px; pointer-events: none; z-index: 5; text-align: center; padding: 0 10px; }
+        .profile-empty-box { flex: 1; height: 350px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 18px; }
+        .profile-footer-stats { display: flex; border-top: 1px solid #cccccc; padding-top: 20px; max-width: 1000px; }
+        .footer-stat-col { flex: 1; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+        .footer-stat-col:first-child { border-right: 1px solid #cccccc; }
+        .footer-stat-title { font-size: 16px; font-weight: bold; color: #000000; }
+        .footer-stat-val { font-size: 14px; color: #000000; line-height: 1.4; }
+        .game-page-layout { display: flex; gap: 40px; max-width: 1000px; padding-top: 10px; }
+        .game-page-left { flex: 1.4; }
+        .game-page-right { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px; }
+        .game-large-thumbnail { width: 100%; height: 320px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .game-title-text { font-size: 32px; color: #000000; margin: 0; }
+        .game-dev-text { font-size: 16px; color: #888888; margin: 0; cursor: pointer; }
+        .game-dev-text:hover { text-decoration: underline; }
+        .game-rating-bar-container { width: 240px; background: #e50000; height: 6px; border-radius: 3px; overflow: hidden; margin: 10px 0; }
+        .game-rating-likes-fill { background: #2ecc71; height: 100%; width: 0%; }
+        .game-rating-actions { display: flex; gap: 10px; align-items: center; }
+        .game-vote-btn { background: #ffffff; border: 1px solid #cccccc; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; }
+        .game-vote-btn:hover { background: #f0f0f0; }
+        .game-vote-count { font-size: 13px; color: #666666; margin-left: 2px; }
+        .play-button-node { width: 160px; height: 45px; background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 4px; border: none; }
+        .play-button-node:hover { background: #222222; }
+        .avatar-tab-layout { display: flex; gap: 30px; max-width: 1000px; }
+        .avatar-tab-left { display: flex; flex-direction: column; gap: 20px; width: 260px; }
+        .avatar-tab-right { flex: 1; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; height: 500px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 16px; }
+        .avatar-tab-preview-box { width: 260px; height: 260px; background: #3a3a3a; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid #dddddd; }
+        .avatar-snap-2d-btn { position: absolute; bottom: 10px; right: 10px; background: #ffffff; border: 1px solid #ccc; padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; z-index: 10; color: #000000; }
+        .avatar-body-colors-panel { background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .avatar-body-colors-title { font-size: 12px; color: #000000; margin: 0 0 5px 0; }
+        .avatar-body-grid { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 120px; margin: 0 auto; position: relative; }
+        .avatar-grid-part { background: #e0e0e0; border: 1px solid #aaaaaa; border-radius: 4px; cursor: pointer; position: relative; }
+        .avatar-grid-part input[type="color"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: none; }
+        .grid-head { width: 26px; height: 26px; border-radius: 6px; }
+        .grid-middle-row { display: flex; gap: 4px; align-items: flex-start; }
+        .grid-torso { width: 44px; height: 44px; }
+        .grid-limb { width: 20px; height: 44px; }
+        .grid-bottom-row { display: flex; gap: 4px; margin-top: 0px; padding-left: 2px; }
+        .grid-leg { width: 20px; height: 44px; }
+        .settings-box { background: #ffffff; padding: 30px; border: 1px solid #dddddd; border-radius: 12px; width: 340px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .settings-box input, .settings-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; background: #fff; color: #000; outline: none; }
+        .settings-box button.save-btn { background: linear-gradient(to bottom, #e50000, #b20000); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .settings-box button.danger-btn { background: #fdfdfd; color: #e50000; border: 1px solid #e50000; cursor: pointer; font-weight: bold; }
+        .settings-box button.danger-btn:hover { background: #e50000; color: white; }
     </style>
     <script type="importmap">
         {
@@ -126,87 +134,114 @@
             </div>
         </div>
         <div id="tab-home" class="tab-view active">
-            <div id="canvas-container"></div>
-            <div class="game-info-overlay">
-                <h2>Demo Cube</h2>
-                <div class="ratio-bar"><div class="ratio-likes" id="game-likes-bar"></div></div>
-                <div class="counters"><span id="game-likes-counter">0 Likes</span><span id="game-dislikes-counter">0 Dislikes</span></div>
-                <div class="vote-buttons">
-                    <button class="vote-btn" id="btn-like-game">👍 Like</button>
-                    <button class="vote-btn" id="btn-dislike-game">👎 Dislike</button>
+            <div class="user-hero-header">
+                <div class="avatar-circle-3d" id="home-avatar-circle-container"></div>
+                <div class="user-hero-info">
+                    <h1 id="home-display-fullname">Hello, displayname</h1>
+                    <p id="home-display-username">@username</p>
+                </div>
+            </div>
+            <div class="section-title" id="home-friends-title">Friends (#)</div>
+            <div class="friends-container" id="home-friends-container"></div>
+            <div class="section-title">Games</div>
+            <div class="games-container">
+                <div class="game-card" id="game-card-democube">
+                    <div class="game-thumbnail-placeholder"></div>
+                    <div class="game-card-name">Demo Cube</div>
                 </div>
             </div>
         </div>
         <div id="tab-profile" class="tab-view">
-            <div id="profile-view-container">
-                <div class="profile-dashboard">
-                    <div class="profile-top-banner">
-                        <div class="profile-avatar-circle" id="dashboard-avatar-container"></div>
-                        <div class="profile-user-details">
-                            <div class="profile-main-display" id="profile-display-fullname">Player</div>
-                            <div class="profile-main-username" id="profile-display-username">@player</div>
+            <div class="user-hero-header">
+                <div class="avatar-circle-3d" id="profile-avatar-circle-container"></div>
+                <div class="user-hero-info">
+                    <h1 id="profile-display-fullname">Displayname</h1>
+                    <p id="profile-display-username">@username</p>
+                </div>
+            </div>
+            <div class="profile-layout-blocks">
+                <div class="profile-3d-box" id="profile-3d-avatar-box">
+                    <div class="profile-3d-box-label" id="profile-3d-box-label">3d model of player's avatar here</div>
+                </div>
+                <div class="profile-empty-box">Empty for now</div>
+            </div>
+            <div class="section-title" id="profile-friends-title">Friends (#)</div>
+            <div class="friends-container" id="profile-friends-container"></div>
+            <div class="profile-footer-stats">
+                <div class="footer-stat-col">
+                    <span class="footer-stat-title">Creation date</span>
+                    <span class="footer-stat-val" id="profile-stat-date">DD/MM/YYYY</span>
+                    <span class="footer-stat-val" id="profile-stat-time">HH:MM:SS UTC</span>
+                </div>
+                <div class="footer-stat-col">
+                    <span class="footer-stat-title">User ID</span>
+                    <span class="footer-stat-val" style="font-size:18px; margin-top:5px;" id="profile-stat-id">1</span>
+                </div>
+            </div>
+        </div>
+        <div id="tab-game" class="tab-view">
+            <div class="game-page-layout">
+                <div class="game-page-left">
+                    <div class="game-large-thumbnail">Thumbnail</div>
+                </div>
+                <div class="game-page-right">
+                    <h1 class="game-title-text">Demo Cube</h1>
+                    <p class="game-dev-text" id="game-creator-link">Created by @username</p>
+                    <div>
+                        <div class="game-rating-bar-container">
+                            <div class="game-rating-likes-fill" id="game-likes-bar"></div>
+                        </div>
+                        <div class="game-rating-actions">
+                            <button class="game-vote-btn" id="btn-like-game">👍 <span class="game-vote-count" id="game-likes-counter">0</span></button>
+                            <button class="game-vote-btn" id="btn-dislike-game">👎 <span class="game-vote-count" id="game-dislikes-counter">0</span></button>
                         </div>
                     </div>
-                    <div class="profile-body-content">
-                        <div class="profile-left-column">
-                            <div class="profile-panel-card">
-                                <h3 class="profile-panel-title">User Statistics</h3>
-                                <div class="profile-grid-stats">
-                                    <div class="stat-box"><span class="stat-box-label">User ID</span><span class="stat-box-value" id="profile-stat-id">#0</span></div>
-                                    <div class="stat-box"><span class="stat-box-label">Gender</span><span class="stat-box-value" id="profile-stat-gender">Male</span></div>
-                                    <div class="stat-box"><span class="stat-box-label">Join Date</span><span class="stat-box-value" id="profile-stat-date">00/00/0000</span></div>
-                                    <div class="stat-box"><span class="stat-box-label">Join Time</span><span class="stat-box-value" id="profile-stat-time">00:00:00 UTC</span></div>
-                                </div>
-                            </div>
-                            <div class="profile-panel-card">
-                                <h3 class="profile-panel-title">Badges</h3>
-                                <div class="profile-badges-flex" id="profile-badges-nodes-container"></div>
-                            </div>
-                        </div>
-                        <div class="profile-right-column">
-                            <div class="profile-panel-card">
-                                <div class="friends-summary-header">
-                                    <h3 class="profile-panel-title" style="border:none; padding:0; margin:0;">Friends</h3>
-                                    <span class="friends-count-pill" id="profile-friends-count">0 Total</span>
-                                </div>
-                                <div style="border-bottom: 1px solid #2a2a2a; margin-bottom: 4px;"></div>
-                                <div class="friends-grid-display" id="profile-friends-grid"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <button class="play-button-node" id="btn-play-game">PLAY</button>
                 </div>
             </div>
         </div>
         <div id="tab-avatar" class="tab-view">
-            <div id="avatar-view-container">
-                <div class="avatar-preview-pane" id="avatar-preview-pane"></div>
-                <div class="avatar-ui-pane">
-                    <h3 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Edit Colors</h3>
-                    <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
-                    <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
-                    <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
-                    <label>R. Arm <input type="color" id="col-rightArm" value="#e0e0e0"></label>
-                    <label>L. Leg <input type="color" id="col-leftLeg" value="#e0e0e0"></label>
-                    <label>R. Leg <input type="color" id="col-rightLeg" value="#e0e0e0"></label>
+            <h2 style="font-weight:normal; margin:0 0 20px 0; font-size:24px;" id="avatar-tab-heading">Your avatar, @displayname</h2>
+            <div class="avatar-tab-layout">
+                <div class="avatar-tab-left">
+                    <div class="avatar-tab-preview-box" id="avatar-preview-pane">
+                        <button class="avatar-snap-2d-btn" id="btn-avatar-2d">2D</button>
+                    </div>
+                    <div class="avatar-body-colors-panel">
+                        <p class="avatar-body-colors-title">Body colors</p>
+                        <div class="avatar-body-grid">
+                            <div class="avatar-grid-part grid-head" id="grid-color-head"><input type="color" id="col-head" value="#e0e0e0"></div>
+                            <div class="grid-middle-row">
+                                <div class="avatar-grid-part grid-limb" id="grid-color-leftArm"><input type="color" id="col-leftArm" value="#e0e0e0"></div>
+                                <div class="avatar-grid-part grid-torso" id="grid-color-torso"><input type="color" id="col-torso" value="#e0e0e0"></div>
+                                <div class="avatar-grid-part grid-limb" id="grid-color-rightArm"><input type="color" id="col-rightArm" value="#e0e0e0"></div>
+                            </div>
+                            <div class="grid-bottom-row">
+                                <div class="avatar-grid-part grid-leg" id="grid-color-leftLeg"><input type="color" id="col-leftLeg" value="#e0e0e0"></div>
+                                <div class="avatar-grid-part grid-leg" id="grid-color-rightLeg"><input type="color" id="col-rightLeg" value="#e0e0e0"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div class="avatar-tab-right">this will have nothing in it for now</div>
             </div>
         </div>
         <div id="tab-settings" class="tab-view">
-            <div id="settings-view-container">
-                <div class="settings-box">
-                    <h3 style="margin:0 0 5px 0; color:#ff1e3a; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Account Settings</h3>
-                    <input type="text" id="settings-display" placeholder="New Display Name">
-                    <button class="save-btn" id="btn-save-display">UPDATE DISPLAY NAME</button>
-                    <hr style="width:100%; border:none; border-top:1px solid #2a2a2a; margin:10px 0;">
-                    <input type="password" id="settings-pass" placeholder="New Password">
-                    <button class="save-btn" id="btn-save-pass">UPDATE PASSWORD</button>
-                    <hr style="width:100%; border:none; border-top:1px solid #2a2a2a; margin:10px 0;">
-                    <button class="danger-btn" id="btn-logout">LOG OUT</button>
-                    <button class="danger-btn" id="btn-delete-account">DELETE ACCOUNT</button>
-                </div>
+            <div class="settings-box">
+                <h3 style="margin:0 0 5px 0; font-weight:bold;">Account Settings</h3>
+                <input type="text" id="settings-display" placeholder="New Display Name">
+                <button class="save-btn" id="btn-save-display">UPDATE DISPLAY NAME</button>
+                <hr style="width:100%; border:none; border-top:1px solid #eee; margin:5px 0;">
+                <input type="password" id="settings-pass" placeholder="New Password">
+                <button class="save-btn" id="btn-save-pass">UPDATE PASSWORD</button>
+                <hr style="width:100%; border:none; border-top:1px solid #eee; margin:5px 0;">
+                <button class="danger-btn" id="btn-logout">LOG OUT</button>
+                <button class="danger-btn" id="btn-delete-account">DELETE ACCOUNT</button>
             </div>
         </div>
     </div>
+    <div id="canvas-container"></div>
+    <button id="btn-exit-game">Exit Game</button>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -226,6 +261,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let isVoting = false;
+        let gameCreatorData = null;
         function createNametagSprite(text) {
             const canvas = document.createElement('canvas');
             canvas.width = 256;
@@ -257,8 +293,8 @@
                 const total = likes + dislikes;
                 const pct = total > 0 ? (likes / total) * 100 : 0;
                 document.getElementById('game-likes-bar').style.width = `${pct}%`;
-                document.getElementById('game-likes-counter').innerText = `${likes.toLocaleString()} Likes`;
-                document.getElementById('game-dislikes-counter').innerText = `${dislikes.toLocaleString()} Dislikes`;
+                document.getElementById('game-likes-counter').innerText = likes.toLocaleString();
+                document.getElementById('game-dislikes-counter').innerText = dislikes.toLocaleString();
             });
         }
         async function voteGame(isLike) {
@@ -386,7 +422,7 @@
                 alert("Display name updated!");
                 if(currentUserData) {
                     currentUserData.displayName = newDisplay;
-                    if(activeTab === 'profile') openUserProfile(currentUserData);
+                    updateUIForUser(currentUserData);
                 }
             } catch(err) {
                 alert(err.message);
@@ -430,6 +466,7 @@
                     Object.assign(currentLocalColors, currentUserData.colors);
                     ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
                         document.getElementById(`col-${part}`).value = currentLocalColors[part];
+                        document.getElementById(`grid-color-${part}`).style.backgroundColor = currentLocalColors[part];
                     });
                     applyColorsToParts(localPlayerParts, currentLocalColors);
                     if (avatarTabParts) applyColorsToParts(avatarTabParts, currentLocalColors);
@@ -441,6 +478,7 @@
                         playerModelContainer.add(nametag);
                         playerGroup.userData.hasNametag = true;
                     }
+                    updateUIForUser(currentUserData);
                 }
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'flex';
@@ -457,6 +495,36 @@
                 }
             }
         });
+        function updateUIForUser(userData) {
+            document.getElementById('home-display-fullname').textContent = `Hello, ${userData.displayName || userData.username}`;
+            document.getElementById('home-display-username').textContent = `@${userData.username}`;
+            document.getElementById('avatar-tab-heading').textContent = `Your avatar, @${userData.displayName || userData.username}`;
+            const fCount = userData.friends ? userData.friends.length : 0;
+            document.getElementById('home-friends-title').textContent = `Friends (${fCount})`;
+            const hFriends = document.getElementById('home-friends-container');
+            hFriends.innerHTML = '';
+            if (userData.friends && userData.friends.length > 0) {
+                userData.friends.forEach(f => {
+                    const card = document.createElement('div');
+                    card.className = 'friend-card';
+                    const av = document.createElement('div');
+                    av.className = 'avatar-circle-3d friend-circle-render';
+                    av.dataset.friendname = f;
+                    const lbl = document.createElement('div');
+                    lbl.className = 'friend-displayname';
+                    lbl.textContent = f;
+                    card.appendChild(av);
+                    card.appendChild(lbl);
+                    hFriends.appendChild(card);
+                    initCircleRenderer(av, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+                });
+            } else {
+                hFriends.innerHTML = '<div style="color: #888888; font-size: 14px;">No friends</div>';
+            }
+            if (activeTab === 'home') {
+                initCircleRenderer(document.getElementById('home-avatar-circle-container'), userData.colors);
+            }
+        }
         const remotePlayers = {};
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -474,12 +542,6 @@
         dirLight.castShadow = true;
         dirLight.shadow.mapSize.width = 2048;
         dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.left = -60;
-        dirLight.shadow.camera.right = 60;
-        dirLight.shadow.camera.top = 60;
-        dirLight.shadow.camera.bottom = -60;
-        dirLight.shadow.camera.near = 0.1;
-        dirLight.shadow.camera.far = 150;
         dirLight.shadow.bias = -0.0005;
         scene.add(dirLight);
         const cubeSize = 100;
@@ -494,8 +556,6 @@
         const studTexture = textureLoader.load(studTextureUrl);
         studTexture.wrapS = THREE.RepeatWrapping;
         studTexture.wrapT = THREE.RepeatWrapping;
-        studTexture.minFilter = THREE.LinearMipmapLinearFilter;
-        studTexture.magFilter = THREE.LinearFilter;
         studTexture.repeat.set(cubeSize, cubeSize);
         const planeGeo = new THREE.PlaneGeometry(cubeSize, cubeSize);
         const studMat = new THREE.MeshStandardMaterial({
@@ -528,7 +588,7 @@
                 partGroup.position.set(layout.pos[0], layout.pos[1], layout.pos[2]);
                 let visualMesh;
                 const masterKey = (partName === 'head' || partName === 'torso') ? partName : 'limb';
-                const assignedColor = baseColors ? (baseColors[partName] || '#e0e0e0') : (isRemote ? '#ffa500' : '#e0e0e0');
+                const assignedColor = baseColors ? (baseColors[partName] || '#e0e0e0') : '#e0e0e0';
                 if (masters[masterKey]) {
                     visualMesh = masters[masterKey].clone();
                     visualMesh.traverse(child => {
@@ -589,7 +649,19 @@
             });
             if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
             if (avatarTabParts) upgradePartVisual(avatarTabParts, key, currentLocalColors);
-            if (profileDashboardParts) upgradePartVisual(profileDashboardParts, key, profileDashboardColors);
+            if (profileFullParts) upgradePartVisual(profileFullParts, key, profileFullColors);
+            triggerGlobalCircleRebuild();
+        }
+        function triggerGlobalCircleRebuild() {
+            if(currentUserData) {
+                const hCircle = document.getElementById('home-avatar-circle-container');
+                if(hCircle) initCircleRenderer(hCircle, currentUserData.colors);
+                const pCircle = document.getElementById('profile-avatar-circle-container');
+                if(pCircle) initCircleRenderer(pCircle, profileFullColors);
+            }
+            document.querySelectorAll('.friend-circle-render').forEach(c => {
+                initCircleRenderer(c, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
+            });
         }
         function applyColorsToParts(partsObj, colors) {
             if(!partsObj) return;
@@ -667,6 +739,7 @@
         ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
             document.getElementById(`col-${part}`).addEventListener('input', async (e) => {
                 currentLocalColors[part] = e.target.value;
+                document.getElementById(`grid-color-${part}`).style.backgroundColor = currentLocalColors[part];
                 applyColorsToParts(localPlayerParts, currentLocalColors);
                 applyColorsToParts(avatarTabParts, currentLocalColors);
                 if(socket && socket.connected) {
@@ -676,9 +749,10 @@
                     await updateDoc(doc(db, "users", auth.currentUser.uid), { colors: currentLocalColors });
                     if(currentUserData) {
                         currentUserData.colors = currentLocalColors;
-                        if(activeTab === 'profile') openUserProfile(currentUserData);
+                        updateUIForUser(currentUserData);
                     }
                 }
+                triggerGlobalCircleRebuild();
             });
         });
         let cameraDistance = 20.4;
@@ -695,8 +769,9 @@
         let lastPosition = new THREE.Vector3();
         let lastRotationY = 0;
         let activeTab = 'home';
+        let inGameActive = false;
         window.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
+            if (e.target.tagName === 'INPUT' || !inGameActive) return;
             if (e.key.toLowerCase() === 'w') keys.w = true;
             if (e.key.toLowerCase() === 'a') keys.a = true;
             if (e.key.toLowerCase() === 's') keys.s = true;
@@ -723,7 +798,7 @@
             if (e.key.toLowerCase() === 'd') keys.d = false;
         });
         window.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
+            if (e.target.tagName === 'INPUT' || !inGameActive) return;
             if (e.button === 2) {
                 isRightMouseDown = true;
                 container.requestPointerLock();
@@ -739,7 +814,7 @@
         });
         window.addEventListener('contextmenu', (e) => e.preventDefault());
         window.addEventListener('wheel', (e) => {
-            if (activeTab !== 'home') return;
+            if (!inGameActive) return;
             cameraDistance += e.deltaY * 0.017;
             cameraDistance = Math.max(0, Math.min(42.5, cameraDistance));
             if (cameraDistance < 1.5) {
@@ -751,7 +826,7 @@
             }
         });
         window.addEventListener('mousemove', (e) => {
-            if (activeTab !== 'home') return;
+            if (!inGameActive) return;
             if (isShiftLock || document.pointerLockElement === container || isRightMouseDown || cameraDistance < 1.5) {
                 cameraYaw -= e.movementX * 0.005;
                 cameraPitch -= e.movementY * 0.005;
@@ -762,13 +837,13 @@
             if (document.pointerLockElement !== container) {
                 isShiftLock = false;
                 isRightMouseDown = false;
-                if (cameraDistance < 1.5 && activeTab === 'home') {
+                if (cameraDistance < 1.5 && inGameActive) {
                     cameraDistance = 1.5;
                 }
             }
         });
         const avatarScene = new THREE.Scene();
-        avatarScene.background = new THREE.Color(0x111111);
+        avatarScene.background = new THREE.Color(0xffffff);
         const avatarCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
         avatarCamera.position.set(0, 3, 8);
         avatarCamera.lookAt(0, 2.5, 0);
@@ -781,28 +856,33 @@
         avatarScene.add(avLight2);
         const { group: avatarTabGroup, parts: avatarTabParts } = createCharacterFigure(false, currentLocalColors);
         avatarScene.add(avatarTabGroup);
-        const profileDashboardScene = new THREE.Scene();
-        profileDashboardScene.background = new THREE.Color(0x111111);
-        const profileDashboardCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        profileDashboardCamera.position.set(0, 3.5, 6);
-        profileDashboardCamera.lookAt(0, 3.2, 0);
-        const profileDashboardRenderer = new THREE.WebGLRenderer({ antialias: true });
-        document.getElementById('dashboard-avatar-container').appendChild(profileDashboardRenderer.domElement);
-        const pdLight1 = new THREE.AmbientLight(0xffffff, 0.8);
-        profileDashboardScene.add(pdLight1);
-        const pdLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-        pdLight2.position.set(3, 8, 4);
-        profileDashboardScene.add(pdLight2);
-        let profileDashboardParts = null;
-        let profileDashboardColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-        let profileDashboardGroup = null;
+        let rotateAvatarTabModel = true;
+        document.getElementById('btn-avatar-2d').addEventListener('click', () => {
+            rotateAvatarTabModel = false;
+            avatarTabGroup.rotation.set(0, 0, 0);
+        });
+        const profileFullScene = new THREE.Scene();
+        profileFullScene.background = new THREE.Color(0x3a3a3a);
+        const profileFullCamera = new THREE.PerspectiveCamera(45, 300 / 350, 0.1, 100);
+        profileFullCamera.position.set(0, 3, 8);
+        profileFullCamera.lookAt(0, 2.5, 0);
+        const profileFullRenderer = new THREE.WebGLRenderer({ antialias: true });
+        profileFullRenderer.setSize(300, 350);
+        document.getElementById('profile-3d-avatar-box').appendChild(profileFullRenderer.domElement);
+        const pfLight1 = new THREE.AmbientLight(0xffffff, 0.8);
+        profileFullScene.add(pfLight1);
+        const pfLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        pfLight2.position.set(3, 8, 4);
+        profileFullScene.add(pfLight2);
+        let profileFullParts = null;
+        let profileFullColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+        let profileFullGroup = null;
         function openUserProfile(userData) {
             document.getElementById('profile-display-fullname').textContent = userData.displayName || userData.username;
             document.getElementById('profile-display-username').textContent = `@${userData.username}`;
-            document.getElementById('profile-stat-id').textContent = `#${userData.userId}`;
-            document.getElementById('profile-stat-gender').textContent = userData.gender || 'Male';
-            let datePart = '00/00/0000';
-            let timePart = '00:00:00 UTC';
+            document.getElementById('profile-stat-id').textContent = userData.userId || '1';
+            let datePart = 'DD/MM/YYYY';
+            let timePart = 'HH:MM:SS UTC';
             if(userData.createdAt) {
                 const chunks = userData.createdAt.split(' ');
                 if(chunks[0]) datePart = chunks[0];
@@ -810,46 +890,68 @@
             }
             document.getElementById('profile-stat-date').textContent = datePart;
             document.getElementById('profile-stat-time').textContent = timePart;
-            const badgesContainer = document.getElementById('profile-badges-nodes-container');
-            badgesContainer.innerHTML = '';
-            const listBadges = userData.badges || ["Welcome Player"];
-            listBadges.forEach(badge => {
-                const badgeSpan = document.createElement('span');
-                badgeSpan.className = 'profile-badge-node';
-                badgeSpan.textContent = badge;
-                badgesContainer.appendChild(badgeSpan);
-            });
             const friendsCount = userData.friends ? userData.friends.length : 0;
-            document.getElementById('profile-friends-count').textContent = `${friendsCount} Total`;
-            const friendsGrid = document.getElementById('profile-friends-grid');
+            document.getElementById('profile-friends-title').textContent = `Friends (${friendsCount})`;
+            const friendsGrid = document.getElementById('profile-friends-container');
             friendsGrid.innerHTML = '';
             if(userData.friends && userData.friends.length > 0) {
                 userData.friends.forEach(f => {
                     const card = document.createElement('div');
-                    card.className = 'friend-mini-card';
+                    card.className = 'friend-card';
                     const avCircle = document.createElement('div');
-                    avCircle.className = 'friend-mini-avatar';
+                    avCircle.className = 'avatar-circle-3d friend-circle-render';
+                    avCircle.dataset.friendname = f;
                     const nameLabel = document.createElement('div');
-                    nameLabel.className = 'friend-mini-name';
+                    nameLabel.className = 'friend-displayname';
                     nameLabel.textContent = f;
                     card.appendChild(avCircle);
                     card.appendChild(nameLabel);
                     friendsGrid.appendChild(card);
+                    initCircleRenderer(avCircle, { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' });
                 });
             } else {
-                friendsGrid.innerHTML = '<div style="grid-column: span 4; text-align: center; color: #666; font-size: 13px; padding: 20px 0;">No friends found</div>';
+                friendsGrid.innerHTML = '<div style="color: #888888; font-size: 14px;">No friends</div>';
             }
-            if(profileDashboardGroup) profileDashboardScene.remove(profileDashboardGroup);
-            profileDashboardColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-            const { group, parts } = createCharacterFigure(false, profileDashboardColors);
-            profileDashboardGroup = group;
-            profileDashboardParts = parts;
-            profileDashboardScene.add(profileDashboardGroup);
+            if(profileFullGroup) profileFullScene.remove(profileFullGroup);
+            profileFullColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+            const { group, parts } = createCharacterFigure(false, profileFullColors);
+            profileFullGroup = group;
+            profileFullParts = parts;
+            profileFullScene.add(profileFullGroup);
             const keysToUpgrade = ['head', 'torso', 'limb'];
             keysToUpgrade.forEach(k => {
-                if(masters[k]) upgradePartVisual(profileDashboardParts, k, profileDashboardColors);
+                if(masters[k]) upgradePartVisual(profileFullParts, k, profileFullColors);
             });
-            resizeProfileDashboardCanvas();
+            initCircleRenderer(document.getElementById('profile-avatar-circle-container'), profileFullColors);
+        }
+        function initCircleRenderer(containerEl, colors) {
+            if(!containerEl) return;
+            containerEl.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.width = 130;
+            canvas.height = 130;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            containerEl.appendChild(canvas);
+            const cScene = new THREE.Scene();
+            cScene.background = new THREE.Color(0x111111);
+            const cCam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            cCam.position.set(0, 4.3, 3.2);
+            cCam.lookAt(0, 4.1, 0);
+            const cRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            cRenderer.setSize(130, 130);
+            const l1 = new THREE.AmbientLight(0xffffff, 0.9);
+            cScene.add(l1);
+            const l2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            l2.position.set(2, 5, 3);
+            cScene.add(l2);
+            const { group, parts } = createCharacterFigure(false, colors);
+            cScene.add(group);
+            const keysToUpgrade = ['head', 'torso', 'limb'];
+            keysToUpgrade.forEach(k => {
+                if(masters[k]) upgradePartVisual(parts, k, colors);
+            });
+            cRenderer.render(cScene, cCam);
         }
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
@@ -877,13 +979,7 @@
                         item.addEventListener('click', () => {
                             searchResults.style.display = 'none';
                             searchInput.value = '';
-                            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                            document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-                            const pTabNav = document.getElementById('tab-nav-profile');
-                            pTabNav.classList.add('active');
-                            activeTab = 'profile';
-                            document.getElementById('tab-profile').classList.add('active');
-                            document.exitPointerLock();
+                            switchTabView('profile');
                             openUserProfile(uData);
                         });
                         searchResults.appendChild(item);
@@ -897,23 +993,64 @@
                 searchResults.style.display = 'none';
             }
         });
+        function switchTabView(targetTab) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+            activeTab = targetTab;
+            const navNode = document.querySelector(`.nav-tab[data-tab="${targetTab}"]`);
+            if (navNode) navNode.classList.add('active');
+            const targetNode = document.getElementById(`tab-${targetTab}`);
+            if (targetNode) targetNode.classList.add('active');
+            if(activeTab === 'avatar') {
+                rotateAvatarTabModel = true;
+                resizeAvatarCanvas();
+            }
+            if(activeTab === 'profile') {
+                if(currentUserData) openUserProfile(currentUserData);
+            }
+            if(activeTab === 'home') {
+                if(currentUserData) updateUIForUser(currentUserData);
+            }
+        }
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-                tab.classList.add('active');
-                activeTab = tab.getAttribute('data-tab');
-                document.getElementById(`tab-${activeTab}`).classList.add('active');
-                if(activeTab !== 'home') {
-                    document.exitPointerLock();
-                }
-                if(activeTab === 'avatar') {
-                    resizeAvatarCanvas();
-                }
-                if(activeTab === 'profile') {
-                    if(currentUserData) openUserProfile(currentUserData);
-                }
+                switchTabView(tab.getAttribute('data-tab'));
             });
+        });
+        document.getElementById('game-card-democube').addEventListener('click', async () => {
+            switchTabView('game');
+            if(!gameCreatorData) {
+                try {
+                    const q = query(collection(db, "users"), where("userId", "==", 1));
+                    const snap = await getDocs(q);
+                    if(!snap.empty) {
+                        snap.forEach(d => {
+                            gameCreatorData = d.data();
+                        });
+                    }
+                } catch(e) {}
+            }
+            document.getElementById('game-creator-link').textContent = `Created by @${gameCreatorData ? gameCreatorData.username : 'FourBlox'}`;
+        });
+        document.getElementById('game-creator-link').addEventListener('click', () => {
+            if(gameCreatorData) {
+                switchTabView('profile');
+                openUserProfile(gameCreatorData);
+            }
+        });
+        document.getElementById('btn-play-game').addEventListener('click', () => {
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('canvas-container').style.display = 'block';
+            document.getElementById('btn-exit-game').style.display = 'block';
+            inGameActive = true;
+            resizeGameCanvas();
+        });
+        document.getElementById('btn-exit-game').addEventListener('click', () => {
+            document.exitPointerLock();
+            inGameActive = false;
+            document.getElementById('canvas-container').style.display = 'none';
+            document.getElementById('btn-exit-game').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
         });
         function resizeAvatarCanvas() {
             const pane = document.getElementById('avatar-preview-pane');
@@ -923,20 +1060,17 @@
                 avatarRenderer.setSize(pane.clientWidth, pane.clientHeight);
             }
         }
-        function resizeProfileDashboardCanvas() {
-            const pane = document.getElementById('dashboard-avatar-container');
-            if(pane.clientWidth > 0 && pane.clientHeight > 0) {
-                profileDashboardCamera.aspect = pane.clientWidth / pane.clientHeight;
-                profileDashboardCamera.updateProjectionMatrix();
-                profileDashboardRenderer.setSize(pane.clientWidth, pane.clientHeight);
-            }
+        function resizeGameCanvas() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
         const clock = new THREE.Clock();
         const raycaster = new THREE.Raycaster();
         function animate() {
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
-            if(activeTab === 'home') {
+            if(inGameActive) {
                 velocityY += gravity * delta;
                 playerGroup.position.y += velocityY * delta;
                 if (playerGroup.position.y <= 0) {
@@ -1016,18 +1150,18 @@
                 }
                 renderer.render(scene, camera);
             } else if(activeTab === 'avatar') {
-                avatarTabGroup.rotation.y += 1 * delta;
+                if (rotateAvatarTabModel) {
+                    avatarTabGroup.rotation.y += 1 * delta;
+                }
                 avatarRenderer.render(avatarScene, avatarCamera);
-            } else if(activeTab === 'profile' && profileDashboardGroup) {
-                profileDashboardRenderer.render(profileDashboardScene, profileDashboardCamera);
+            } else if(activeTab === 'profile' && profileFullGroup) {
+                profileFullGroup.rotation.y += 1 * delta;
+                profileFullRenderer.render(profileFullScene, profileFullCamera);
             }
         }
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            resizeGameCanvas();
             resizeAvatarCanvas();
-            resizeProfileDashboardCanvas();
         });
         animate();
     </script>
