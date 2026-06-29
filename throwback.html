@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fourblox</title>
+    <title>Demo Cube</title>
     <style>
         body { margin: 0; padding: 0; background-color: #f3f3f3; font-family: Arial, sans-serif; color: #000000; overflow-x: hidden; }
         #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #0c0c0c; display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -121,7 +121,7 @@
         </div>
         <div class="auth-box" id="register-box" style="display:none;">
             <h2 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800;">REGISTER</h2>
-            <input type="text" id="reg-user" placeholder="Username (Unique)">
+            <input type="text" id="reg-user" placeholder="Username">
             <input type="text" id="reg-display" placeholder="Display Name (Optional)">
             <select id="reg-gender">
                 <option value="Male">Male</option>
@@ -279,7 +279,7 @@
         import * as THREE from 'three';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
         const firebaseConfig = {
-            apiKey: "AIzaSyAoJw-xTqs_zoLj8fvehZTCixDnHjNf-g0",
+            apiKey: "PASTE_YOUR_API_KEY_HERE",
             authDomain: "fourblox-89581.firebaseapp.com",
             projectId: "fourblox-89581",
             storageBucket: "fourblox-89581.firebasestorage.app",
@@ -292,8 +292,17 @@
         const db = getFirestore(app);
         let isVoting = false;
         let gameCreatorData = null;
+        function containsOffensiveWords(text) {
+            const forbidden = [/nigger/gi, /nigga/gi, /faggot/gi, /retard/gi, /bitch/gi, /shit/gi, /fuck/gi, /cunt/gi, /asshole/gi, /dick/gi, /pussy/gi, /rape/gi, /nazis/gi, /hitler/gi, /bastard/gi, /slut/gi, /whore/gi, /twat/gi, /wank/gi, /chink/gi, /kike/gi, /dyke/gi, /coon/gi, /prick/gi, /wanker/gi, /tosser/gi, /bollocks/gi, /scrotum/gi, /clitoris/gi, /vagina/gi, /penis/gi, /ejaculation/gi, /orgasm/gi, /pedophile/gi, /incest/gi, /bestiality/gi];
+            return forbidden.some(regex => regex.test(text));
+        }
+        function validateInputFields(text) {
+            if (text.length > 20) return false;
+            const validPattern = /^[a-zA-Z0-9_]+$/;
+            return validPattern.test(text);
+        }
         function filterText(text) {
-            const forbidden = [/nigger/gi, /nigga/gi, /faggot/gi, /retard/gi, /bitch/gi, /shit/gi, /fuck/gi, /cunt/gi, /asshole/gi, /dick/gi, /pussy/gi, /rape/gi, /nazis/gi, /hitler/gi];
+            const forbidden = [/nigger/gi, /nigga/gi, /faggot/gi, /retard/gi, /bitch/gi, /shit/gi, /fuck/gi, /cunt/gi, /asshole/gi, /dick/gi, /pussy/gi, /rape/gi, /nazis/gi, /hitler/gi, /bastard/gi, /slut/gi, /whore/gi, /twat/gi, /wank/gi, /chink/gi, /kike/gi, /dyke/gi, /coon/gi, /prick/gi, /wanker/gi, /tosser/gi, /bollocks/gi, /scrotum/gi, /clitoris/gi, /vagina/gi, /penis/gi, /ejaculation/gi, /orgasm/gi, /pedophile/gi, /incest/gi, /bestiality/gi];
             let clean = text;
             forbidden.forEach(regex => {
                 clean = clean.replace(regex, (match) => "*".repeat(match.length));
@@ -393,8 +402,15 @@
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-pass').value;
             if(!username || !email || !password) return alert('Fill in all required fields');
-            username = filterText(username);
-            if(displayName) displayName = filterText(displayName);
+            if (containsOffensiveWords(username) || containsOffensiveWords(displayName)) {
+                return alert('Account creation denied. Offensive words discovered.');
+            }
+            if (!validateInputFields(username)) {
+                return alert('Username restricted. Max length 20, letters, numbers and underscores only.');
+            }
+            if (displayName && !validateInputFields(displayName)) {
+                return alert('Display Name restricted. Max length 20, letters, numbers and underscores only.');
+            }
             try {
                 const usernameLower = username.toLowerCase();
                 const usernameRef = doc(db, "usernames", usernameLower);
@@ -459,7 +475,8 @@
         document.getElementById('btn-save-display').addEventListener('click', async () => {
             let newDisplay = document.getElementById('settings-display').value.trim();
             if(!auth.currentUser) return;
-            if(newDisplay) newDisplay = filterText(newDisplay);
+            if (containsOffensiveWords(newDisplay)) return alert('Display name modification contains explicit terms.');
+            if (newDisplay && !validateInputFields(newDisplay)) return alert('Name structural rule break. Under 20 characters, matching characters layout.');
             try {
                 await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: newDisplay });
                 alert("Display name updated!");
@@ -545,6 +562,9 @@
                         updateUIForUser(currentUserData);
                         if (activeTab === 'profile' && viewedProfileUid === currentUserData.uid) {
                             openUserProfile(currentUserData);
+                        }
+                        if (inGameActive && socket && socket.connected) {
+                            socket.emit('playerColorUpdate', currentLocalColors);
                         }
                     }
                 });
@@ -827,7 +847,7 @@
                 const partGroup = partsObj[partName];
                 while (partGroup.children.length > 0) partGroup.remove(partGroup.children[0]);
                 const visual = masters[key].clone();
-                const col = baseColors[partName] || '#e0e0e0';
+                const col = (baseColors && baseColors[partName]) ? baseColors[partName] : '#e0e0e0';
                 visual.traverse(child => {
                     if (child.isMesh) {
                         child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(col), side: THREE.DoubleSide });
@@ -876,7 +896,7 @@
             if(!partsObj) return;
             Object.keys(partsObj).forEach(partName => {
                 const partGroup = partsObj[partName];
-                const col = colors[partName] || '#e0e0e0';
+                const col = colors ? (colors[partName] || '#e0e0e0') : '#e0e0e0';
                 partGroup.traverse(child => {
                     if (child.isMesh) child.material.color.set(col);
                 });
@@ -905,45 +925,49 @@
             socket = io();
             socketInitialized = true;
             socket.on('connect', () => {
-                if (currentUserData) {
+                if (currentUserData && inGameActive) {
                     socket.emit('playerDataInit', {
                         username: currentUserData.username,
                         displayName: currentUserData.displayName,
-                        colors: currentUserData.colors
+                        colors: currentUserData.colors,
+                        isPlaying: true
                     });
                 }
             });
             socket.on('currentPlayers', (players) => {
+                if (!inGameActive) return;
                 Object.keys(players).forEach((id) => {
                     if (id !== socket.id && !remotePlayers[id]) {
                         const pInfo = players[id];
+                        if (!pInfo || !pInfo.isPlaying || !pInfo.username) return;
                         const remoteName = pInfo.displayName || pInfo.username || "Player";
                         const { group, parts } = createCharacterFigure(true, pInfo.colors, remoteName);
                         scene.add(group);
                         remotePlayers[id] = { group, parts, colors: pInfo.colors };
                         remotePlayers[id].group.position.set(pInfo.x, pInfo.y, pInfo.z);
                         remotePlayers[id].group.rotation.y = pInfo.ry;
-                        const keysToUpgrade = ['head', 'torso', 'limb'];
-                        keysToUpgrade.forEach(k => {
+                        ['head', 'torso', 'limb'].forEach(k => {
                             if(masters[k]) upgradePartVisual(parts, k, pInfo.colors);
                         });
                     }
                 });
             });
             socket.on('newPlayer', (playerInfo) => {
-                if (!remotePlayers[playerInfo.id]) {
+                if (!inGameActive) return;
+                if (!playerInfo || !playerInfo.isPlaying || !playerInfo.username) return;
+                if (!remotePlayers[playerInfo.id] && playerInfo.id !== socket.id) {
                     const remoteName = playerInfo.displayName || playerInfo.username || "Player";
                     const { group, parts } = createCharacterFigure(true, playerInfo.colors, remoteName);
                     scene.add(group);
                     remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
                     remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
-                    const keysToUpgrade = ['head', 'torso', 'limb'];
-                    keysToUpgrade.forEach(k => {
+                    ['head', 'torso', 'limb'].forEach(k => {
                         if(masters[k]) upgradePartVisual(parts, k, playerInfo.colors);
                     });
                 }
             });
             socket.on('playerMoved', (playerInfo) => {
+                if (!inGameActive) return;
                 if (remotePlayers[playerInfo.id]) {
                     remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
                     remotePlayers[playerInfo.id].group.rotation.y = playerInfo.ry;
@@ -968,7 +992,7 @@
                 document.getElementById(`grid-color-${part}`).style.backgroundColor = currentLocalColors[part];
                 applyColorsToParts(localPlayerParts, currentLocalColors);
                 applyColorsToParts(avatarTabParts, currentLocalColors);
-                if(socket && socket.connected) {
+                if(socket && socket.connected && inGameActive) {
                     socket.emit('playerColorUpdate', currentLocalColors);
                 }
                 if(auth.currentUser) {
@@ -1196,8 +1220,7 @@
             profileFullGroup = group;
             profileFullParts = parts;
             profileFullScene.add(profileFullGroup);
-            const keysToUpgrade = ['head', 'torso', 'limb'];
-            keysToUpgrade.forEach(k => {
+            ['head', 'torso', 'limb'].forEach(k => {
                 if(masters[k]) upgradePartVisual(profileFullParts, k, profileFullColors);
             });
             initCircleRenderer(document.getElementById('profile-avatar-circle-container'), profileFullColors);
@@ -1264,8 +1287,8 @@
             const cScene = new THREE.Scene();
             cScene.background = new THREE.Color(0x111111);
             const cCam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-            cCam.position.set(0, 4.3, 3.2);
-            cCam.lookAt(0, 4.1, 0);
+            cCam.position.set(0, 3.5, 9.0);
+            cCam.lookAt(0, 3.0, 0);
             const cRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
             cRenderer.setSize(130, 130);
             const l1 = new THREE.AmbientLight(0xffffff, 0.9);
@@ -1275,8 +1298,7 @@
             cScene.add(l2);
             const { group, parts } = createCharacterFigure(false, colors);
             cScene.add(group);
-            const keysToUpgrade = ['head', 'torso', 'limb'];
-            keysToUpgrade.forEach(k => {
+            ['head', 'torso', 'limb'].forEach(k => {
                 if(masters[k]) upgradePartVisual(parts, k, colors);
             });
             cRenderer.render(cScene, cCam);
@@ -1372,10 +1394,25 @@
             document.getElementById('btn-exit-game').style.display = 'block';
             inGameActive = true;
             resizeGameCanvas();
+            if (socket && socket.connected && currentUserData) {
+                socket.emit('playerDataInit', {
+                    username: currentUserData.username,
+                    displayName: currentUserData.displayName,
+                    colors: currentUserData.colors,
+                    isPlaying: true
+                });
+            }
         });
         document.getElementById('btn-exit-game').addEventListener('click', () => {
             document.exitPointerLock();
             inGameActive = false;
+            if (socket && socket.connected) {
+                socket.emit('playerLeftGame');
+            }
+            Object.keys(remotePlayers).forEach(id => {
+                scene.remove(remotePlayers[id].group);
+                delete remotePlayers[id];
+            });
             document.getElementById('canvas-container').style.display = 'none';
             document.getElementById('btn-exit-game').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
