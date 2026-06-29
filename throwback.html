@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fourbox</title>
+    <title>fourblox</title>
     <style>
         body { margin: 0; padding: 0; background-color: #f3f3f3; font-family: Arial, sans-serif; color: #000000; overflow-x: hidden; }
         #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #0c0c0c; display: flex; justify-content: center; align-items: center; z-index: 1000; }
@@ -28,9 +28,10 @@
         #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 900; display: none; }
         #btn-exit-game { position: absolute; top: 20px; right: 20px; z-index: 950; padding: 10px 20px; background: #ff1e3a; color: white; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; display: none; }
         .avatar-circle-3d { width: 130px; height: 130px; border-radius: 50%; background: #ffffff; border: 1px solid #ccc; overflow: hidden; position: relative; display: inline-block; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
-        .user-hero-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; margin-left: 280px; }
+        .user-hero-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
         .user-hero-info h1 { margin: 0; font-size: 36px; font-weight: normal; color: #000000; }
-        .user-hero-info p { margin: 0; font-size: 18px; color: #888888; }
+        .user-hero-info p { margin: 0; font-size: 18px; color: #888888; display: flex; align-items: center; gap: 6px; }
+        .badge-icon { width: 18px; height: 18px; object-fit: contain; }
         .section-title { font-size: 24px; font-weight: normal; color: #000000; margin: 25px 0 15px 0; }
         .friends-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px; }
         .friend-card { width: 110px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); cursor: pointer; }
@@ -42,7 +43,6 @@
         .game-card-name { font-size: 12px; text-align: center; color: #000000; font-weight: bold; }
         .profile-layout-blocks { display: flex; gap: 20px; max-width: 1000px; margin-bottom: 25px; }
         .profile-3d-box { width: 300px; height: 350px; background: #3a3a3a; border-radius: 8px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        .profile-3d-box-label { position: absolute; color: #ffffff; font-size: 16px; pointer-events: none; z-index: 5; text-align: center; padding: 0 10px; }
         .profile-empty-box { flex: 1; height: 350px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 18px; }
         .profile-footer-stats { display: flex; border-top: 1px solid #cccccc; padding-top: 20px; max-width: 1000px; }
         .footer-stat-col { flex: 1; text-align: center; display: flex; flex-direction: column; gap: 4px; }
@@ -85,6 +85,12 @@
         .settings-box button.save-btn { background: linear-gradient(to bottom, #e50000, #b20000); color: white; border: none; font-weight: bold; cursor: pointer; }
         .settings-box button.danger-btn { background: #fdfdfd; color: #e50000; border: 1px solid #e50000; cursor: pointer; font-weight: bold; }
         .settings-box button.danger-btn:hover { background: #e50000; color: white; }
+        #control-panel-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: #000; color: #fff; border: 1px solid #ff1e3a; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; }
+        #control-panel-modal { position: fixed; bottom: 70px; right: 20px; z-index: 999; background: #141414; border: 2px solid #ff1e3a; border-radius: 8px; padding: 20px; width: 280px; display: none; flex-direction: column; gap: 12px; color: #fff; box-shadow: 0 0 15px rgba(255, 30, 58, 0.3); }
+        #control-panel-modal h3 { margin: 0 0 5px 0; font-size: 16px; color: #ff1e3a; }
+        #control-panel-modal input[type="text"], #control-panel-modal button { padding: 8px; background: #1a1a1a; border: 1px solid #2a2a2a; color: #fff; border-radius: 4px; outline: none; }
+        #control-panel-modal button { background: #ff1e3a; font-weight: bold; cursor: pointer; border: none; }
+        .control-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
     </style>
     <script type="importmap">
         {
@@ -138,7 +144,7 @@
                 <div class="avatar-circle-3d" id="home-avatar-circle-container"></div>
                 <div class="user-hero-info">
                     <h1 id="home-display-fullname">Hello, displayname</h1>
-                    <p id="home-display-username">@username</p>
+                    <p id="home-display-username"><span>@username</span><span id="home-username-badges" style="display:inline-flex; gap:4px; align-items:center;"></span></p>
                 </div>
             </div>
             <div class="section-title" id="home-friends-title">Friends (#)</div>
@@ -156,14 +162,12 @@
                 <div class="avatar-circle-3d" id="profile-avatar-circle-container"></div>
                 <div class="user-hero-info">
                     <h1 id="profile-display-fullname">Displayname</h1>
-                    <p id="profile-display-username">@username</p>
+                    <p id="profile-display-username"><span>@username</span><span id="profile-username-badges" style="display:inline-flex; gap:4px; align-items:center;"></span></p>
                 </div>
             </div>
             <div class="profile-layout-blocks">
-                <div class="profile-3d-box" id="profile-3d-avatar-box">
-                    <div class="profile-3d-box-label" id="profile-3d-box-label">3d model of player's avatar here</div>
-                </div>
-                <div class="profile-empty-box">Empty for now</div>
+                <div class="profile-3d-box" id="profile-3d-avatar-box"></div>
+                <div class="profile-empty-box"></div>
             </div>
             <div class="section-title" id="profile-friends-title">Friends (#)</div>
             <div class="friends-container" id="profile-friends-container"></div>
@@ -223,7 +227,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="avatar-tab-right">this will have nothing in it for now</div>
+                <div class="avatar-tab-right"></div>
             </div>
         </div>
         <div id="tab-settings" class="tab-view">
@@ -239,6 +243,16 @@
                 <button class="danger-btn" id="btn-delete-account">DELETE ACCOUNT</button>
             </div>
         </div>
+    </div>
+    <div id="control-panel-toggle">Control</div>
+    <div id="control-panel-modal">
+        <h3>Admin Management</h3>
+        <input type="text" id="control-target-user" placeholder="Target Username">
+        <div class="control-checkbox-row"><input type="checkbox" id="chk-badge-elite"><label for="chk-badge-elite">Elite Admin</label></div>
+        <div class="control-checkbox-row"><input type="checkbox" id="chk-badge-good"><label for="chk-badge-good">Good Admin</label></div>
+        <div class="control-checkbox-row"><input type="checkbox" id="chk-badge-admin"><label for="chk-badge-admin">Administrator</label></div>
+        <div class="control-checkbox-row"><input type="checkbox" id="chk-badge-verified"><label for="chk-badge-verified">Verified</label></div>
+        <button id="btn-control-save">SAVE BADGES</button>
     </div>
     <div id="canvas-container"></div>
     <button id="btn-exit-game">Exit Game</button>
@@ -262,23 +276,23 @@
         const db = getFirestore(app);
         let isVoting = false;
         let gameCreatorData = null;
-        function createNametagSprite(text) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.font = 'bold 20px sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-            const texture = new THREE.CanvasTexture(canvas);
-            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
-            const sprite = new THREE.Sprite(material);
-            sprite.scale.set(4, 1, 1);
-            return sprite;
+        function renderUsernameBadges(containerId, username, profileBadgesArray) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.innerHTML = '';
+            let badges = profileBadgesArray ? [...profileBadgesArray] : [];
+            if(username && username.toLowerCase() === 'fourblox') {
+                if(!badges.includes('eliteadministrator')) badges.push('eliteadministrator');
+                if(!badges.includes('verified')) badges.push('verified');
+            }
+            badges.forEach(b => {
+                if(['eliteadministrator', 'goodadministrator', 'administrator', 'verified'].includes(b)) {
+                    const img = document.createElement('img');
+                    img.src = `https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/${b}.png`;
+                    img.className = 'badge-icon';
+                    container.appendChild(img);
+                }
+            });
         }
         function listenToGameVotes() {
             onSnapshot(doc(db, "games", "democube"), (docSnap) => {
@@ -396,7 +410,8 @@
                         createdAt: createdStr,
                         friends: [],
                         following: [],
-                        badges: ["Welcome Player", "Beta Tester"]
+                        badges: ["Welcome Player", "Beta Tester"],
+                        profileBadges: []
                     });
                 });
             } catch(err) {
@@ -478,6 +493,12 @@
                         playerModelContainer.add(nametag);
                         playerGroup.userData.hasNametag = true;
                     }
+                    if (currentUserData.username && currentUserData.username.toLowerCase() === 'fourblox') {
+                        document.getElementById('control-panel-toggle').style.display = 'block';
+                    } else {
+                        document.getElementById('control-panel-toggle').style.display = 'none';
+                        document.getElementById('control-panel-modal').style.display = 'none';
+                    }
                     updateUIForUser(currentUserData);
                 }
                 document.getElementById('auth-screen').style.display = 'none';
@@ -488,6 +509,8 @@
             } else {
                 document.getElementById('main-app').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('control-panel-toggle').style.display = 'none';
+                document.getElementById('control-panel-modal').style.display = 'none';
                 currentUserData = null;
                 if(socket) {
                     socket.disconnect();
@@ -495,9 +518,36 @@
                 }
             }
         });
+        document.getElementById('control-panel-toggle').addEventListener('click', () => {
+            const modal = document.getElementById('control-panel-modal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        });
+        document.getElementById('btn-control-save').addEventListener('click', async () => {
+            const targetUser = document.getElementById('control-target-user').value.trim();
+            if(!targetUser) return alert('Enter target username');
+            const badgesSelected = [];
+            if(document.getElementById('chk-badge-elite').checked) badgesSelected.push('eliteadministrator');
+            if(document.getElementById('chk-badge-good').checked) badgesSelected.push('goodadministrator');
+            if(document.getElementById('chk-badge-admin').checked) badgesSelected.push('administrator');
+            if(document.getElementById('chk-badge-verified').checked) badgesSelected.push('verified');
+            try {
+                const q = query(collection(db, "users"), where("username", "==", targetUser));
+                const snap = await getDocs(q);
+                if(snap.empty) {
+                    alert('User not found');
+                    return;
+                }
+                snap.forEach(async (uDoc) => {
+                    await updateDoc(doc(db, "users", uDoc.id), { profileBadges: badgesSelected });
+                });
+                alert('Badges updated successfully!');
+            } catch(e) {
+                alert(e.message);
+            }
+        });
         function updateUIForUser(userData) {
             document.getElementById('home-display-fullname').textContent = `Hello, ${userData.displayName || userData.username}`;
-            document.getElementById('home-display-username').textContent = `@${userData.username}`;
+            document.getElementById('home-display-username').querySelector('span').textContent = `@${userData.username}`;
             document.getElementById('avatar-tab-heading').textContent = `Your avatar, @${userData.displayName || userData.username}`;
             const fCount = userData.friends ? userData.friends.length : 0;
             document.getElementById('home-friends-title').textContent = `Friends (${fCount})`;
@@ -523,6 +573,7 @@
             }
             if (activeTab === 'home') {
                 initCircleRenderer(document.getElementById('home-avatar-circle-container'), userData.colors);
+                renderUsernameBadges('home-username-badges', userData.username, userData.profileBadges);
             }
         }
         const remotePlayers = {};
@@ -622,6 +673,24 @@
             const layoutSize = key === 'head' ? [1.1, 1.1, 1.1] : (key === 'torso' ? [2, 2, 1] : [1, 2, 1]);
             wrapper.scale.set(layoutSize[0] / size.x, layoutSize[1] / size.y, layoutSize[2] / size.z);
             masters[key] = wrapper;
+        }
+        function createNametagSprite(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(4, 1, 1);
+            return sprite;
         }
         function upgradePartVisual(partsObj, key, baseColors) {
             Object.keys(partsObj).forEach(partName => {
@@ -879,7 +948,8 @@
         let profileFullGroup = null;
         function openUserProfile(userData) {
             document.getElementById('profile-display-fullname').textContent = userData.displayName || userData.username;
-            document.getElementById('profile-display-username').textContent = `@${userData.username}`;
+            document.getElementById('profile-display-username').querySelector('span').textContent = `@${userData.username}`;
+            renderUsernameBadges('profile-username-badges', userData.username, userData.profileBadges);
             document.getElementById('profile-stat-id').textContent = userData.userId || '1';
             let datePart = 'DD/MM/YYYY';
             let timePart = 'HH:MM:SS UTC';
