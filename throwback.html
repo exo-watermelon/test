@@ -3,61 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Cube</title>
+    <title>fourblox</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: sans-serif; }
-        #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .auth-box { padding: 30px; border: 1px solid #ccc; border-radius: 8px; width: 320px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .auth-box input, .auth-box select, .auth-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        .auth-box button { background: #d91e36; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .auth-box button:hover { background: #b2182b; }
-        .auth-toggle { text-align: center; color: #d91e36; cursor: pointer; font-size: 13px; text-decoration: underline; }
+        body { margin: 0; overflow: hidden; background-color: #0c0c0c; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #ffffff; }
+        #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #0c0c0c; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-box { padding: 35px; background: #141414; border: 2px solid #ff1e3a; border-radius: 12px; width: 340px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 20px rgba(255, 30, 58, 0.2); }
+        .auth-box input, .auth-box select, .auth-box button { padding: 12px; font-size: 14px; border: 1px solid #2a2a2a; border-radius: 6px; background: #1a1a1a; color: white; outline: none; }
+        .auth-box input:focus, .auth-box select:focus { border-color: #ff1e3a; }
+        .auth-box button { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s, transform 0.1s; }
+        .auth-box button:hover { background: #d6152d; }
+        .auth-box button:active { transform: scale(0.98); }
+        .auth-toggle { text-align: center; color: #ff1e3a; cursor: pointer; font-size: 13px; text-decoration: none; font-weight: 500; }
+        .auth-toggle:hover { text-decoration: underline; }
         #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; }
-        #nav-bar { background: #1a1a1a; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 40px; z-index: 500; border-bottom: 2px solid #d91e36; }
-        .nav-tabs { display: flex; gap: 20px; }
-        .nav-tab { cursor: pointer; font-weight: bold; font-size: 15px; opacity: 0.7; transition: opacity 0.2s; }
-        .nav-tab.active { opacity: 1; border-bottom: 2px solid #d91e36; }
-        .search-container { position: relative; width: 250px; }
-        .search-container input { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #333; background: #252525; color: #fff; box-sizing: border-box; }
-        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #252525; border-radius: 4px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 600; }
-        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #333; font-size: 13px; }
-        .search-item:hover { background: #d91e36; color: #fff; }
-        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 60px); display: none; }
+        #nav-bar { background: #111111; padding: 0 25px; display: flex; align-items: center; justify-content: space-between; height: 60px; z-index: 500; border-bottom: 3px solid #ff1e3a; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .nav-tabs { display: flex; gap: 8px; height: 100%; align-items: center; }
+        .nav-tab { padding: 8px 16px; cursor: pointer; font-weight: 700; font-size: 14px; color: #aaaaaa; border-radius: 6px; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-tab:hover { color: #ffffff; background: #1a1a1a; }
+        .nav-tab.active { color: #ffffff; background: #ff1e3a; box-shadow: 0 0 10px rgba(255, 30, 58, 0.4); }
+        .search-container { position: relative; width: 280px; }
+        .search-container input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #2a2a2a; background: #181818; color: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+        .search-container input:focus { border-color: #ff1e3a; }
+        .search-results { position: absolute; top: 45px; left: 0; width: 100%; background: #141414; border: 1px solid #2a2a2a; border-radius: 6px; overflow: hidden; display: none; flex-direction: column; max-height: 250px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 600; }
+        .search-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; transition: background 0.2s, color 0.2s; }
+        .search-item:hover { background: #ff1e3a; color: #fff; }
+        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 60px); display: none; background: #0c0c0c; }
         .tab-view.active { display: block; }
         #canvas-container { width: 100%; height: 100%; display: block; }
-        #avatar-view-container { width: 100%; height: 100%; display: flex; background: #f0f0f0; }
-        .avatar-preview-pane { flex: 1; height: 100%; position: relative; }
-        .avatar-ui-pane { width: 300px; background: rgba(20,20,20,0.95); color: #fff; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; border-left: 2px solid #d91e36; }
-        .avatar-ui-pane label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .avatar-ui-pane input[type="color"] { border: none; background: transparent; width: 50px; height: 28px; cursor: pointer; }
-        #settings-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #fafafa; }
-        .settings-box { background: white; padding: 40px; border: 1px solid #ddd; border-radius: 8px; width: 350px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .settings-box input, .settings-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        .settings-box button.danger-btn { background: #222; color: white; border: none; cursor: pointer; }
-        .settings-box button.danger-btn:hover { background: #000; }
-        .settings-box button.save-btn { background: #d91e36; color: white; border: none; cursor: pointer; }
-        .settings-box button.save-btn:hover { background: #b2182b; }
-        #profile-modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .profile-card { background: white; border-radius: 12px; width: 580px; height: 430px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #d91e36; }
-        .profile-left { flex: 1; background: #e9e9e9; position: relative; height: 100%; }
-        .profile-right { width: 280px; padding: 25px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; overflow-y: auto; }
-        .profile-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; color: #333; z-index: 2010; }
-        .profile-name-container { display: flex; flex-direction: column; }
-        .profile-display { font-size: 22px; font-weight: bold; color: #111; }
-        .profile-username-sub { font-size: 13px; color: #777; }
-        .profile-username-main { font-size: 22px; font-weight: bold; color: #111; }
-        .profile-meta { font-size: 13px; color: #444; margin-top: 5px; display: flex; flex-direction: column; gap: 4px; }
-        .profile-badges-title { font-weight: bold; font-size: 14px; margin-top: 10px; color: #d91e36; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
-        .profile-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
-        .badge-item { background: #d91e36; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
-        .game-info-overlay { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px; width: 260px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 600; display: flex; flex-direction: column; gap: 8px; color: #000; border: 1px solid #d91e36; }
-        .game-info-overlay h2 { margin: 0; font-size: 18px; text-align: center; color: #d91e36; }
-        .ratio-bar { display: flex; height: 8px; width: 100%; background: #222; border-radius: 4px; overflow: hidden; margin-top: 5px; }
-        .ratio-likes { background: #d91e36; height: 100%; width: 100%; transition: width 0.3s; }
-        .counters { display: flex; justify-content: space-between; font-size: 12px; color: #333; font-weight: bold; }
-        .vote-buttons { display: flex; gap: 10px; }
-        .vote-btn { flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12px; }
-        .vote-btn:hover { background: #f0f0f0; border-color: #d91e36; }
+        #avatar-view-container { width: 100%; height: 100%; display: flex; background: #0c0c0c; }
+        .avatar-preview-pane { flex: 1; height: 100%; position: relative; background: #111111; }
+        .avatar-ui-pane { width: 340px; background: #141414; color: #fff; padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; border-left: 3px solid #ff1e3a; box-shadow: -4px 0 15px rgba(0,0,0,0.3); }
+        .avatar-ui-pane label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: #ccc; background: #1c1c1c; padding: 10px 14px; border-radius: 6px; border: 1px solid #252525; }
+        .avatar-ui-pane input[type="color"] { border: none; background: transparent; width: 40px; height: 30px; cursor: pointer; outline: none; }
+        #settings-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #0c0c0c; }
+        .settings-box { background: #141414; padding: 35px; border: 1px solid #2a2a2a; border-radius: 12px; width: 360px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .settings-box input, .settings-box button { padding: 12px; font-size: 14px; border: 1px solid #2a2a2a; border-radius: 6px; background: #1a1a1a; color: white; outline: none; }
+        .settings-box input:focus { border-color: #ff1e3a; }
+        .settings-box button.danger-btn { background: #222222; color: #ff1e3a; border: 1px solid #333333; cursor: pointer; font-weight: bold; }
+        .settings-box button.danger-btn:hover { background: #ff1e3a; color: white; border-color: #ff1e3a; }
+        .settings-box button.save-btn { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .settings-box button.save-btn:hover { background: #d6152d; }
+        #profile-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #0c0c0c; box-sizing: border-box; padding: 20px; overflow-y: auto; }
+        .profile-dashboard { background: #141414; border: 2px solid #ff1e3a; border-radius: 16px; width: 850px; max-width: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
+        .profile-top-banner { display: flex; padding: 30px; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; align-items: center; gap: 30px; position: relative; }
+        .profile-avatar-circle { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #ff1e3a; background: #111111; overflow: hidden; position: relative; box-shadow: 0 0 15px rgba(255, 30, 58, 0.3); flex-shrink: 0; }
+        .profile-user-details { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .profile-main-display { font-size: 28px; font-weight: 800; color: #ffffff; }
+        .profile-main-username { font-size: 15px; color: #ff1e3a; font-weight: 600; }
+        .profile-body-content { display: flex; padding: 30px; gap: 30px; background: #141414; }
+        .profile-left-column { flex: 1.2; display: flex; flex-direction: column; gap: 20px; }
+        .profile-right-column { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .profile-panel-card { background: #1c1c1c; border-radius: 10px; border: 1px solid #2a2a2a; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .profile-panel-title { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #ff1e3a; border-bottom: 1px solid #2a2a2a; padding-bottom: 8px; margin: 0; }
+        .profile-grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-box { background: #141414; border: 1px solid #252525; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; }
+        .stat-box-label { font-size: 11px; text-transform: uppercase; color: #888888; font-weight: 600; }
+        .stat-box-value { font-size: 15px; color: #ffffff; font-weight: 700; }
+        .friends-summary-header { display: flex; justify-content: space-between; align-items: center; }
+        .friends-count-pill { background: #ff1e3a; color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+        .friends-grid-display { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .friend-mini-card { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #141414; padding: 10px; border-radius: 6px; border: 1px solid #252525; cursor: pointer; transition: border-color 0.2s; }
+        .friend-mini-card:hover { border-color: #ff1e3a; }
+        .friend-mini-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #333; background: #111; overflow: hidden; position: relative; }
+        .friend-mini-name { font-size: 11px; font-weight: 600; text-align: center; color: #ccc; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .profile-badges-flex { display: flex; flex-wrap: wrap; gap: 8px; }
+        .profile-badge-node { background: rgba(255, 30, 58, 0.1); border: 1px solid #ff1e3a; color: #ffffff; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; }
+        .game-info-overlay { position: absolute; top: 20px; right: 20px; background: rgba(20, 20, 20, 0.9); padding: 20px; border-radius: 10px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 600; display: flex; flex-direction: column; gap: 12px; color: #fff; border: 2px solid #ff1e3a; backdrop-filter: blur(5px); }
+        .game-info-overlay h2 { margin: 0; font-size: 20px; text-align: center; color: #ff1e3a; font-weight: 800; }
+        .ratio-bar { display: flex; height: 10px; width: 100%; background: #333333; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .ratio-likes { background: #ff1e3a; height: 100%; width: 0%; transition: width 0.4s ease; box-shadow: 0 0 8px rgba(255, 30, 58, 0.6); }
+        .counters { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; font-weight: 600; }
+        .vote-buttons { display: flex; gap: 12px; margin-top: 4px; }
+        .vote-btn { flex: 1; padding: 10px; border: 1px solid #333; border-radius: 6px; background: #1a1a1a; color: white; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; transition: all 0.2s; outline: none; }
+        .vote-btn:hover { background: #252525; border-color: #ff1e3a; }
+        .vote-btn:active { transform: scale(0.97); }
     </style>
     <script type="importmap">
         {
@@ -72,14 +91,14 @@
 <body>
     <div id="auth-screen">
         <div class="auth-box" id="login-box">
-            <h2 style="margin:0 0 10px 0; text-align:center; color:#d91e36;">Login</h2>
+            <h2 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800;">LOGIN</h2>
             <input type="email" id="login-email" placeholder="Email">
             <input type="password" id="login-pass" placeholder="Password">
-            <button id="btn-login">Sign In</button>
+            <button id="btn-login">SIGN IN</button>
             <div class="auth-toggle" id="to-register">Don't have an account? Register</div>
         </div>
         <div class="auth-box" id="register-box" style="display:none;">
-            <h2 style="margin:0 0 10px 0; text-align:center; color:#d91e36;">Register</h2>
+            <h2 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800;">REGISTER</h2>
             <input type="text" id="reg-user" placeholder="Username (Unique)">
             <input type="text" id="reg-display" placeholder="Display Name (Optional)">
             <select id="reg-gender">
@@ -89,7 +108,7 @@
             </select>
             <input type="email" id="reg-email" placeholder="Email">
             <input type="password" id="reg-pass" placeholder="Password">
-            <button id="btn-register">Create Account</button>
+            <button id="btn-register">CREATE ACCOUNT</button>
             <div class="auth-toggle" id="to-login">Already have an account? Login</div>
         </div>
     </div>
@@ -97,6 +116,7 @@
         <div id="nav-bar">
             <div class="nav-tabs">
                 <div class="nav-tab active" data-tab="home">Home</div>
+                <div class="nav-tab" data-tab="profile" id="tab-nav-profile">Profile</div>
                 <div class="nav-tab" data-tab="avatar">Avatar</div>
                 <div class="nav-tab" data-tab="settings">Settings</div>
             </div>
@@ -109,7 +129,7 @@
             <div id="canvas-container"></div>
             <div class="game-info-overlay">
                 <h2>Demo Cube</h2>
-                <div class="ratio-bar"><div class="ratio-likes" id="game-likes-bar" style="width:100%;"></div></div>
+                <div class="ratio-bar"><div class="ratio-likes" id="game-likes-bar"></div></div>
                 <div class="counters"><span id="game-likes-counter">0 Likes</span><span id="game-dislikes-counter">0 Dislikes</span></div>
                 <div class="vote-buttons">
                     <button class="vote-btn" id="btn-like-game">👍 Like</button>
@@ -117,11 +137,51 @@
                 </div>
             </div>
         </div>
+        <div id="tab-profile" class="tab-view">
+            <div id="profile-view-container">
+                <div class="profile-dashboard">
+                    <div class="profile-top-banner">
+                        <div class="profile-avatar-circle" id="dashboard-avatar-container"></div>
+                        <div class="profile-user-details">
+                            <div class="profile-main-display" id="profile-display-fullname">Player</div>
+                            <div class="profile-main-username" id="profile-display-username">@player</div>
+                        </div>
+                    </div>
+                    <div class="profile-body-content">
+                        <div class="profile-left-column">
+                            <div class="profile-panel-card">
+                                <h3 class="profile-panel-title">User Statistics</h3>
+                                <div class="profile-grid-stats">
+                                    <div class="stat-box"><span class="stat-box-label">User ID</span><span class="stat-box-value" id="profile-stat-id">#0</span></div>
+                                    <div class="stat-box"><span class="stat-box-label">Gender</span><span class="stat-box-value" id="profile-stat-gender">Male</span></div>
+                                    <div class="stat-box"><span class="stat-box-label">Join Date</span><span class="stat-box-value" id="profile-stat-date">00/00/0000</span></div>
+                                    <div class="stat-box"><span class="stat-box-label">Join Time</span><span class="stat-box-value" id="profile-stat-time">00:00:00 UTC</span></div>
+                                </div>
+                            </div>
+                            <div class="profile-panel-card">
+                                <h3 class="profile-panel-title">Badges</h3>
+                                <div class="profile-badges-flex" id="profile-badges-nodes-container"></div>
+                            </div>
+                        </div>
+                        <div class="profile-right-column">
+                            <div class="profile-panel-card">
+                                <div class="friends-summary-header">
+                                    <h3 class="profile-panel-title" style="border:none; padding:0; margin:0;">Friends</h3>
+                                    <span class="friends-count-pill" id="profile-friends-count">0 Total</span>
+                                </div>
+                                <div style="border-bottom: 1px solid #2a2a2a; margin-bottom: 4px;"></div>
+                                <div class="friends-grid-display" id="profile-friends-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="tab-avatar" class="tab-view">
             <div id="avatar-view-container">
                 <div class="avatar-preview-pane" id="avatar-preview-pane"></div>
                 <div class="avatar-ui-pane">
-                    <h3 style="margin:0 0 10px 0; text-align:center; color:#d91e36;">Edit Colors</h3>
+                    <h3 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Edit Colors</h3>
                     <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
                     <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
                     <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
@@ -134,28 +194,16 @@
         <div id="tab-settings" class="tab-view">
             <div id="settings-view-container">
                 <div class="settings-box">
-                    <h3 style="margin:0 0 5px 0; color:#d91e36;">Account Settings</h3>
+                    <h3 style="margin:0 0 5px 0; color:#ff1e3a; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Account Settings</h3>
                     <input type="text" id="settings-display" placeholder="New Display Name">
-                    <button class="save-btn" id="btn-save-display">Update Display Name</button>
-                    <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
+                    <button class="save-btn" id="btn-save-display">UPDATE DISPLAY NAME</button>
+                    <hr style="width:100%; border:none; border-top:1px solid #2a2a2a; margin:10px 0;">
                     <input type="password" id="settings-pass" placeholder="New Password">
-                    <button class="save-btn" id="btn-save-pass">Update Password</button>
-                    <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
-                    <button class="danger-btn" id="btn-logout">Log Out</button>
-                    <button class="danger-btn" id="btn-delete-account">Delete Account</button>
+                    <button class="save-btn" id="btn-save-pass">UPDATE PASSWORD</button>
+                    <hr style="width:100%; border:none; border-top:1px solid #2a2a2a; margin:10px 0;">
+                    <button class="danger-btn" id="btn-logout">LOG OUT</button>
+                    <button class="danger-btn" id="btn-delete-account">DELETE ACCOUNT</button>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div id="profile-modal">
-        <div class="profile-card">
-            <div class="profile-close" id="profile-close">&times;</div>
-            <div class="profile-left" id="profile-preview-pane"></div>
-            <div class="profile-right">
-                <div class="profile-name-container" id="profile-names"></div>
-                <div class="profile-meta" id="profile-meta-details"></div>
-                <div class="profile-badges-title">Badges</div>
-                <div class="profile-badges" id="profile-badges-container"></div>
             </div>
         </div>
     </div>
@@ -177,6 +225,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        let isVoting = false;
         function createNametagSprite(text) {
             const canvas = document.createElement('canvas');
             canvas.width = 256;
@@ -206,7 +255,7 @@
                     setDoc(doc(db, "games", "democube"), { likes: 0, dislikes: 0 });
                 }
                 const total = likes + dislikes;
-                const pct = total > 0 ? (likes / total) * 100 : 100;
+                const pct = total > 0 ? (likes / total) * 100 : 0;
                 document.getElementById('game-likes-bar').style.width = `${pct}%`;
                 document.getElementById('game-likes-counter').innerText = `${likes.toLocaleString()} Likes`;
                 document.getElementById('game-dislikes-counter').innerText = `${dislikes.toLocaleString()} Dislikes`;
@@ -214,6 +263,8 @@
         }
         async function voteGame(isLike) {
             if (!auth.currentUser) return alert('You must be logged in to vote');
+            if (isVoting) return;
+            isVoting = true;
             const gameRef = doc(db, "games", "democube");
             const userVoteRef = doc(db, "games", "democube", "userVotes", auth.currentUser.uid);
             try {
@@ -244,7 +295,11 @@
                     }
                     transaction.set(gameRef, { likes: likes, dislikes: dislikes }, { merge: true });
                 });
-            } catch (err) {}
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                isVoting = false;
+            }
         }
         listenToGameVotes();
         document.getElementById('btn-like-game').addEventListener('click', () => voteGame(true));
@@ -329,6 +384,10 @@
             try {
                 await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: newDisplay });
                 alert("Display name updated!");
+                if(currentUserData) {
+                    currentUserData.displayName = newDisplay;
+                    if(activeTab === 'profile') openUserProfile(currentUserData);
+                }
             } catch(err) {
                 alert(err.message);
             }
@@ -401,7 +460,7 @@
         const remotePlayers = {};
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB);
+        scene.background = new THREE.Color(0x0c0c0c);
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -425,7 +484,7 @@
         scene.add(dirLight);
         const cubeSize = 100;
         const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-        const greenMat = new THREE.MeshStandardMaterial({ color: 0x228B22 });
+        const greenMat = new THREE.MeshStandardMaterial({ color: 0x1c1c1c });
         const cube = new THREE.Mesh(cubeGeo, greenMat);
         cube.position.y = -cubeSize / 2;
         cube.receiveShadow = true;
@@ -440,7 +499,7 @@
         studTexture.repeat.set(cubeSize, cubeSize);
         const planeGeo = new THREE.PlaneGeometry(cubeSize, cubeSize);
         const studMat = new THREE.MeshStandardMaterial({
-            color: 0x228B22,
+            color: 0xff1e3a,
             map: studTexture,
             transparent: true,
             alphaTest: 0.1
@@ -530,7 +589,7 @@
             });
             if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
             if (avatarTabParts) upgradePartVisual(avatarTabParts, key, currentLocalColors);
-            if (profileModalParts) upgradePartVisual(profileModalParts, key, profileModalColors);
+            if (profileDashboardParts) upgradePartVisual(profileDashboardParts, key, profileDashboardColors);
         }
         function applyColorsToParts(partsObj, colors) {
             if(!partsObj) return;
@@ -615,6 +674,10 @@
                 }
                 if(auth.currentUser) {
                     await updateDoc(doc(db, "users", auth.currentUser.uid), { colors: currentLocalColors });
+                    if(currentUserData) {
+                        currentUserData.colors = currentLocalColors;
+                        if(activeTab === 'profile') openUserProfile(currentUserData);
+                    }
                 }
             });
         });
@@ -705,7 +768,7 @@
             }
         });
         const avatarScene = new THREE.Scene();
-        avatarScene.background = new THREE.Color(0xf0f0f0);
+        avatarScene.background = new THREE.Color(0x111111);
         const avatarCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
         avatarCamera.position.set(0, 3, 8);
         avatarCamera.lookAt(0, 2.5, 0);
@@ -718,72 +781,76 @@
         avatarScene.add(avLight2);
         const { group: avatarTabGroup, parts: avatarTabParts } = createCharacterFigure(false, currentLocalColors);
         avatarScene.add(avatarTabGroup);
-        const profileScene = new THREE.Scene();
-        profileScene.background = new THREE.Color(0xe9e9e9);
-        const profileCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        profileCamera.position.set(0, 3, 8);
-        profileCamera.lookAt(0, 2.5, 0);
-        const profileRenderer = new THREE.WebGLRenderer({ antialias: true });
-        document.getElementById('profile-preview-pane').appendChild(profileRenderer.domElement);
-        const profLight1 = new THREE.AmbientLight(0xffffff, 0.7);
-        profileScene.add(profLight1);
-        const profLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
-        profLight2.position.set(5, 10, 5);
-        profileScene.add(profLight2);
-        let profileModalParts = null;
-        let profileModalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-        let profileModalGroup = null;
+        const profileDashboardScene = new THREE.Scene();
+        profileDashboardScene.background = new THREE.Color(0x111111);
+        const profileDashboardCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        profileDashboardCamera.position.set(0, 3.5, 6);
+        profileDashboardCamera.lookAt(0, 3.2, 0);
+        const profileDashboardRenderer = new THREE.WebGLRenderer({ antialias: true });
+        document.getElementById('dashboard-avatar-container').appendChild(profileDashboardRenderer.domElement);
+        const pdLight1 = new THREE.AmbientLight(0xffffff, 0.8);
+        profileDashboardScene.add(pdLight1);
+        const pdLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        pdLight2.position.set(3, 8, 4);
+        profileDashboardScene.add(pdLight2);
+        let profileDashboardParts = null;
+        let profileDashboardColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+        let profileDashboardGroup = null;
         function openUserProfile(userData) {
-            const namesContainer = document.getElementById('profile-names');
-            namesContainer.innerHTML = '';
-            if(userData.displayName) {
-                const disp = document.createElement('div');
-                disp.className = 'profile-display';
-                disp.textContent = userData.displayName;
-                const userSub = document.createElement('div');
-                userSub.className = 'profile-username-sub';
-                userSub.textContent = `@${userData.username}`;
-                namesContainer.appendChild(disp);
-                namesContainer.appendChild(userSub);
-            } else {
-                const userMain = document.createElement('div');
-                userMain.className = 'profile-username-main';
-                userMain.textContent = userData.username;
-                namesContainer.appendChild(userMain);
+            document.getElementById('profile-display-fullname').textContent = userData.displayName || userData.username;
+            document.getElementById('profile-display-username').textContent = `@${userData.username}`;
+            document.getElementById('profile-stat-id').textContent = `#${userData.userId}`;
+            document.getElementById('profile-stat-gender').textContent = userData.gender || 'Male';
+            let datePart = '00/00/0000';
+            let timePart = '00:00:00 UTC';
+            if(userData.createdAt) {
+                const chunks = userData.createdAt.split(' ');
+                if(chunks[0]) datePart = chunks[0];
+                if(chunks[1] && chunks[2]) timePart = `${chunks[1]} ${chunks[2]}`;
             }
-            const metaContainer = document.getElementById('profile-meta-details');
-            metaContainer.innerHTML = `
-                <div><strong>User ID:</strong> ${userData.userId}</div>
-                <div><strong>Gender:</strong> ${userData.gender || 'Not Specified'}</div>
-                <div><strong>Friends:</strong> ${userData.friends ? userData.friends.length : 0}</div>
-                <div><strong>Following:</strong> ${userData.following ? userData.following.length : 0}</div>
-                <div><strong>Joined:</strong> ${userData.createdAt || 'Unknown'}</div>
-            `;
-            const badgesContainer = document.getElementById('profile-badges-container');
+            document.getElementById('profile-stat-date').textContent = datePart;
+            document.getElementById('profile-stat-time').textContent = timePart;
+            const badgesContainer = document.getElementById('profile-badges-nodes-container');
             badgesContainer.innerHTML = '';
-            const badgesList = userData.badges || ["Welcome Player"];
-            badgesList.forEach(badge => {
-                const badgeEl = document.createElement('span');
-                badgeEl.className = 'badge-item';
-                badgeEl.textContent = badge;
-                badgesContainer.appendChild(badgeEl);
+            const listBadges = userData.badges || ["Welcome Player"];
+            listBadges.forEach(badge => {
+                const badgeSpan = document.createElement('span');
+                badgeSpan.className = 'profile-badge-node';
+                badgeSpan.textContent = badge;
+                badgesContainer.appendChild(badgeSpan);
             });
-            if(profileModalGroup) profileScene.remove(profileModalGroup);
-            profileModalColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-            const { group, parts } = createCharacterFigure(false, profileModalColors);
-            profileModalGroup = group;
-            profileModalParts = parts;
-            profileScene.add(profileModalGroup);
-            const masterKeys = ['head', 'torso', 'limb'];
-            masterKeys.forEach(k => {
-                if(masters[k]) upgradePartVisual(profileModalParts, k, profileModalColors);
+            const friendsCount = userData.friends ? userData.friends.length : 0;
+            document.getElementById('profile-friends-count').textContent = `${friendsCount} Total`;
+            const friendsGrid = document.getElementById('profile-friends-grid');
+            friendsGrid.innerHTML = '';
+            if(userData.friends && userData.friends.length > 0) {
+                userData.friends.forEach(f => {
+                    const card = document.createElement('div');
+                    card.className = 'friend-mini-card';
+                    const avCircle = document.createElement('div');
+                    avCircle.className = 'friend-mini-avatar';
+                    const nameLabel = document.createElement('div');
+                    nameLabel.className = 'friend-mini-name';
+                    nameLabel.textContent = f;
+                    card.appendChild(avCircle);
+                    card.appendChild(nameLabel);
+                    friendsGrid.appendChild(card);
+                });
+            } else {
+                friendsGrid.innerHTML = '<div style="grid-column: span 4; text-align: center; color: #666; font-size: 13px; padding: 20px 0;">No friends found</div>';
+            }
+            if(profileDashboardGroup) profileDashboardScene.remove(profileDashboardGroup);
+            profileDashboardColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+            const { group, parts } = createCharacterFigure(false, profileDashboardColors);
+            profileDashboardGroup = group;
+            profileDashboardParts = parts;
+            profileDashboardScene.add(profileDashboardGroup);
+            const keysToUpgrade = ['head', 'torso', 'limb'];
+            keysToUpgrade.forEach(k => {
+                if(masters[k]) upgradePartVisual(profileDashboardParts, k, profileDashboardColors);
             });
-            document.getElementById('profile-modal').style.display = 'flex';
-            resizeProfileCanvas();
+            resizeProfileDashboardCanvas();
         }
-        document.getElementById('profile-close').addEventListener('click', () => {
-            document.getElementById('profile-modal').style.display = 'none';
-        });
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
         searchInput.addEventListener('input', async () => {
@@ -810,6 +877,13 @@
                         item.addEventListener('click', () => {
                             searchResults.style.display = 'none';
                             searchInput.value = '';
+                            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                            document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+                            const pTabNav = document.getElementById('tab-nav-profile');
+                            pTabNav.classList.add('active');
+                            activeTab = 'profile';
+                            document.getElementById('tab-profile').classList.add('active');
+                            document.exitPointerLock();
                             openUserProfile(uData);
                         });
                         searchResults.appendChild(item);
@@ -836,6 +910,9 @@
                 if(activeTab === 'avatar') {
                     resizeAvatarCanvas();
                 }
+                if(activeTab === 'profile') {
+                    if(currentUserData) openUserProfile(currentUserData);
+                }
             });
         });
         function resizeAvatarCanvas() {
@@ -846,12 +923,12 @@
                 avatarRenderer.setSize(pane.clientWidth, pane.clientHeight);
             }
         }
-        function resizeProfileCanvas() {
-            const pane = document.getElementById('profile-preview-pane');
+        function resizeProfileDashboardCanvas() {
+            const pane = document.getElementById('dashboard-avatar-container');
             if(pane.clientWidth > 0 && pane.clientHeight > 0) {
-                profileCamera.aspect = pane.clientWidth / pane.clientHeight;
-                profileCamera.updateProjectionMatrix();
-                profileRenderer.setSize(pane.clientWidth, pane.clientHeight);
+                profileDashboardCamera.aspect = pane.clientWidth / pane.clientHeight;
+                profileDashboardCamera.updateProjectionMatrix();
+                profileDashboardRenderer.setSize(pane.clientWidth, pane.clientHeight);
             }
         }
         const clock = new THREE.Clock();
@@ -941,10 +1018,8 @@
             } else if(activeTab === 'avatar') {
                 avatarTabGroup.rotation.y += 1 * delta;
                 avatarRenderer.render(avatarScene, avatarCamera);
-            }
-            if(document.getElementById('profile-modal').style.display === 'flex' && profileModalGroup) {
-                profileModalGroup.rotation.y += 1 * delta;
-                profileRenderer.render(profileScene, profileCamera);
+            } else if(activeTab === 'profile' && profileDashboardGroup) {
+                profileDashboardRenderer.render(profileDashboardScene, profileDashboardCamera);
             }
         }
         window.addEventListener('resize', () => {
@@ -952,7 +1027,7 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             resizeAvatarCanvas();
-            resizeProfileCanvas();
+            resizeProfileDashboardCanvas();
         });
         animate();
     </script>
