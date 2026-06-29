@@ -3,13 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fourblox</title>
+    <title>Demo Cube</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #87CEEB; }
-        #canvas-container { width: 100vw; height: 100vh; display: block; }
-        #ui-panel { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 12px; border-radius: 8px; font-family: sans-serif; font-size: 13px; z-index: 100; display: flex; flex-direction: column; gap: 6px; }
-        #ui-panel label { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        #ui-panel input { cursor: pointer; border: none; background: transparent; width: 40px; height: 24px; }
+        body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: sans-serif; }
+        #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-box { padding: 30px; border: 1px solid #ccc; border-radius: 8px; width: 320px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .auth-box input, .auth-box select, .auth-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        .auth-box button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .auth-box button:hover { background: #0056b3; }
+        .auth-toggle { text-align: center; color: #007bff; cursor: pointer; font-size: 13px; text-decoration: underline; }
+        #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; }
+        #nav-bar { background: #222; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 40px; z-index: 500; }
+        .nav-tabs { display: flex; gap: 20px; }
+        .nav-tab { cursor: pointer; font-weight: bold; font-size: 15px; opacity: 0.7; transition: opacity 0.2s; }
+        .nav-tab.active { opacity: 1; border-bottom: 2px solid #fff; }
+        .search-container { position: relative; width: 250px; }
+        .search-container input { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #555; background: #333; color: #fff; box-sizing: border-box; }
+        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #333; border-radius: 4px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #444; font-size: 13px; }
+        .search-item:hover { background: #444; }
+        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 60px); display: none; }
+        .tab-view.active { display: block; }
+        #canvas-container { width: 100%; height: 100%; display: block; }
+        #avatar-view-container { width: 100%; height: 100%; display: flex; background: #f0f0f0; }
+        .avatar-preview-pane { flex: 1; height: 100%; position: relative; }
+        .avatar-ui-pane { width: 300px; background: rgba(0,0,0,0.85); color: #fff; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
+        .avatar-ui-pane label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .avatar-ui-pane input[type="color"] { border: none; background: transparent; width: 50px; height: 28px; cursor: pointer; }
+        #settings-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #fafafa; }
+        .settings-box { background: white; padding: 40px; border: 1px solid #ddd; border-radius: 8px; width: 350px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .settings-box input, .settings-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        .settings-box button.danger-btn { background: #dc3545; color: white; border: none; cursor: pointer; }
+        .settings-box button.danger-btn:hover { background: #bd2130; }
+        .settings-box button.save-btn { background: #28a745; color: white; border: none; cursor: pointer; }
+        .settings-box button.save-btn:hover { background: #218838; }
+        #profile-modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .profile-card { background: white; border-radius: 12px; width: 550px; height: 400px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .profile-left { flex: 1; background: #e9e9e9; position: relative; height: 100%; }
+        .profile-right { width: 250px; padding: 25px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
+        .profile-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; color: #333; z-index: 2010; }
+        .profile-name-container { display: flex; flex-direction: column; }
+        .profile-display { font-size: 22px; font-weight: bold; color: #111; }
+        .profile-username-sub { font-size: 13px; color: #777; }
+        .profile-username-main { font-size: 22px; font-weight: bold; color: #111; }
+        .profile-meta { font-size: 13px; color: #444; margin-top: 5px; display: flex; flex-direction: column; gap: 4px; }
     </style>
     <script type="importmap">
         {
@@ -22,20 +59,235 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div id="ui-panel">
-        <div style="font-weight:bold; text-align:center; margin-bottom:4px;">Character Colors</div>
-        <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
-        <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
-        <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
-        <label>R. Arm <input type="color" id="col-rightArm" value="#e0e0e0"></label>
-        <label>L. Leg <input type="color" id="col-leftLeg" value="#e0e0e0"></label>
-        <label>R. Leg <input type="color" id="col-rightLeg" value="#e0e0e0"></label>
+    <div id="auth-screen">
+        <div class="auth-box" id="login-box">
+            <h2 style="margin:0 0 10px 0; text-align:center;">Login</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button id="btn-login">Sign In</button>
+            <div class="auth-toggle" id="to-register">Don't have an account? Register</div>
+        </div>
+        <div class="auth-box" id="register-box" style="display:none;">
+            <h2 style="margin:0 0 10px 0; text-align:center;">Register</h2>
+            <input type="text" id="reg-user" placeholder="Username (Unique)">
+            <input type="text" id="reg-display" placeholder="Display Name (Optional)">
+            <select id="reg-gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="email" id="reg-email" placeholder="Email">
+            <input type="password" id="reg-pass" placeholder="Password">
+            <button id="btn-register">Create Account</button>
+            <div class="auth-toggle" id="to-login">Already have an account? Login</div>
+        </div>
     </div>
-    <div id="canvas-container"></div>
+    <div id="main-app">
+        <div id="nav-bar">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="home">Home</div>
+                <div class="nav-tab" data-tab="avatar">Avatar</div>
+                <div class="nav-tab" data-tab="settings">Settings</div>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search users...">
+                <div class="search-results" id="search-results"></div>
+            </div>
+        </div>
+        <div id="tab-home" class="tab-view active">
+            <div id="canvas-container"></div>
+        </div>
+        <div id="tab-avatar" class="tab-view">
+            <div id="avatar-view-container">
+                <div class="avatar-preview-pane" id="avatar-preview-pane"></div>
+                <div class="avatar-ui-pane">
+                    <h3 style="margin:0 0 10px 0; text-align:center;">Edit Colors</h3>
+                    <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
+                    <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
+                    <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
+                    <label>R. Arm <input type="color" id="col-rightArm" value="#e0e0e0"></label>
+                    <label>L. Leg <input type="color" id="col-leftLeg" value="#e0e0e0"></label>
+                    <label>R. Leg <input type="color" id="col-rightLeg" value="#e0e0e0"></label>
+                </div>
+            </div>
+        </div>
+        <div id="tab-settings" class="tab-view">
+            <div id="settings-view-container">
+                <div class="settings-box">
+                    <h3 style="margin:0 0 5px 0;">Account Settings</h3>
+                    <input type="text" id="settings-display" placeholder="New Display Name">
+                    <button class="save-btn" id="btn-save-display">Update Display Name</button>
+                    <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
+                    <input type="password" id="settings-pass" placeholder="New Password">
+                    <button class="save-btn" id="btn-save-pass">Update Password</button>
+                    <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
+                    <button class="danger-btn" id="btn-logout">Log Out</button>
+                    <button class="danger-btn" id="btn-delete-account">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="profile-modal">
+        <div class="profile-card">
+            <div class="profile-close" id="profile-close">&times;</div>
+            <div class="profile-left" id="profile-preview-pane"></div>
+            <div class="profile-right">
+                <div class="profile-name-container" id="profile-names"></div>
+                <div class="profile-meta" id="profile-meta-details"></div>
+            </div>
+        </div>
+    </div>
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import * as THREE from 'three';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-        const socket = io();
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoJw-xTqs_zoLj8fvehZTCixDnHjNf-g0",
+            authDomain: "fourblox-89581.firebaseapp.com",
+            projectId: "fourblox-89581",
+            storageBucket: "fourblox-89581.firebasestorage.app",
+            messagingSenderId: "976102989359",
+            appId: "1:976102989359:web:7d3e40fdf23dbcb20fb0da",
+            measurementId: "G-4H7GERJ41S"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        document.getElementById('to-register').addEventListener('click', () => {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('register-box').style.display = 'flex';
+        });
+        document.getElementById('to-login').addEventListener('click', () => {
+            document.getElementById('register-box').style.display = 'none';
+            document.getElementById('login-box').style.display = 'flex';
+        });
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const username = document.getElementById('reg-user').value.trim();
+            const displayName = document.getElementById('reg-display').value.trim();
+            const gender = document.getElementById('reg-gender').value;
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+            if(!username || !email || !password) return alert('Fill in all required fields');
+            try {
+                const usernameLower = username.toLowerCase();
+                const usernameRef = doc(db, "usernames", usernameLower);
+                let registrationError = null;
+                await runTransaction(db, async (transaction) => {
+                    const usernameDoc = await transaction.get(usernameRef);
+                    if(usernameDoc.exists()) {
+                        registrationError = "Username is already taken";
+                        return;
+                    }
+                });
+                if(registrationError) return alert(registrationError);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const counterRef = doc(db, "counters", "users");
+                let nextId = 1;
+                await runTransaction(db, async (transaction) => {
+                    const counterDoc = await transaction.get(counterRef);
+                    if(counterDoc.exists()) {
+                        nextId = counterDoc.data().current + 1;
+                    }
+                    transaction.set(counterRef, { current: nextId }, { merge: true });
+                    transaction.set(usernameRef, { uid: user.uid });
+                    transaction.set(doc(db, "users", user.uid), {
+                        uid: user.uid,
+                        username: username,
+                        displayName: displayName,
+                        gender: gender,
+                        userId: nextId,
+                        colors: currentLocalColors,
+                        createdAt: new Date().toLocaleDateString(),
+                        friends: [],
+                        following: []
+                    });
+                });
+            } catch(err) {
+                alert(err.message);
+            }
+        });
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-pass').value;
+            if(!email || !password) return alert('Fill in all fields');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch(err) {
+                alert(err.message);
+            }
+        });
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btn-save-display').addEventListener('click', async () => {
+            const newDisplay = document.getElementById('settings-display').value.trim();
+            if(!auth.currentUser) return;
+            try {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: newDisplay });
+                alert("Display name updated!");
+            } catch(err) {
+                alert(err.message);
+            }
+        });
+        document.getElementById('btn-save-pass').addEventListener('click', async () => {
+            const newPass = document.getElementById('settings-pass').value;
+            if(!auth.currentUser || !newPass) return;
+            try {
+                await updatePassword(auth.currentUser, newPass);
+                alert("Password updated!");
+                document.getElementById('settings-pass').value = '';
+            } catch(err) {
+                alert(err.message);
+            }
+        });
+        document.getElementById('btn-delete-account').addEventListener('click', async () => {
+            if(!auth.currentUser) return;
+            if(!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+            try {
+                const uid = auth.currentUser.uid;
+                const userDoc = await getDoc(doc(db, "users", uid));
+                if(userDoc.exists()) {
+                    const usernameLower = userDoc.data().username.toLowerCase();
+                    await deleteDoc(doc(db, "usernames", usernameLower));
+                    await deleteDoc(doc(db, "users", uid));
+                }
+                await deleteUser(auth.currentUser);
+            } catch(err) {
+                alert(err.message);
+            }
+        });
+        let currentUserData = null;
+        let socketInitialized = false;
+        let socket = null;
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    Object.assign(currentLocalColors, currentUserData.colors);
+                    ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
+                        document.getElementById(`col-${part}`).value = currentLocalColors[part];
+                    });
+                    applyColorsToParts(localPlayerParts, currentLocalColors);
+                    if (avatarTabParts) applyColorsToParts(avatarTabParts, currentLocalColors);
+                    document.getElementById('settings-display').value = currentUserData.displayName || '';
+                }
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                if(!socketInitialized) {
+                    initSocketConnection();
+                }
+            } else {
+                document.getElementById('main-app').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'flex';
+                currentUserData = null;
+                if(socket) {
+                    socket.disconnect();
+                    socketInitialized = false;
+                }
+            }
+        });
         const remotePlayers = {};
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -162,8 +414,11 @@
                 if (rp && rp.parts) upgradePartVisual(rp.parts, key, rp.colors);
             });
             if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
+            if (avatarTabParts) upgradePartVisual(avatarTabParts, key, currentLocalColors);
+            if (profileModalParts) upgradePartVisual(profileModalParts, key, profileModalColors);
         }
         function applyColorsToParts(partsObj, colors) {
+            if(!partsObj) return;
             Object.keys(partsObj).forEach(partName => {
                 const partGroup = partsObj[partName];
                 const col = colors[partName] || '#e0e0e0';
@@ -191,48 +446,58 @@
                 upgradeAllPlayersForPart(asset.key);
             }, undefined, (err) => {});
         });
-        socket.on('currentPlayers', (players) => {
-            Object.keys(players).forEach((id) => {
-                if (id !== socket.id && !remotePlayers[id]) {
-                    const { group, parts } = createCharacterFigure(true, players[id].colors);
+        function initSocketConnection() {
+            socket = io();
+            socketInitialized = true;
+            socket.on('currentPlayers', (players) => {
+                Object.keys(players).forEach((id) => {
+                    if (id !== socket.id && !remotePlayers[id]) {
+                        const { group, parts } = createCharacterFigure(true, players[id].colors);
+                        scene.add(group);
+                        remotePlayers[id] = { group, parts, colors: players[id].colors };
+                        remotePlayers[id].group.position.set(players[id].x, players[id].y, players[id].z);
+                        remotePlayers[id].group.rotation.y = players[id].ry;
+                    }
+                });
+            });
+            socket.on('newPlayer', (playerInfo) => {
+                if (!remotePlayers[playerInfo.id]) {
+                    const { group, parts } = createCharacterFigure(true, playerInfo.colors);
                     scene.add(group);
-                    remotePlayers[id] = { group, parts, colors: players[id].colors };
-                    remotePlayers[id].group.position.set(players[id].x, players[id].y, players[id].z);
-                    remotePlayers[id].group.rotation.y = players[id].ry;
+                    remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
+                    remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
                 }
             });
-        });
-        socket.on('newPlayer', (playerInfo) => {
-            if (!remotePlayers[playerInfo.id]) {
-                const { group, parts } = createCharacterFigure(true, playerInfo.colors);
-                scene.add(group);
-                remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
-                remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
-            }
-        });
-        socket.on('playerMoved', (playerInfo) => {
-            if (remotePlayers[playerInfo.id]) {
-                remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
-                remotePlayers[playerInfo.id].group.rotation.y = playerInfo.ry;
-            }
-        });
-        socket.on('playerColorsChanged', (data) => {
-            if (remotePlayers[data.id]) {
-                remotePlayers[data.id].colors = data.colors;
-                applyColorsToParts(remotePlayers[data.id].parts, data.colors);
-            }
-        });
-        socket.on('playerDisconnected', (id) => {
-            if (remotePlayers[id]) {
-                scene.remove(remotePlayers[id].group);
-                delete remotePlayers[id];
-            }
-        });
+            socket.on('playerMoved', (playerInfo) => {
+                if (remotePlayers[playerInfo.id]) {
+                    remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
+                    remotePlayers[playerInfo.id].group.rotation.y = playerInfo.ry;
+                }
+            });
+            socket.on('playerColorsChanged', (data) => {
+                if (remotePlayers[data.id]) {
+                    remotePlayers[data.id].colors = data.colors;
+                    applyColorsToParts(remotePlayers[data.id].parts, data.colors);
+                }
+            });
+            socket.on('playerDisconnected', (id) => {
+                if (remotePlayers[id]) {
+                    scene.remove(remotePlayers[id].group);
+                    delete remotePlayers[id];
+                }
+            });
+        }
         ['head', 'torso', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'].forEach(part => {
-            document.getElementById(`col-${part}`).addEventListener('input', (e) => {
+            document.getElementById(`col-${part}`).addEventListener('input', async (e) => {
                 currentLocalColors[part] = e.target.value;
                 applyColorsToParts(localPlayerParts, currentLocalColors);
-                socket.emit('playerColorUpdate', currentLocalColors);
+                applyColorsToParts(avatarTabParts, currentLocalColors);
+                if(socket && socket.connected) {
+                    socket.emit('playerColorUpdate', currentLocalColors);
+                }
+                if(auth.currentUser) {
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { colors: currentLocalColors });
+                }
             });
         });
         let cameraDistance = 20.4;
@@ -248,8 +513,9 @@
         const moveSpeed = 8;
         let lastPosition = new THREE.Vector3();
         let lastRotationY = 0;
+        let activeTab = 'home';
         window.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT') return;
+            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
             if (e.key.toLowerCase() === 'w') keys.w = true;
             if (e.key.toLowerCase() === 'a') keys.a = true;
             if (e.key.toLowerCase() === 's') keys.s = true;
@@ -276,7 +542,7 @@
             if (e.key.toLowerCase() === 'd') keys.d = false;
         });
         window.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'INPUT') return;
+            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
             if (e.button === 2) {
                 isRightMouseDown = true;
                 container.requestPointerLock();
@@ -292,6 +558,7 @@
         });
         window.addEventListener('contextmenu', (e) => e.preventDefault());
         window.addEventListener('wheel', (e) => {
+            if (activeTab !== 'home') return;
             cameraDistance += e.deltaY * 0.017;
             cameraDistance = Math.max(0, Math.min(42.5, cameraDistance));
             if (cameraDistance < 1.5) {
@@ -303,6 +570,7 @@
             }
         });
         window.addEventListener('mousemove', (e) => {
+            if (activeTab !== 'home') return;
             if (isShiftLock || document.pointerLockElement === container || isRightMouseDown || cameraDistance < 1.5) {
                 cameraYaw -= e.movementX * 0.005;
                 cameraPitch -= e.movementY * 0.005;
@@ -313,97 +581,251 @@
             if (document.pointerLockElement !== container) {
                 isShiftLock = false;
                 isRightMouseDown = false;
-                if (cameraDistance < 1.5) {
+                if (cameraDistance < 1.5 && activeTab === 'home') {
                     cameraDistance = 1.5;
                 }
             }
         });
+        const avatarScene = new THREE.Scene();
+        avatarScene.background = new THREE.Color(0xf0f0f0);
+        const avatarCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        avatarCamera.position.set(0, 3, 8);
+        avatarCamera.lookAt(0, 2.5, 0);
+        const avatarRenderer = new THREE.WebGLRenderer({ antialias: true });
+        document.getElementById('avatar-preview-pane').appendChild(avatarRenderer.domElement);
+        const avLight1 = new THREE.AmbientLight(0xffffff, 0.7);
+        avatarScene.add(avLight1);
+        const avLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
+        avLight2.position.set(5, 10, 5);
+        avatarScene.add(avLight2);
+        const { group: avatarTabGroup, parts: avatarTabParts } = createCharacterFigure(false, currentLocalColors);
+        avatarScene.add(avatarTabGroup);
+        const profileScene = new THREE.Scene();
+        profileScene.background = new THREE.Color(0xe9e9e9);
+        const profileCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        profileCamera.position.set(0, 3, 8);
+        profileCamera.lookAt(0, 2.5, 0);
+        const profileRenderer = new THREE.WebGLRenderer({ antialias: true });
+        document.getElementById('profile-preview-pane').appendChild(profileRenderer.domElement);
+        const profLight1 = new THREE.AmbientLight(0xffffff, 0.7);
+        profileScene.add(profLight1);
+        const profLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
+        profLight2.position.set(5, 10, 5);
+        profileScene.add(profLight2);
+        let profileModalParts = null;
+        let profileModalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+        let profileModalGroup = null;
+        function openUserProfile(userData) {
+            const namesContainer = document.getElementById('profile-names');
+            namesContainer.innerHTML = '';
+            if(userData.displayName) {
+                const disp = document.createElement('div');
+                disp.className = 'profile-display';
+                disp.textContent = userData.displayName;
+                const userSub = document.createElement('div');
+                userSub.className = 'profile-username-sub';
+                userSub.textContent = `@${userData.username}`;
+                namesContainer.appendChild(disp);
+                namesContainer.appendChild(userSub);
+            } else {
+                const userMain = document.createElement('div');
+                userMain.className = 'profile-username-main';
+                userMain.textContent = userData.username;
+                namesContainer.appendChild(userMain);
+            }
+            const metaContainer = document.getElementById('profile-meta-details');
+            metaContainer.innerHTML = `
+                <div><strong>User ID:</strong> ${userData.userId}</div>
+                <div><strong>Gender:</strong> ${userData.gender || 'Not Specified'}</div>
+                <div><strong>Friends:</strong> ${userData.friends ? userData.friends.length : 0}</div>
+                <div><strong>Following:</strong> ${userData.following ? userData.following.length : 0}</div>
+                <div><strong>Joined:</strong> ${userData.createdAt || 'Unknown'}</div>
+            `;
+            if(profileModalGroup) profileScene.remove(profileModalGroup);
+            profileModalColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+            const { group, parts } = createCharacterFigure(false, profileModalColors);
+            profileModalGroup = group;
+            profileModalParts = parts;
+            profileScene.add(profileModalGroup);
+            const masterKeys = ['head', 'torso', 'limb'];
+            masterKeys.forEach(k => {
+                if(masters[k]) upgradePartVisual(profileModalParts, k, profileModalColors);
+            });
+            document.getElementById('profile-modal').style.display = 'flex';
+            resizeProfileCanvas();
+        }
+        document.getElementById('profile-close').addEventListener('click', () => {
+            document.getElementById('profile-modal').style.display = 'none';
+        });
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        searchInput.addEventListener('input', async () => {
+            const val = searchInput.value.trim();
+            if(!val) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            try {
+                const q = query(collection(db, "users"), where("username", ">=", val), where("username", "<=", val + '\uf8ff'));
+                const querySnapshot = await getDocs(q);
+                searchResults.innerHTML = '';
+                if(querySnapshot.empty) {
+                    const noRes = document.createElement('div');
+                    noRes.className = 'search-item';
+                    noRes.textContent = 'No users found';
+                    searchResults.appendChild(noRes);
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const uData = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'search-item';
+                        item.textContent = uData.displayName ? `${uData.displayName} (@${uData.username})` : uData.username;
+                        item.addEventListener('click', () => {
+                            searchResults.style.display = 'none';
+                            searchInput.value = '';
+                            openUserProfile(uData);
+                        });
+                        searchResults.appendChild(item);
+                    });
+                }
+                searchResults.style.display = 'flex';
+            } catch(err) {}
+        });
+        document.addEventListener('click', (e) => {
+            if(!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+                tab.classList.add('active');
+                activeTab = tab.getAttribute('data-tab');
+                document.getElementById(`tab-${activeTab}`).classList.add('active');
+                if(activeTab !== 'home') {
+                    document.exitPointerLock();
+                }
+                if(activeTab === 'avatar') {
+                    resizeAvatarCanvas();
+                }
+            });
+        });
+        function resizeAvatarCanvas() {
+            const pane = document.getElementById('avatar-preview-pane');
+            if(pane.clientWidth > 0 && pane.clientHeight > 0) {
+                avatarCamera.aspect = pane.clientWidth / pane.clientHeight;
+                avatarCamera.updateProjectionMatrix();
+                avatarRenderer.setSize(pane.clientWidth, pane.clientHeight);
+            }
+        }
+        function resizeProfileCanvas() {
+            const pane = document.getElementById('profile-preview-pane');
+            if(pane.clientWidth > 0 && pane.clientHeight > 0) {
+                profileCamera.aspect = pane.clientWidth / pane.clientHeight;
+                profileCamera.updateProjectionMatrix();
+                profileRenderer.setSize(pane.clientWidth, pane.clientHeight);
+            }
+        }
         const clock = new THREE.Clock();
         const raycaster = new THREE.Raycaster();
         function animate() {
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
-            velocityY += gravity * delta;
-            playerGroup.position.y += velocityY * delta;
-            if (playerGroup.position.y <= 0) {
-                playerGroup.position.y = 0;
-                velocityY = 0;
-                isGrounded = true;
-            }
-            let moveX = 0;
-            let moveZ = 0;
-            if (keys.w) moveZ -= 1;
-            if (keys.s) moveZ += 1;
-            if (keys.a) moveX -= 1;
-            if (keys.d) moveX += 1;
-            const isFirstPerson = cameraDistance < 1.5;
-            playerModelContainer.visible = !isFirstPerson;
-            if (moveX !== 0 || moveZ !== 0) {
-                const camForward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
-                const camRight = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
-                const moveDir = new THREE.Vector3()
-                    .addScaledVector(camForward, -moveZ)
-                    .addScaledVector(camRight, moveX)
-                    .normalize();
-                playerGroup.position.addScaledVector(moveDir, moveSpeed * delta);
-                if (!isShiftLock && !isFirstPerson) {
-                    const targetAngle = Math.atan2(moveDir.x, moveDir.z);
-                    const currentRotation = playerModelContainer.rotation.y;
-                    const deltaRotation = ((targetAngle - currentRotation + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
-                    playerModelContainer.rotation.y += deltaRotation * 15 * delta;
+            if(activeTab === 'home') {
+                velocityY += gravity * delta;
+                playerGroup.position.y += velocityY * delta;
+                if (playerGroup.position.y <= 0) {
+                    playerGroup.position.y = 0;
+                    velocityY = 0;
+                    isGrounded = true;
                 }
-            }
-            if (isShiftLock || isFirstPerson) {
-                playerModelContainer.rotation.y = cameraYaw + Math.PI;
-            }
-            const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 2.5, playerGroup.position.z);
-            let cameraTargetPosition = new THREE.Vector3();
-            if (isFirstPerson) {
-                camera.position.copy(centerTarget);
-                const lookTarget = new THREE.Vector3(
-                    centerTarget.x - Math.sin(cameraYaw) * Math.cos(cameraPitch),
-                    centerTarget.y + Math.sin(cameraPitch),
-                    centerTarget.z - Math.cos(cameraYaw) * Math.cos(cameraPitch)
-                );
-                camera.lookAt(lookTarget);
-            } else {
-                let offsetCamDistance = cameraDistance;
-                let currentYawOffset = cameraYaw;
-                if (isShiftLock) {
-                    const rightOffset = new THREE.Vector3(0.4, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
-                    centerTarget.add(rightOffset);
+                let moveX = 0;
+                let moveZ = 0;
+                if (keys.w) moveZ -= 1;
+                if (keys.s) moveZ += 1;
+                if (keys.a) moveX -= 1;
+                if (keys.d) moveX += 1;
+                const isFirstPerson = cameraDistance < 1.5;
+                playerModelContainer.visible = !isFirstPerson;
+                if (moveX !== 0 || moveZ !== 0) {
+                    const camForward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
+                    const camRight = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
+                    const moveDir = new THREE.Vector3()
+                        .addScaledVector(camForward, -moveZ)
+                        .addScaledVector(camRight, moveX)
+                        .normalize();
+                    playerGroup.position.addScaledVector(moveDir, moveSpeed * delta);
+                    if (!isShiftLock && !isFirstPerson) {
+                        const targetAngle = Math.atan2(moveDir.x, moveDir.z);
+                        const currentRotation = playerModelContainer.rotation.y;
+                        const deltaRotation = ((targetAngle - currentRotation + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+                        playerModelContainer.rotation.y += deltaRotation * 15 * delta;
+                    }
                 }
-                const preferredCamPos = new THREE.Vector3(
-                    centerTarget.x + offsetCamDistance * Math.sin(currentYawOffset) * Math.cos(cameraPitch),
-                    centerTarget.y + offsetCamDistance * Math.sin(cameraPitch),
-                    centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch)
-                );
-                raycaster.set(centerTarget, new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize());
-                const intersects = raycaster.intersectObject(cube);
-                if (intersects.length > 0 && intersects[0].distance < offsetCamDistance) {
-                    cameraTargetPosition.copy(intersects[0].point).addScaledVector(new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize(), -0.2);
+                if (isShiftLock || isFirstPerson) {
+                    playerModelContainer.rotation.y = cameraYaw + Math.PI;
+                }
+                const centerTarget = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 2.5, playerGroup.position.z);
+                let cameraTargetPosition = new THREE.Vector3();
+                if (isFirstPerson) {
+                    camera.position.copy(centerTarget);
+                    const lookTarget = new THREE.Vector3(
+                        centerTarget.x - Math.sin(cameraYaw) * Math.cos(cameraPitch),
+                        centerTarget.y + Math.sin(cameraPitch),
+                        centerTarget.z - Math.cos(cameraYaw) * Math.cos(cameraPitch)
+                    );
+                    camera.lookAt(lookTarget);
                 } else {
-                    cameraTargetPosition.copy(preferredCamPos);
+                    let offsetCamDistance = cameraDistance;
+                    let currentYawOffset = cameraYaw;
+                    if (isShiftLock) {
+                        const rightOffset = new THREE.Vector3(0.4, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
+                        centerTarget.add(rightOffset);
+                    }
+                    const preferredCamPos = new THREE.Vector3(
+                        centerTarget.x + offsetCamDistance * Math.sin(currentYawOffset) * Math.cos(cameraPitch),
+                        centerTarget.y + offsetCamDistance * Math.sin(cameraPitch),
+                        centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch)
+                    );
+                    raycaster.set(centerTarget, new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize());
+                    const intersects = raycaster.intersectObject(cube);
+                    if (intersects.length > 0 && intersects[0].distance < offsetCamDistance) {
+                        cameraTargetPosition.copy(intersects[0].point).addScaledVector(new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize(), -0.2);
+                    } else {
+                        cameraTargetPosition.copy(preferredCamPos);
+                    }
+                    camera.position.copy(cameraTargetPosition);
+                    camera.lookAt(centerTarget);
                 }
-                camera.position.copy(cameraTargetPosition);
-                camera.lookAt(centerTarget);
+                if (playerGroup.position.distanceTo(lastPosition) > 0.001 || Math.abs(playerModelContainer.rotation.y - lastRotationY) > 0.01) {
+                    if(socket && socket.connected) {
+                        socket.emit('playerMovement', {
+                            x: playerGroup.position.x,
+                            y: playerGroup.position.y,
+                            z: playerGroup.position.z,
+                            ry: playerModelContainer.rotation.y
+                        });
+                    }
+                    lastPosition.copy(playerGroup.position);
+                    lastRotationY = playerModelContainer.rotation.y;
+                }
+                renderer.render(scene, camera);
+            } else if(activeTab === 'avatar') {
+                avatarTabGroup.rotation.y += 1 * delta;
+                avatarRenderer.render(avatarScene, avatarCamera);
             }
-            if (playerGroup.position.distanceTo(lastPosition) > 0.001 || Math.abs(playerModelContainer.rotation.y - lastRotationY) > 0.01) {
-                socket.emit('playerMovement', {
-                    x: playerGroup.position.x,
-                    y: playerGroup.position.y,
-                    z: playerGroup.position.z,
-                    ry: playerModelContainer.rotation.y
-                });
-                lastPosition.copy(playerGroup.position);
-                lastRotationY = playerModelContainer.rotation.y;
+            if(document.getElementById('profile-modal').style.display === 'flex' && profileModalGroup) {
+                profileModalGroup.rotation.y += 1 * delta;
+                profileRenderer.render(profileScene, profileCamera);
             }
-            renderer.render(scene, camera);
         }
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            resizeAvatarCanvas();
+            resizeProfileCanvas();
         });
         animate();
     </script>
