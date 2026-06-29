@@ -9,52 +9,55 @@
         #auth-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .auth-box { padding: 30px; border: 1px solid #ccc; border-radius: 8px; width: 320px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .auth-box input, .auth-box select, .auth-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        .auth-box button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .auth-box button:hover { background: #0056b3; }
-        .auth-toggle { text-align: center; color: #007bff; cursor: pointer; font-size: 13px; text-decoration: underline; }
+        .auth-box button { background: #d91e36; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .auth-box button:hover { background: #b2182b; }
+        .auth-toggle { text-align: center; color: #d91e36; cursor: pointer; font-size: 13px; text-decoration: underline; }
         #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; }
-        #nav-bar { background: #222; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 40px; z-index: 500; }
+        #nav-bar { background: #1a1a1a; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; height: 40px; z-index: 500; border-bottom: 2px solid #d91e36; }
         .nav-tabs { display: flex; gap: 20px; }
         .nav-tab { cursor: pointer; font-weight: bold; font-size: 15px; opacity: 0.7; transition: opacity 0.2s; }
-        .nav-tab.active { opacity: 1; border-bottom: 2px solid #fff; }
+        .nav-tab.active { opacity: 1; border-bottom: 2px solid #d91e36; }
         .search-container { position: relative; width: 250px; }
-        .search-container input { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #555; background: #333; color: #fff; box-sizing: border-box; }
-        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #333; border-radius: 4px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #444; font-size: 13px; }
-        .search-item:hover { background: #444; }
+        .search-container input { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #333; background: #252525; color: #fff; box-sizing: border-box; }
+        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #252525; border-radius: 4px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 600; }
+        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #333; font-size: 13px; }
+        .search-item:hover { background: #d91e36; color: #fff; }
         .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 60px); display: none; }
         .tab-view.active { display: block; }
         #canvas-container { width: 100%; height: 100%; display: block; }
         #avatar-view-container { width: 100%; height: 100%; display: flex; background: #f0f0f0; }
         .avatar-preview-pane { flex: 1; height: 100%; position: relative; }
-        .avatar-ui-pane { width: 300px; background: rgba(0,0,0,0.85); color: #fff; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
+        .avatar-ui-pane { width: 300px; background: rgba(20,20,20,0.95); color: #fff; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; border-left: 2px solid #d91e36; }
         .avatar-ui-pane label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         .avatar-ui-pane input[type="color"] { border: none; background: transparent; width: 50px; height: 28px; cursor: pointer; }
         #settings-view-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #fafafa; }
         .settings-box { background: white; padding: 40px; border: 1px solid #ddd; border-radius: 8px; width: 350px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .settings-box input, .settings-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-        .settings-box button.danger-btn { background: #dc3545; color: white; border: none; cursor: pointer; }
-        .settings-box button.danger-btn:hover { background: #bd2130; }
-        .settings-box button.save-btn { background: #28a745; color: white; border: none; cursor: pointer; }
-        .settings-box button.save-btn:hover { background: #218838; }
+        .settings-box button.danger-btn { background: #222; color: white; border: none; cursor: pointer; }
+        .settings-box button.danger-btn:hover { background: #000; }
+        .settings-box button.save-btn { background: #d91e36; color: white; border: none; cursor: pointer; }
+        .settings-box button.save-btn:hover { background: #b2182b; }
         #profile-modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .profile-card { background: white; border-radius: 12px; width: 550px; height: 400px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .profile-card { background: white; border-radius: 12px; width: 580px; height: 430px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #d91e36; }
         .profile-left { flex: 1; background: #e9e9e9; position: relative; height: 100%; }
-        .profile-right { width: 250px; padding: 25px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
+        .profile-right { width: 280px; padding: 25px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; overflow-y: auto; }
         .profile-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; color: #333; z-index: 2010; }
         .profile-name-container { display: flex; flex-direction: column; }
         .profile-display { font-size: 22px; font-weight: bold; color: #111; }
         .profile-username-sub { font-size: 13px; color: #777; }
         .profile-username-main { font-size: 22px; font-weight: bold; color: #111; }
         .profile-meta { font-size: 13px; color: #444; margin-top: 5px; display: flex; flex-direction: column; gap: 4px; }
-        .game-info-overlay { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); padding: 15px; border-radius: 8px; width: 260px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 600; display: flex; flex-direction: column; gap: 8px; color: #000; }
-        .game-info-overlay h2 { margin: 0; font-size: 18px; text-align: center; }
-        .ratio-bar { display: flex; height: 8px; width: 100%; background: #cc0000; border-radius: 4px; overflow: hidden; margin-top: 5px; }
-        .ratio-likes { background: #00cc00; height: 100%; width: 100%; transition: width 0.3s; }
+        .profile-badges-title { font-weight: bold; font-size: 14px; margin-top: 10px; color: #d91e36; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+        .profile-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+        .badge-item { background: #d91e36; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
+        .game-info-overlay { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px; width: 260px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 600; display: flex; flex-direction: column; gap: 8px; color: #000; border: 1px solid #d91e36; }
+        .game-info-overlay h2 { margin: 0; font-size: 18px; text-align: center; color: #d91e36; }
+        .ratio-bar { display: flex; height: 8px; width: 100%; background: #222; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+        .ratio-likes { background: #d91e36; height: 100%; width: 100%; transition: width 0.3s; }
         .counters { display: flex; justify-content: space-between; font-size: 12px; color: #333; font-weight: bold; }
         .vote-buttons { display: flex; gap: 10px; }
         .vote-btn { flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12px; }
-        .vote-btn:hover { background: #f0f0f0; }
+        .vote-btn:hover { background: #f0f0f0; border-color: #d91e36; }
     </style>
     <script type="importmap">
         {
@@ -69,14 +72,14 @@
 <body>
     <div id="auth-screen">
         <div class="auth-box" id="login-box">
-            <h2 style="margin:0 0 10px 0; text-align:center;">Login</h2>
+            <h2 style="margin:0 0 10px 0; text-align:center; color:#d91e36;">Login</h2>
             <input type="email" id="login-email" placeholder="Email">
             <input type="password" id="login-pass" placeholder="Password">
             <button id="btn-login">Sign In</button>
             <div class="auth-toggle" id="to-register">Don't have an account? Register</div>
         </div>
         <div class="auth-box" id="register-box" style="display:none;">
-            <h2 style="margin:0 0 10px 0; text-align:center;">Register</h2>
+            <h2 style="margin:0 0 10px 0; text-align:center; color:#d91e36;">Register</h2>
             <input type="text" id="reg-user" placeholder="Username (Unique)">
             <input type="text" id="reg-display" placeholder="Display Name (Optional)">
             <select id="reg-gender">
@@ -118,7 +121,7 @@
             <div id="avatar-view-container">
                 <div class="avatar-preview-pane" id="avatar-preview-pane"></div>
                 <div class="avatar-ui-pane">
-                    <h3 style="margin:0 0 10px 0; text-align:center;">Edit Colors</h3>
+                    <h3 style="margin:0 0 10px 0; text-align:center; color:#d91e36;">Edit Colors</h3>
                     <label>Head <input type="color" id="col-head" value="#e0e0e0"></label>
                     <label>Torso <input type="color" id="col-torso" value="#e0e0e0"></label>
                     <label>L. Arm <input type="color" id="col-leftArm" value="#e0e0e0"></label>
@@ -131,7 +134,7 @@
         <div id="tab-settings" class="tab-view">
             <div id="settings-view-container">
                 <div class="settings-box">
-                    <h3 style="margin:0 0 5px 0;">Account Settings</h3>
+                    <h3 style="margin:0 0 5px 0; color:#d91e36;">Account Settings</h3>
                     <input type="text" id="settings-display" placeholder="New Display Name">
                     <button class="save-btn" id="btn-save-display">Update Display Name</button>
                     <hr style="width:100%; border:none; border-top:1px solid #ddd; margin:10px 0;">
@@ -151,6 +154,8 @@
             <div class="profile-right">
                 <div class="profile-name-container" id="profile-names"></div>
                 <div class="profile-meta" id="profile-meta-details"></div>
+                <div class="profile-badges-title">Badges</div>
+                <div class="profile-badges" id="profile-badges-container"></div>
             </div>
         </div>
     </div>
@@ -208,21 +213,36 @@
             });
         }
         async function voteGame(isLike) {
+            if (!auth.currentUser) return alert('You must be logged in to vote');
             const gameRef = doc(db, "games", "democube");
+            const userVoteRef = doc(db, "games", "democube", "userVotes", auth.currentUser.uid);
             try {
                 await runTransaction(db, async (transaction) => {
-                    const sfDoc = await transaction.get(gameRef);
+                    const gameSnap = await transaction.get(gameRef);
+                    const voteSnap = await transaction.get(userVoteRef);
                     let likes = 0;
                     let dislikes = 0;
-                    if (sfDoc.exists()) {
-                        likes = sfDoc.data().likes || 0;
-                        dislikes = sfDoc.data().dislikes || 0;
+                    if (gameSnap.exists()) {
+                        likes = gameSnap.data().likes || 0;
+                        dislikes = gameSnap.data().dislikes || 0;
                     }
-                    if (isLike) {
-                        transaction.set(gameRef, { likes: likes + 1, dislikes: dislikes }, { merge: true });
+                    let existingVote = null;
+                    if (voteSnap.exists()) {
+                        existingVote = voteSnap.data().type;
+                    }
+                    const newVoteType = isLike ? "like" : "dislike";
+                    if (existingVote === newVoteType) {
+                        if (isLike) likes = Math.max(0, likes - 1);
+                        else dislikes = Math.max(0, dislikes - 1);
+                        transaction.delete(userVoteRef);
                     } else {
-                        transaction.set(gameRef, { likes: likes, dislikes: dislikes + 1 }, { merge: true });
+                        if (existingVote === "like") likes = Math.max(0, likes - 1);
+                        if (existingVote === "dislike") dislikes = Math.max(0, dislikes - 1);
+                        if (isLike) likes += 1;
+                        else dislikes += 1;
+                        transaction.set(userVoteRef, { type: newVoteType });
                     }
+                    transaction.set(gameRef, { likes: likes, dislikes: dislikes }, { merge: true });
                 });
             } catch (err) {}
         }
@@ -284,7 +304,8 @@
                         colors: currentLocalColors,
                         createdAt: createdStr,
                         friends: [],
-                        following: []
+                        following: [],
+                        badges: ["Welcome Player", "Beta Tester"]
                     });
                 });
             } catch(err) {
@@ -738,6 +759,15 @@
                 <div><strong>Following:</strong> ${userData.following ? userData.following.length : 0}</div>
                 <div><strong>Joined:</strong> ${userData.createdAt || 'Unknown'}</div>
             `;
+            const badgesContainer = document.getElementById('profile-badges-container');
+            badgesContainer.innerHTML = '';
+            const badgesList = userData.badges || ["Welcome Player"];
+            badgesList.forEach(badge => {
+                const badgeEl = document.createElement('span');
+                badgeEl.className = 'badge-item';
+                badgeEl.textContent = badge;
+                badgesContainer.appendChild(badgeEl);
+            });
             if(profileModalGroup) profileScene.remove(profileModalGroup);
             profileModalColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
             const { group, parts } = createCharacterFigure(false, profileModalColors);
