@@ -72,12 +72,11 @@
         .game-page-developer span { color: #b20000; font-weight: bold; }
         .game-page-developer span:hover { text-decoration: underline; }
         .rating-bar-container { width: 100%; height: 6px; background: #ff4d4d; border-radius: 3px; overflow: hidden; display: flex; margin-top: 10px; }
-        .rating-bar-fill { height: 100%; background: #2ecc71; width: 85%; }
+        .rating-bar-fill { height: 100%; background: #2ecc71; width: 100%; transition: width 0.3s ease; }
         .rating-counters { display: flex; gap: 20px; font-size: 14px; color: #444; margin-top: 2px; align-items: center; }
-        .rating-button { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: bold; }
+        .rating-button { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: bold; user-select: none; }
         .rating-button:hover { color: #b20000; }
-        .play-button-element { background: #000000; color: #ffffff; font-size: 22px; font-weight: bold; text-align: center; padding: 15px 40px; border-radius: 6px; cursor: pointer; width: fit-content; margin-top: 15px; border: none; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .play-button-element:hover { background: #222222; }
+        .play-button-img { cursor: pointer; width: 210px; margin-top: 15px; border: none; outline: none; display: block; }
         .profile-page-top { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
         .profile-page-middle { display: flex; gap: 25px; margin-bottom: 30px; width: 100%; }
         .profile-page-avatar-box { width: 320px; height: 320px; background: #3a3a3a; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #ccc; }
@@ -87,6 +86,11 @@
         .profile-footer-column:first-child { border-right: 1px solid #dddddd; }
         .profile-stat-label { font-size: 18px; font-weight: bold; color: #000000; margin-bottom: 10px; }
         .profile-stat-value { font-size: 15px; color: #333333; line-height: 1.4; }
+        .profile-action-btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; outline: none; margin-top: 8px; margin-right: 6px; color: #fff; }
+        #btn-action-friend { background: #b20000; }
+        #btn-action-friend:hover { background: #e50000; }
+        #btn-action-follow { background: #333333; }
+        #btn-action-follow:hover { background: #555555; }
     </style>
     <script type="importmap">
         {
@@ -163,14 +167,14 @@
                     <p class="game-page-developer" id="game-dev-link">Created by <span>@fourblox</span></p>
                     <div>
                         <div class="rating-bar-container">
-                            <div class="rating-bar-fill"></div>
+                            <div class="rating-bar-fill" id="game-rating-fill"></div>
                         </div>
                         <div class="rating-counters">
-                            <div class="rating-button">👍 85</div>
-                            <div class="rating-button">👎 15</div>
+                            <div class="rating-button" id="btn-like">👍 <span id="lbl-likes">0</span></div>
+                            <div class="rating-button" id="btn-dislike">👎 <span id="lbl-dislikes">0</span></div>
                         </div>
                     </div>
-                    <button class="play-button-element" id="btn-play-game">playbutton.png</button>
+                    <img src="https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/playbutton.png" class="play-button-img" id="btn-play-game" alt="Play Game">
                 </div>
             </div>
         </div>
@@ -183,6 +187,10 @@
                 <div class="greeting-text-container">
                     <div class="greeting-displayname" id="profile-main-display">Displayname</div>
                     <div class="greeting-username" id="profile-main-user">@username</div>
+                    <div id="profile-actions-bar" style="display:none; margin-top:5px;">
+                        <button class="profile-action-btn" id="btn-action-friend">Add Friend</button>
+                        <button class="profile-action-btn" id="btn-action-follow">Follow</button>
+                    </div>
                 </div>
             </div>
             <div class="profile-page-middle">
@@ -247,7 +255,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, collection, query, where, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import * as THREE from 'three';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
         const firebaseConfig = {
@@ -372,6 +380,7 @@
             }
         });
         let currentUserData = null;
+        let viewedUserData = null;
         let socketInitialized = false;
         let socket = null;
         onAuthStateChanged(auth, async (user) => {
@@ -502,6 +511,25 @@
             });
             return { group, parts };
         }
+        function createNametag(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, 256, 64);
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 128, 32);
+            const texture = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(mat);
+            sprite.scale.set(4, 1, 1);
+            sprite.position.y = 5.8;
+            return sprite;
+        }
         function setupMasterModel(key, obj) {
             const box = new THREE.Box3().setFromObject(obj);
             const size = box.getSize(new THREE.Vector3());
@@ -543,7 +571,6 @@
             if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
             if (avatarTabParts) upgradePartVisual(avatarTabParts, key, currentLocalColors);
             if (profilePageParts) upgradePartVisual(profilePageParts, key, currentProfilePageColors);
-            updateMicroRenderers();
         }
         function applyColorsToParts(partsObj, colors) {
             if(!partsObj) return;
@@ -554,7 +581,6 @@
                     if (child.isMesh) child.material.color.set(col);
                 });
             });
-            updateMicroRenderers();
         }
         const playerGroup = new THREE.Group();
         playerGroup.position.set(0, 0, 0);
@@ -583,7 +609,10 @@
                     if (id !== socket.id && !remotePlayers[id]) {
                         const { group, parts } = createCharacterFigure(true, players[id].colors);
                         scene.add(group);
-                        remotePlayers[id] = { group, parts, colors: players[id].colors };
+                        const label = players[id].username || "Player";
+                        const nametag = createNametag(label);
+                        group.add(nametag);
+                        remotePlayers[id] = { group, parts, colors: players[id].colors, nametag };
                         remotePlayers[id].group.position.set(players[id].x, players[id].y, players[id].z);
                         remotePlayers[id].group.rotation.y = players[id].ry;
                     }
@@ -593,7 +622,10 @@
                 if (!remotePlayers[playerInfo.id]) {
                     const { group, parts } = createCharacterFigure(true, playerInfo.colors);
                     scene.add(group);
-                    remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors };
+                    const label = playerInfo.username || "Player";
+                    const nametag = createNametag(label);
+                    group.add(nametag);
+                    remotePlayers[playerInfo.id] = { group, parts, colors: playerInfo.colors, nametag };
                     remotePlayers[playerInfo.id].group.position.set(playerInfo.x, playerInfo.y, playerInfo.z);
                 }
             });
@@ -740,11 +772,11 @@
             mScene.background = new THREE.Color(0xffffff);
             const mCamera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
             if(headTorsoOnly) {
-                mCamera.position.set(0, 3.8, 4.5);
-                mCamera.lookAt(0, 3.6, 0);
+                mCamera.position.set(0, 4.3, 4.2);
+                mCamera.lookAt(0, 4.1, 0);
             } else {
-                mCamera.position.set(0, 2.8, 7.5);
-                mCamera.lookAt(0, 2.5, 0);
+                mCamera.position.set(0, 3.2, 7.0);
+                mCamera.lookAt(0, 2.9, 0);
             }
             const mRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             mRenderer.setSize(width, height);
@@ -794,10 +826,17 @@
         let profilePageParts = null;
         let currentProfilePageColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
         function loadProfilePageData(userData) {
+            viewedUserData = userData;
             document.getElementById('profile-main-display').textContent = userData.displayName || userData.username;
             document.getElementById('profile-main-user').textContent = `@${userData.username}`;
             document.getElementById('profile-main-id-val').textContent = userData.userId || "1";
             document.getElementById('profile-main-created-val').innerHTML = userData.createdAt || "Unknown Date";
+            const actionsBar = document.getElementById('profile-actions-bar');
+            if(auth.currentUser && auth.currentUser.uid !== userData.uid) {
+                actionsBar.style.display = 'block';
+            } else {
+                actionsBar.style.display = 'none';
+            }
             if(profilePageGroup) profilePageScene.remove(profilePageGroup);
             currentProfilePageColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
             const { group, parts } = createCharacterFigure(false, currentProfilePageColors);
@@ -883,6 +922,72 @@
             }
             setTimeout(updateMicroRenderers, 50);
         }
+        async function updateGameRatingsUI() {
+            const gDoc = await getDoc(doc(db, "games", "democube"));
+            let likes = 85;
+            let dislikes = 15;
+            if (gDoc.exists()) {
+                const data = gDoc.data();
+                likes = data.likes !== undefined ? data.likes : 85;
+                dislikes = data.dislikes !== undefined ? data.dislikes : 15;
+            } else {
+                await setDoc(doc(db, "games", "democube"), { likes: 85, dislikes: 15 });
+            }
+            document.getElementById('lbl-likes').textContent = likes;
+            document.getElementById('lbl-dislikes').textContent = dislikes;
+            const total = likes + dislikes;
+            const pct = total > 0 ? (likes / total) * 100 : 100;
+            document.getElementById('game-rating-fill').style.width = `${pct}%`;
+        }
+        document.getElementById('btn-like').addEventListener('click', async () => {
+            if(!auth.currentUser) return;
+            const gameRef = doc(db, "games", "democube");
+            await runTransaction(db, async (transaction) => {
+                const sfDoc = await transaction.get(gameRef);
+                let currentLikes = sfDoc.exists() ? (sfDoc.data().likes || 0) : 85;
+                transaction.update(gameRef, { likes: currentLikes + 1 });
+            });
+            updateGameRatingsUI();
+        });
+        document.getElementById('btn-dislike').addEventListener('click', async () => {
+            if(!auth.currentUser) return;
+            const gameRef = doc(db, "games", "democube");
+            await runTransaction(db, async (transaction) => {
+                const sfDoc = await transaction.get(gameRef);
+                let currentDislikes = sfDoc.exists() ? (sfDoc.data().dislikes || 0) : 15;
+                transaction.update(gameRef, { dislikes: currentDislikes + 1 });
+            });
+            updateGameRatingsUI();
+        });
+        document.getElementById('btn-action-friend').addEventListener('click', async () => {
+            if(!auth.currentUser || !viewedUserData) return;
+            try {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                    friends: arrayUnion(viewedUserData.uid)
+                });
+                await updateDoc(doc(db, "users", viewedUserData.uid), {
+                    friends: arrayUnion(auth.currentUser.uid)
+                });
+                alert("Friend added successfully!");
+                const freshDoc = await getDoc(doc(db, "users", viewedUserData.uid));
+                if(freshDoc.exists()) loadProfilePageData(freshDoc.data());
+                const meDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+                if(meDoc.exists()) currentUserData = meDoc.data();
+            } catch(e) {
+                alert(e.message);
+            }
+        });
+        document.getElementById('btn-action-follow').addEventListener('click', async () => {
+            if(!auth.currentUser || !viewedUserData) return;
+            try {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                    following: arrayUnion(viewedUserData.uid)
+                });
+                alert("Following user!");
+            } catch(e) {
+                alert(e.message);
+            }
+        });
         document.getElementById('game-card-demo').addEventListener('click', () => {
             switchTab('game-page');
         });
@@ -957,6 +1062,7 @@
                 }
             } else if(tabId === 'game-page') {
                 document.getElementById('tab-game-page').classList.add('active');
+                updateGameRatingsUI();
             } else if(tabId === 'game-interactive') {
                 document.getElementById('tab-game-interactive').classList.add('active');
             } else {
