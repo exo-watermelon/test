@@ -53,10 +53,10 @@
         .greeting-displayname { font-size: 32px; font-weight: bold; color: #000000; }
         .greeting-username { font-size: 18px; color: #666666; }
         .section-title { font-size: 22px; font-weight: bold; color: #000000; margin: 25px 0 15px 0; }
-        .friends-horizontal-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 25px; }
+        .friends-horizontal-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 25px; min-height: 80px; }
         .friend-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; width: 100px; padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.03); transition: transform 0.2s; }
         .friend-card:hover { transform: translateY(-2px); }
-        .friend-card-avatar { width: 64px; height: 64px; background: #fafafa; border-radius: 50%; overflow: hidden; border: 1px solid #eee; margin-bottom: 8px; }
+        .friend-card-avatar { width: 64px; height: 64px; background: #fafafa; border-radius: 50%; overflow: hidden; border: 1px solid #eee; margin-bottom: 8px; position: relative; }
         .friend-card-name { font-size: 12px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
         .no-friends-text { color: #888888; font-size: 14px; font-style: italic; }
         .games-grid { display: flex; gap: 15px; }
@@ -180,6 +180,66 @@
         </div>
         <div id="tab-game-interactive" class="tab-view" style="padding:0; overflow:hidden;">
             <div id="canvas-container"></div>
+            <button id="ingame-menu-btn" style="position: absolute; bottom: 20px; left: 20px; padding: 12px 24px; background: #111; color: white; border: 1px solid #ff1e3a; border-radius: 6px; font-weight: bold; cursor: pointer; z-index: 700;">Menu</button>
+            <button id="ingame-powers-btn" style="position: absolute; bottom: 20px; right: 20px; padding: 12px 24px; background: #111; color: #ff1e3a; border: 1px solid #ff1e3a; border-radius: 6px; font-weight: bold; cursor: pointer; z-index: 700; display: none;">Powers</button>
+            <div id="ingame-menu-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 800;">
+                <div id="ingame-menu-box" style="background: #000; border: 2px solid #ff1e3a; border-radius: 12px; width: 300px; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 15px rgba(255,30,58,0.4); text-align: center;">
+                    <div style="color: #fff; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; margin-bottom: 10px;">Menu</div>
+                    <div id="menu-main-screen" style="display: flex; flex-direction: column; gap: 12px;">
+                        <button id="btn-menu-reset" style="padding: 10px; background: #ff1e3a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Reset character</button>
+                        <button id="btn-menu-leave" style="padding: 10px; background: #333; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Leave game</button>
+                        <button id="btn-menu-close" style="padding: 10px; background: #111; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer;">Close</button>
+                    </div>
+                    <div id="menu-confirm-screen" style="display: none; flex-direction: column; gap: 15px;">
+                        <div id="menu-confirm-prompt" style="color: white; font-family: Arial; font-size: 16px;">Are you sure?</div>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button id="btn-confirm-yes" style="padding: 10px 20px; background: #ff1e3a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 80px;">Yes</button>
+                            <button id="btn-confirm-no" style="padding: 10px 20px; background: #333; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 80px;">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="powers-menu-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 850;">
+                <div style="background: #111; border: 2px solid #ff1e3a; border-radius: 12px; width: 340px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 15px rgba(255,30,58,0.4); color: white; font-family: Arial, sans-serif; max-height: 85vh; overflow-y: auto;">
+                    <div style="font-size: 20px; font-weight: bold; color: #ff1e3a; text-align: center;">Powers Menu</div>
+                    <div style="border-bottom: 1px solid #333; padding-bottom: 8px;">
+                        <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #aaa;">Edit Main Cube</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                            <input type="number" id="edit-cube-size" placeholder="Size (studs)" value="100" style="padding: 6px; background: #222; border: 1px solid #444; color: white; border-radius: 4px;">
+                            <input type="color" id="edit-cube-color" value="#228B22" style="width:100%; height:30px; padding:0; background:none; border:none; cursor:pointer;">
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #aaa;">Add / Edit Part</div>
+                        <input type="text" id="part-name" placeholder="Part Name" value="Part" style="width:100%; padding: 6px; background: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; margin-bottom: 6px;">
+                        <div style="font-size: 12px; color: #888;">Size (X, Y, Z) studs:</div>
+                        <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                            <input type="number" id="part-size-x" placeholder="X" value="4" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <input type="number" id="part-size-y" placeholder="Y" value="4" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <input type="number" id="part-size-z" placeholder="Z" value="4" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                        </div>
+                        <div style="font-size: 12px; color: #888;">Position (X, Y, Z) studs:</div>
+                        <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                            <input type="number" id="part-pos-x" placeholder="X" value="0" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <input type="number" id="part-pos-y" placeholder="Y" value="2" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <input type="number" id="part-pos-z" placeholder="Z" value="0" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                        </div>
+                        <div style="font-size: 12px; color: #888;">Rotation (X, Y, Z) deg:</div>
+                        <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                            <input type="number" id="part-rot-x" placeholder="X" value="0" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <input type="number" id="part-rot-y" placeholder="Y" value="0" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                            <input type="number" id="part-rot-z" placeholder="Z" value="0" style="width:33%; padding:6px; background:#222; border:1px solid #444; color:white; border-radius:4px;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label style="font-size: 12px; color: #888;">Color:</label>
+                            <input type="color" id="part-color" value="#ff1e3a" style="flex:1; height:30px; padding:0; background:none; border:none; cursor:pointer;">
+                        </div>
+                    </div>
+                    <button id="btn-powers-add" style="padding: 10px; background: #ff1e3a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">Add Part to World</button>
+                    <button id="btn-powers-publish" style="padding: 10px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Publish Changes</button>
+                    <button id="btn-powers-close" style="padding: 8px; background: #333; color: #ccc; border: none; border-radius: 6px; cursor: pointer; text-align: center;">Close</button>
+                </div>
+            </div>
         </div>
         <div id="tab-profile" class="tab-view">
             <div class="profile-page-top">
@@ -270,6 +330,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        let hasVoted = false;
+        let menuPendingAction = '';
+        let customWorldParts = [];
+        let customWorldPartsData = [];
         document.getElementById('to-register').addEventListener('click', () => {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('register-box').style.display = 'flex';
@@ -438,10 +502,10 @@
         dirLight.shadow.camera.far = 150;
         dirLight.shadow.bias = -0.0005;
         scene.add(dirLight);
-        const cubeSize = 100;
-        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        let cubeSize = 100;
+        let cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
         const greenMat = new THREE.MeshStandardMaterial({ color: 0x228B22 });
-        const cube = new THREE.Mesh(cubeGeo, greenMat);
+        let cube = new THREE.Mesh(cubeGeo, greenMat);
         cube.position.y = -cubeSize / 2;
         cube.receiveShadow = true;
         scene.add(cube);
@@ -467,12 +531,12 @@
         scene.add(studsPlane);
         const masters = { head: null, torso: null, limb: null };
         const partLayouts = {
-            head: { pos: [0, 4.55, 0], size: [1.1, 1.1, 1.1] },
-            torso: { pos: [0, 3.0, 0], size: [2, 2, 1] },
-            leftArm: { pos: [-1.5, 3.0, 0], size: [1, 2, 1] },
-            rightArm: { pos: [1.5, 3.0, 0], size: [1, 2, 1] },
-            leftLeg: { pos: [-0.5, 1.0, 0], size: [1, 2, 1] },
-            rightLeg: { pos: [0.5, 1.0, 0], size: [1, 2, 1] }
+            head: { pos: [0, 3.8, 0], size: [1.1, 1.1, 1.1] },
+            torso: { pos: [0, 2.25, 0], size: [2, 2, 1] },
+            leftArm: { pos: [-1.5, 2.25, 0], size: [1, 2, 1] },
+            rightArm: { pos: [1.5, 2.25, 0], size: [1, 2, 1] },
+            leftLeg: { pos: [-0.5, 0.25, 0], size: [1, 2, 1] },
+            rightLeg: { pos: [0.5, 0.25, 0], size: [1, 2, 1] }
         };
         const currentLocalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
         function createCharacterFigure(isRemote, baseColors) {
@@ -527,7 +591,7 @@
             const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
             const sprite = new THREE.Sprite(mat);
             sprite.scale.set(4, 1, 1);
-            sprite.position.y = 5.8;
+            sprite.position.y = 5.2;
             return sprite;
         }
         function setupMasterModel(key, obj) {
@@ -573,12 +637,13 @@
             if (profilePageParts) upgradePartVisual(profilePageParts, key, currentProfilePageColors);
         }
         function applyColorsToParts(partsObj, colors) {
-            if(!partsObj) return;
+            if(!partsObj || !colors) return;
             Object.keys(partsObj).forEach(partName => {
                 const partGroup = partsObj[partName];
-                const col = colors[partName] || '#e0e0e0';
+                let col = colors[partName];
+                if (typeof col !== 'string') col = '#e0e0e0';
                 partGroup.traverse(child => {
-                    if (child.isMesh) child.material.color.set(col);
+                    if (child.isMesh && child.material && child.material.color) child.material.color.set(col);
                 });
             });
         }
@@ -589,6 +654,8 @@
         playerGroup.add(playerModelContainer);
         const { group: localVisualGroup, parts: localPlayerParts } = createCharacterFigure(false, currentLocalColors);
         playerModelContainer.add(localVisualGroup);
+        const localNametag = createNametag("Player");
+        playerGroup.add(localNametag);
         const objLoader = new OBJLoader();
         const assets = [
             { key: 'head', url: 'https://cdn.jsdelivr.net/gh/exo-watermelon/test@main/head.obj' },
@@ -763,20 +830,29 @@
         avatarScene.add(avLight2);
         const { group: avatarTabGroup, parts: avatarTabParts } = createCharacterFigure(false, currentLocalColors);
         avatarScene.add(avatarTabGroup);
-        const microScenes = [];
+        let microScenes = [];
         function createMicroAvatarView(containerElement, colorsData, headTorsoOnly = false) {
             containerElement.innerHTML = '';
-            const width = containerElement.clientWidth || 100;
-            const height = containerElement.clientHeight || 100;
+            let width = containerElement.clientWidth;
+            let height = containerElement.clientHeight;
+            if (!width || !height) {
+                if (containerElement.classList.contains('friend-card-avatar')) {
+                    width = 64; height = 64;
+                } else if (containerElement.id.includes('frame')) {
+                    width = 110; height = 110;
+                } else {
+                    width = 100; height = 100;
+                }
+            }
             const mScene = new THREE.Scene();
             mScene.background = new THREE.Color(0xffffff);
             const mCamera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
             if(headTorsoOnly) {
-                mCamera.position.set(0, 4.3, 4.2);
-                mCamera.lookAt(0, 4.1, 0);
+                mCamera.position.set(0, 3.6, 4.2);
+                mCamera.lookAt(0, 3.4, 0);
             } else {
-                mCamera.position.set(0, 3.2, 7.0);
-                mCamera.lookAt(0, 2.9, 0);
+                mCamera.position.set(0, 2.4, 7.0);
+                mCamera.lookAt(0, 2.1, 0);
             }
             const mRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             mRenderer.setSize(width, height);
@@ -812,7 +888,7 @@
         profilePageScene.background = new THREE.Color(0x3a3a3a);
         const profilePageCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
         profilePageCamera.position.set(0, 3, 8);
-        profilePageCamera.lookAt(0, 2.5, 0);
+        profilePageCamera.lookAt(0, 2.1, 0);
         const profilePageRenderer = new THREE.WebGLRenderer({ antialias: true });
         const pBox = document.getElementById('profile-main-3d-box');
         profilePageRenderer.setSize(320, 320);
@@ -846,6 +922,8 @@
             ['head', 'torso', 'limb'].forEach(k => {
                 if(masters[k]) upgradePartVisual(profilePageParts, k, currentProfilePageColors);
             });
+            microScenes.forEach(m => { if(m.renderer) m.renderer.dispose(); });
+            microScenes = [];
             const frameElem = document.getElementById('profile-main-avatar-frame');
             createMicroAvatarView(frameElem, currentProfilePageColors, true);
             const grid = document.getElementById('profile-main-friends-grid');
@@ -886,6 +964,8 @@
             if(!currentUserData) return;
             document.getElementById('home-greeting-display').textContent = `Hello, ${currentUserData.displayName || currentUserData.username}`;
             document.getElementById('home-greeting-user').textContent = `@${currentUserData.username}`;
+            microScenes.forEach(m => { if(m.renderer) m.renderer.dispose(); });
+            microScenes = [];
             const frameElem = document.getElementById('home-avatar-frame');
             createMicroAvatarView(frameElem, currentUserData.colors || {}, true);
             const grid = document.getElementById('home-friends-grid');
@@ -941,6 +1021,8 @@
         }
         document.getElementById('btn-like').addEventListener('click', async () => {
             if(!auth.currentUser) return;
+            if (hasVoted) return alert("You have already voted!");
+            hasVoted = true;
             const gameRef = doc(db, "games", "democube");
             await runTransaction(db, async (transaction) => {
                 const sfDoc = await transaction.get(gameRef);
@@ -951,6 +1033,8 @@
         });
         document.getElementById('btn-dislike').addEventListener('click', async () => {
             if(!auth.currentUser) return;
+            if (hasVoted) return alert("You have already voted!");
+            hasVoted = true;
             const gameRef = doc(db, "games", "democube");
             await runTransaction(db, async (transaction) => {
                 const sfDoc = await transaction.get(gameRef);
@@ -1042,6 +1126,122 @@
                 searchResults.style.display = 'none';
             }
         });
+        document.getElementById('ingame-menu-btn').addEventListener('click', () => {
+            document.exitPointerLock();
+            document.getElementById('ingame-menu-overlay').style.display = 'flex';
+            document.getElementById('menu-main-screen').style.display = 'flex';
+            document.getElementById('menu-confirm-screen').style.display = 'none';
+        });
+        document.getElementById('btn-menu-close').addEventListener('click', () => {
+            document.getElementById('ingame-menu-overlay').style.display = 'none';
+            container.requestPointerLock();
+        });
+        document.getElementById('btn-menu-reset').addEventListener('click', () => {
+            menuPendingAction = 'reset';
+            document.getElementById('menu-confirm-prompt').textContent = 'Are you sure you want to reset your character?';
+            document.getElementById('menu-main-screen').style.display = 'none';
+            document.getElementById('menu-confirm-screen').style.display = 'flex';
+        });
+        document.getElementById('btn-menu-leave').addEventListener('click', () => {
+            menuPendingAction = 'leave';
+            document.getElementById('menu-confirm-prompt').textContent = 'Are you sure you want to leave the game?';
+            document.getElementById('menu-main-screen').style.display = 'none';
+            document.getElementById('menu-confirm-screen').style.display = 'flex';
+        });
+        document.getElementById('btn-confirm-no').addEventListener('click', () => {
+            document.getElementById('menu-confirm-screen').style.display = 'none';
+            document.getElementById('menu-main-screen').style.display = 'flex';
+        });
+        document.getElementById('btn-confirm-yes').addEventListener('click', () => {
+            document.getElementById('ingame-menu-overlay').style.display = 'none';
+            if(menuPendingAction === 'reset') {
+                playerGroup.position.set(0, 0, 0);
+                velocityY = 0;
+                isGrounded = true;
+                container.requestPointerLock();
+            } else if(menuPendingAction === 'leave') {
+                switchTab('home');
+            }
+        });
+        document.getElementById('ingame-powers-btn').addEventListener('click', () => {
+            document.exitPointerLock();
+            document.getElementById('powers-menu-overlay').style.display = 'flex';
+        });
+        document.getElementById('btn-powers-close').addEventListener('click', () => {
+            document.getElementById('powers-menu-overlay').style.display = 'none';
+            container.requestPointerLock();
+        });
+        document.getElementById('btn-powers-add').addEventListener('click', () => {
+            const name = document.getElementById('part-name').value || 'Part';
+            const sizeX = Math.round(parseFloat(document.getElementById('part-size-x').value) || 4);
+            const sizeY = Math.round(parseFloat(document.getElementById('part-size-y').value) || 4);
+            const sizeZ = Math.round(parseFloat(document.getElementById('part-size-z').value) || 4);
+            const posX = Math.round(parseFloat(document.getElementById('part-pos-x').value) || 0);
+            const posY = Math.round(parseFloat(document.getElementById('part-pos-y').value) || 0);
+            const posZ = Math.round(parseFloat(document.getElementById('part-pos-z').value) || 0);
+            const rotX = Math.round(parseFloat(document.getElementById('part-rot-x').value) || 0);
+            const rotY = Math.round(parseFloat(document.getElementById('part-rot-y').value) || 0);
+            const rotZ = Math.round(parseFloat(document.getElementById('part-rot-z').value) || 0);
+            const color = document.getElementById('part-color').value;
+            const pData = { name, sizeX, sizeY, sizeZ, posX, posY, posZ, rotX, rotY, rotZ, color };
+            customWorldPartsData.push(pData);
+            const geo = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
+            const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(color) });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(posX, posY, posZ);
+            mesh.rotation.set(rotX * Math.PI / 180, rotY * Math.PI / 180, rotZ * Math.PI / 180);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+            customWorldParts.push({ mesh, data: pData });
+        });
+        document.getElementById('btn-powers-publish').addEventListener('click', async () => {
+            const cubeColor = document.getElementById('edit-cube-color').value;
+            const customCubeSize = Math.round(parseFloat(document.getElementById('edit-cube-size').value) || 100);
+            await setDoc(doc(db, "games", "democube"), {
+                cubeColor: cubeColor,
+                cubeSize: customCubeSize,
+                parts: customWorldPartsData
+            }, { merge: true });
+            alert("Changes published successfully!");
+            loadWorldGeometry();
+        });
+        async function loadWorldGeometry() {
+            const gDoc = await getDoc(doc(db, "games", "democube"));
+            if(gDoc.exists()) {
+                const data = gDoc.data();
+                if(data.cubeColor) {
+                    cube.material.color.set(data.cubeColor);
+                    document.getElementById('edit-cube-color').value = data.cubeColor;
+                }
+                if(data.cubeSize) {
+                    cubeSize = data.cubeSize;
+                    document.getElementById('edit-cube-size').value = cubeSize;
+                    scene.remove(cube);
+                    cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+                    cube = new THREE.Mesh(cubeGeo, cube.material);
+                    cube.position.y = -cubeSize / 2;
+                    cube.receiveShadow = true;
+                    scene.add(cube);
+                }
+                if(data.parts) {
+                    customWorldParts.forEach(p => scene.remove(p.mesh));
+                    customWorldParts = [];
+                    customWorldPartsData = data.parts;
+                    customWorldPartsData.forEach(pData => {
+                        const geo = new THREE.BoxGeometry(pData.sizeX, pData.sizeY, pData.sizeZ);
+                        const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(pData.color) });
+                        const mesh = new THREE.Mesh(geo, mat);
+                        mesh.position.set(pData.posX, pData.posY, pData.posZ);
+                        mesh.rotation.set(pData.rotX * Math.PI / 180, pData.rotY * Math.PI / 180, pData.rotZ * Math.PI / 180);
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
+                        scene.add(mesh);
+                        customWorldParts.push({ mesh, data: pData });
+                    });
+                }
+            }
+        }
         function switchTab(tabId) {
             document.querySelectorAll('.nav-tab').forEach(t => {
                 if(t.getAttribute('data-tab') === tabId) {
@@ -1053,26 +1253,46 @@
             document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
             activeTab = tabId;
             if(tabId === 'home') {
+                document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('tab-home').classList.add('active');
                 renderHomePage();
             } else if(tabId === 'profile') {
+                document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('tab-profile').classList.add('active');
                 if(currentUserData && currentProfilePageColors.head === '#e0e0e0' && currentProfilePageColors.torso === '#e0e0e0') {
                     loadProfilePageData(currentUserData);
                 }
             } else if(tabId === 'game-page') {
+                document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('tab-game-page').classList.add('active');
                 updateGameRatingsUI();
             } else if(tabId === 'game-interactive') {
+                document.getElementById('nav-bar').style.display = 'none';
                 document.getElementById('tab-game-interactive').classList.add('active');
+                if (currentUserData && currentUserData.username === 'fourblox') {
+                    document.getElementById('ingame-powers-btn').style.display = 'block';
+                } else {
+                    document.getElementById('ingame-powers-btn').style.display = 'none';
+                }
+                loadWorldGeometry();
             } else {
+                document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById(`tab-${tabId}`).classList.add('active');
             }
             if(activeTab !== 'game-interactive') {
                 document.exitPointerLock();
+                document.getElementById('ingame-menu-overlay').style.display = 'none';
+                document.getElementById('powers-menu-overlay').style.display = 'none';
             }
             if(activeTab === 'avatar') {
                 resizeAvatarCanvas();
+            }
+            if(currentUserData && localNametag) {
+                localNametag.visible = false;
+                const freshLabel = currentUserData.displayName || currentUserData.username;
+                playerGroup.remove(localNametag);
+                const updatedTag = createNametag(freshLabel);
+                playerGroup.add(updatedTag);
             }
             updateMicroRenderers();
         }
@@ -1095,14 +1315,35 @@
         }
         const clock = new THREE.Clock();
         const raycaster = new THREE.Raycaster();
+        const downRaycaster = new THREE.Raycaster();
         function animate() {
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
             if(activeTab === 'game-interactive') {
+                downRaycaster.set(new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 3, playerGroup.position.z), new THREE.Vector3(0, -1, 0));
+                const groundObjects = [cube];
+                customWorldParts.forEach(p => groundObjects.push(p.mesh));
+                const groundIntersects = downRaycaster.intersectObjects(groundObjects);
+                let targetGroundY = -Infinity;
+                if (groundIntersects.length > 0) {
+                    for (let i = 0; i < groundIntersects.length; i++) {
+                        if (groundIntersects[i].distance <= 3.05) {
+                            targetGroundY = groundIntersects[i].point.y;
+                            break;
+                        }
+                    }
+                }
                 velocityY += gravity * delta;
                 playerGroup.position.y += velocityY * delta;
-                if (playerGroup.position.y <= 0) {
-                    playerGroup.position.y = 0;
+                if (targetGroundY !== -Infinity && playerGroup.position.y <= targetGroundY + 0.01) {
+                    playerGroup.position.y = targetGroundY;
+                    velocityY = 0;
+                    isGrounded = true;
+                } else {
+                    isGrounded = false;
+                }
+                if (playerGroup.position.y < -100) {
+                    playerGroup.position.set(0, 0, 0);
                     velocityY = 0;
                     isGrounded = true;
                 }
@@ -1177,8 +1418,8 @@
                     lastRotationY = playerModelContainer.rotation.y;
                 }
                 if (!isGrounded) {
-                    localPlayerParts.leftArm.rotation.x = -1.2;
-                    localPlayerParts.rightArm.rotation.x = -1.2;
+                    localPlayerParts.leftArm.rotation.x = -Math.PI;
+                    localPlayerParts.rightArm.rotation.x = -Math.PI;
                     localPlayerParts.leftLeg.rotation.x = 0;
                     localPlayerParts.rightLeg.rotation.x = 0;
                 } else if (keys.w || keys.s || keys.a || keys.d) {
@@ -1203,10 +1444,10 @@
                         }
                         const distH = Math.sqrt(Math.pow(rp.group.position.x - rp.prevPosition.x, 2) + Math.pow(rp.group.position.z - rp.prevPosition.z, 2));
                         const isMovingH = distH > 0.01;
-                        const remoteGrounded = rp.group.position.y <= 0.05;
+                        const remoteGrounded = rp.group.position.y <= (targetGroundY + 0.1);
                         if (!remoteGrounded) {
-                            rp.parts.leftArm.rotation.x = -1.2;
-                            rp.parts.rightArm.rotation.x = -1.2;
+                            rp.parts.leftArm.rotation.x = -Math.PI;
+                            rp.parts.rightArm.rotation.x = -Math.PI;
                             rp.parts.leftLeg.rotation.x = 0;
                             rp.parts.rightLeg.rotation.x = 0;
                         } else if (isMovingH) {
