@@ -25,7 +25,6 @@
         .search-item:hover { background: #e50000; color: #fff; }
         .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 54px); display: none; box-sizing: border-box; padding: 30px; overflow-y: auto; }
         .tab-view.active { display: block; }
-        #tab-home { padding: 0; overflow: hidden; }
         #canvas-container { width: 100%; height: 100%; display: block; }
         .avatar-tab-layout { display: flex; gap: 30px; max-width: 1000px; }
         .avatar-tab-left { display: flex; flex-direction: column; gap: 20px; width: 260px; }
@@ -48,16 +47,46 @@
         .settings-box button.danger-btn { background: #fdfdfd; color: #e50000; border: 1px solid #e50000; cursor: pointer; font-weight: bold; width: 100%; box-sizing: border-box; margin-top: 5px; }
         .settings-box button.danger-btn:hover { background: #e50000; color: white; }
         #settings-view-container { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
-        #profile-modal { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .profile-card { background: white; border: 2px solid #b20000; border-radius: 12px; width: 550px; height: 400px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: Arial, sans-serif; }
-        .profile-left { flex: 1; background: #3a3a3a; position: relative; height: 100%; }
-        .profile-right { width: 250px; padding: 25px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; color: #000000; }
-        .profile-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; color: #ffffff; z-index: 2010; background: #b20000; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; border-radius: 50%; }
-        .profile-name-container { display: flex; flex-direction: column; }
-        .profile-display { font-size: 22px; font-weight: bold; color: #b20000; }
-        .profile-username-sub { font-size: 13px; color: #777; }
-        .profile-username-main { font-size: 22px; font-weight: bold; color: #b20000; }
-        .profile-meta { font-size: 13px; color: #444; margin-top: 5px; display: flex; flex-direction: column; gap: 4px; }
+        .user-header-block { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; }
+        .circular-avatar-frame { width: 110px; height: 110px; background: #ffffff; border-radius: 50%; overflow: hidden; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; position: relative; }
+        .greeting-text-container { display: flex; flex-direction: column; }
+        .greeting-displayname { font-size: 32px; font-weight: bold; color: #000000; }
+        .greeting-username { font-size: 18px; color: #666666; }
+        .section-title { font-size: 22px; font-weight: bold; color: #000000; margin: 25px 0 15px 0; }
+        .friends-horizontal-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 25px; }
+        .friend-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; width: 100px; padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.03); transition: transform 0.2s; }
+        .friend-card:hover { transform: translateY(-2px); }
+        .friend-card-avatar { width: 64px; height: 64px; background: #fafafa; border-radius: 50%; overflow: hidden; border: 1px solid #eee; margin-bottom: 8px; }
+        .friend-card-name { font-size: 12px; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+        .no-friends-text { color: #888888; font-size: 14px; font-style: italic; }
+        .games-grid { display: flex; gap: 15px; }
+        .game-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; width: 130px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .game-card-icon { width: 100px; height: 100px; background: #ccc; border-radius: 8px; margin: 0 auto; }
+        .game-card-name { font-size: 13px; font-weight: bold; color: #333; text-align: center; }
+        .game-page-layout { display: flex; gap: 35px; max-width: 1100px; margin: 0 auto; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .game-page-left { flex: 1.4; }
+        .game-thumbnail-placeholder { width: 100%; aspect-ratio: 16/10; background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #666; font-weight: bold; }
+        .game-page-right { flex: 1; display: flex; flex-direction: column; gap: 15px; justify-content: center; }
+        .game-page-title { font-size: 36px; font-weight: bold; color: #000; margin: 0; }
+        .game-page-developer { font-size: 16px; color: #666; margin: 0; cursor: pointer; }
+        .game-page-developer span { color: #b20000; font-weight: bold; }
+        .game-page-developer span:hover { text-decoration: underline; }
+        .rating-bar-container { width: 100%; height: 6px; background: #ff4d4d; border-radius: 3px; overflow: hidden; display: flex; margin-top: 10px; }
+        .rating-bar-fill { height: 100%; background: #2ecc71; width: 85%; }
+        .rating-counters { display: flex; gap: 20px; font-size: 14px; color: #444; margin-top: 2px; align-items: center; }
+        .rating-button { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: bold; }
+        .rating-button:hover { color: #b20000; }
+        .play-button-element { background: #000000; color: #ffffff; font-size: 22px; font-weight: bold; text-align: center; padding: 15px 40px; border-radius: 6px; cursor: pointer; width: fit-content; margin-top: 15px; border: none; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .play-button-element:hover { background: #222222; }
+        .profile-page-top { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
+        .profile-page-middle { display: flex; gap: 25px; margin-bottom: 30px; width: 100%; }
+        .profile-page-avatar-box { width: 320px; height: 320px; background: #3a3a3a; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid #ccc; }
+        .profile-page-empty-box { flex: 1; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #555; font-size: 18px; height: 320px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .profile-footer-stats { display: flex; border-top: 1px solid #dddddd; padding-top: 25px; margin-top: 20px; width: 100%; }
+        .profile-footer-column { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .profile-footer-column:first-child { border-right: 1px solid #dddddd; }
+        .profile-stat-label { font-size: 18px; font-weight: bold; color: #000000; margin-bottom: 10px; }
+        .profile-stat-value { font-size: 15px; color: #333333; line-height: 1.4; }
     </style>
     <script type="importmap">
         {
@@ -97,6 +126,7 @@
         <div id="nav-bar">
             <div class="nav-tabs">
                 <div class="nav-tab active" data-tab="home">Home</div>
+                <div class="nav-tab" data-tab="profile">Profile</div>
                 <div class="nav-tab" data-tab="avatar">Avatar</div>
                 <div class="nav-tab" data-tab="settings">Settings</div>
             </div>
@@ -106,7 +136,71 @@
             </div>
         </div>
         <div id="tab-home" class="tab-view active">
+            <div class="user-header-block">
+                <div class="circular-avatar-frame" id="home-avatar-frame"></div>
+                <div class="greeting-text-container">
+                    <div class="greeting-displayname" id="home-greeting-display">Hello, Player</div>
+                    <div class="greeting-username" id="home-greeting-user">@username</div>
+                </div>
+            </div>
+            <div class="section-title">Friends (<span id="home-friends-count">0</span>)</div>
+            <div class="friends-horizontal-grid" id="home-friends-grid"></div>
+            <div class="section-title">Games</div>
+            <div class="games-grid">
+                <div class="game-card" id="game-card-demo">
+                    <div class="game-card-icon"></div>
+                    <div class="game-card-name">Demo Cube</div>
+                </div>
+            </div>
+        </div>
+        <div id="tab-game-page" class="tab-view">
+            <div class="game-page-layout">
+                <div class="game-page-left">
+                    <div class="game-thumbnail-placeholder">Thumbnail</div>
+                </div>
+                <div class="game-page-right">
+                    <h1 class="game-page-title">Demo Cube</h1>
+                    <p class="game-page-developer" id="game-dev-link">Created by <span>@fourblox</span></p>
+                    <div>
+                        <div class="rating-bar-container">
+                            <div class="rating-bar-fill"></div>
+                        </div>
+                        <div class="rating-counters">
+                            <div class="rating-button">👍 85</div>
+                            <div class="rating-button">👎 15</div>
+                        </div>
+                    </div>
+                    <button class="play-button-element" id="btn-play-game">playbutton.png</button>
+                </div>
+            </div>
+        </div>
+        <div id="tab-game-interactive" class="tab-view" style="padding:0; overflow:hidden;">
             <div id="canvas-container"></div>
+        </div>
+        <div id="tab-profile" class="tab-view">
+            <div class="profile-page-top">
+                <div class="circular-avatar-frame" id="profile-main-avatar-frame"></div>
+                <div class="greeting-text-container">
+                    <div class="greeting-displayname" id="profile-main-display">Displayname</div>
+                    <div class="greeting-username" id="profile-main-user">@username</div>
+                </div>
+            </div>
+            <div class="profile-page-middle">
+                <div class="profile-page-avatar-box" id="profile-main-3d-box"></div>
+                <div class="profile-page-empty-box">Empty for now</div>
+            </div>
+            <div class="section-title">Friends (<span id="profile-main-friends-count">0</span>)</div>
+            <div class="friends-horizontal-grid" id="profile-main-friends-grid"></div>
+            <div class="profile-footer-stats">
+                <div class="profile-footer-column">
+                    <div class="profile-stat-label">Creation date</div>
+                    <div class="profile-stat-value" id="profile-main-created-val">DD/MM/YYYY<br>HH:MM:SS UTC</div>
+                </div>
+                <div class="profile-footer-column">
+                    <div class="profile-stat-label">User ID</div>
+                    <div class="profile-stat-value" id="profile-main-id-val">1</div>
+                </div>
+            </div>
         </div>
         <div id="tab-avatar" class="tab-view">
             <h2 style="font-weight:normal; margin:0 0 20px 0; font-size:24px; color:#000;">Your Avatar</h2>
@@ -147,16 +241,6 @@
                     <button class="danger-btn" id="btn-logout">LOG OUT</button>
                     <button class="danger-btn" id="btn-delete-account">DELETE ACCOUNT</button>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div id="profile-modal">
-        <div class="profile-card">
-            <div class="profile-close" id="profile-close">&times;</div>
-            <div class="profile-left" id="profile-preview-pane"></div>
-            <div class="profile-right">
-                <div class="profile-name-container" id="profile-names"></div>
-                <div class="profile-meta" id="profile-meta-details"></div>
             </div>
         </div>
     </div>
@@ -216,6 +300,8 @@
                     }
                     transaction.set(counterRef, { current: nextId }, { merge: true });
                     transaction.set(usernameRef, { uid: user.uid });
+                    const timeNow = new Date();
+                    const utcString = timeNow.toLocaleDateString() + " " + timeNow.toLocaleTimeString() + " UTC";
                     transaction.set(doc(db, "users", user.uid), {
                         uid: user.uid,
                         username: username,
@@ -223,7 +309,7 @@
                         gender: gender,
                         userId: nextId,
                         colors: currentLocalColors,
-                        createdAt: new Date().toLocaleDateString(),
+                        createdAt: utcString,
                         friends: [],
                         following: []
                     });
@@ -249,6 +335,11 @@
             try {
                 await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: newDisplay });
                 alert("Display name updated!");
+                const uDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+                if(uDoc.exists()) {
+                    currentUserData = uDoc.data();
+                    renderHomePage();
+                }
             } catch(err) {
                 alert(err.message);
             }
@@ -295,9 +386,11 @@
                     applyColorsToParts(localPlayerParts, currentLocalColors);
                     if (avatarTabParts) applyColorsToParts(avatarTabParts, currentLocalColors);
                     document.getElementById('settings-display').value = currentUserData.displayName || '';
+                    renderHomePage();
                 }
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'flex';
+                switchTab('home');
                 if(!socketInitialized) {
                     initSocketConnection();
                 }
@@ -449,7 +542,8 @@
             });
             if (localPlayerParts) upgradePartVisual(localPlayerParts, key, currentLocalColors);
             if (avatarTabParts) upgradePartVisual(avatarTabParts, key, currentLocalColors);
-            if (profileModalParts) upgradePartVisual(profileModalParts, key, profileModalColors);
+            if (profilePageParts) upgradePartVisual(profilePageParts, key, currentProfilePageColors);
+            updateMicroRenderers();
         }
         function applyColorsToParts(partsObj, colors) {
             if(!partsObj) return;
@@ -460,6 +554,7 @@
                     if (child.isMesh) child.material.color.set(col);
                 });
             });
+            updateMicroRenderers();
         }
         const playerGroup = new THREE.Group();
         playerGroup.position.set(0, 0, 0);
@@ -532,6 +627,7 @@
                 if(auth.currentUser) {
                     await updateDoc(doc(db, "users", auth.currentUser.uid), { colors: currentLocalColors });
                 }
+                updateMicroRenderers();
             });
         });
         let cameraDistance = 20.4;
@@ -550,7 +646,7 @@
         let activeTab = 'home';
         let localWalkTime = 0;
         window.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
+            if (e.target.tagName === 'INPUT' || activeTab !== 'game-interactive') return;
             if (e.key.toLowerCase() === 'w') keys.w = true;
             if (e.key.toLowerCase() === 'a') keys.a = true;
             if (e.key.toLowerCase() === 's') keys.s = true;
@@ -577,7 +673,7 @@
             if (e.key.toLowerCase() === 'd') keys.d = false;
         });
         window.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'INPUT' || activeTab !== 'home') return;
+            if (e.target.tagName === 'INPUT' || activeTab !== 'game-interactive') return;
             if (e.button === 2) {
                 isRightMouseDown = true;
                 container.requestPointerLock();
@@ -593,7 +689,7 @@
         });
         window.addEventListener('contextmenu', (e) => e.preventDefault());
         window.addEventListener('wheel', (e) => {
-            if (activeTab !== 'home') return;
+            if (activeTab !== 'game-interactive') return;
             cameraDistance += e.deltaY * 0.017;
             cameraDistance = Math.max(0, Math.min(42.5, cameraDistance));
             if (cameraDistance < 1.5) {
@@ -605,7 +701,7 @@
             }
         });
         window.addEventListener('mousemove', (e) => {
-            if (activeTab !== 'home') return;
+            if (activeTab !== 'game-interactive') return;
             if (isShiftLock || document.pointerLockElement === container || isRightMouseDown || cameraDistance < 1.5) {
                 cameraYaw -= e.movementX * 0.005;
                 cameraPitch -= e.movementY * 0.005;
@@ -616,7 +712,7 @@
             if (document.pointerLockElement !== container) {
                 isShiftLock = false;
                 isRightMouseDown = false;
-                if (cameraDistance < 1.5 && activeTab === 'home') {
+                if (cameraDistance < 1.5 && activeTab === 'game-interactive') {
                     cameraDistance = 1.5;
                 }
             }
@@ -635,62 +731,171 @@
         avatarScene.add(avLight2);
         const { group: avatarTabGroup, parts: avatarTabParts } = createCharacterFigure(false, currentLocalColors);
         avatarScene.add(avatarTabGroup);
-        const profileScene = new THREE.Scene();
-        profileScene.background = new THREE.Color(0xe9e9e9);
-        const profileCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        profileCamera.position.set(0, 3, 8);
-        profileCamera.lookAt(0, 2.5, 0);
-        const profileRenderer = new THREE.WebGLRenderer({ antialias: true });
-        document.getElementById('profile-preview-pane').appendChild(profileRenderer.domElement);
-        const profLight1 = new THREE.AmbientLight(0xffffff, 0.7);
-        profileScene.add(profLight1);
-        const profLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
-        profLight2.position.set(5, 10, 5);
-        profileScene.add(profLight2);
-        let profileModalParts = null;
-        let profileModalColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-        let profileModalGroup = null;
-        function openUserProfile(userData) {
-            const namesContainer = document.getElementById('profile-names');
-            namesContainer.innerHTML = '';
-            if(userData.displayName) {
-                const disp = document.createElement('div');
-                disp.className = 'profile-display';
-                disp.textContent = userData.displayName;
-                const userSub = document.createElement('div');
-                userSub.className = 'profile-username-sub';
-                userSub.textContent = `@${userData.username}`;
-                namesContainer.appendChild(disp);
-                namesContainer.appendChild(userSub);
+        const microScenes = [];
+        function createMicroAvatarView(containerElement, colorsData, headTorsoOnly = false) {
+            containerElement.innerHTML = '';
+            const width = containerElement.clientWidth || 100;
+            const height = containerElement.clientHeight || 100;
+            const mScene = new THREE.Scene();
+            mScene.background = new THREE.Color(0xffffff);
+            const mCamera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+            if(headTorsoOnly) {
+                mCamera.position.set(0, 3.8, 4.5);
+                mCamera.lookAt(0, 3.6, 0);
             } else {
-                const userMain = document.createElement('div');
-                userMain.className = 'profile-username-main';
-                userMain.textContent = userData.username;
-                namesContainer.appendChild(userMain);
+                mCamera.position.set(0, 2.8, 7.5);
+                mCamera.lookAt(0, 2.5, 0);
             }
-            const metaContainer = document.getElementById('profile-meta-details');
-            metaContainer.innerHTML = `
-                <div><strong>User ID:</strong> ${userData.userId}</div>
-                <div><strong>Gender:</strong> ${userData.gender || 'Not Specified'}</div>
-                <div><strong>Friends:</strong> ${userData.friends ? userData.friends.length : 0}</div>
-                <div><strong>Following:</strong> ${userData.following ? userData.following.length : 0}</div>
-                <div><strong>Joined:</strong> ${userData.createdAt || 'Unknown'}</div>
-            `;
-            if(profileModalGroup) profileScene.remove(profileModalGroup);
-            profileModalColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
-            const { group, parts } = createCharacterFigure(false, profileModalColors);
-            profileModalGroup = group;
-            profileModalParts = parts;
-            profileScene.add(profileModalGroup);
-            const masterKeys = ['head', 'torso', 'limb'];
-            masterKeys.forEach(k => {
-                if(masters[k]) upgradePartVisual(profileModalParts, k, profileModalColors);
+            const mRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            mRenderer.setSize(width, height);
+            containerElement.appendChild(mRenderer.domElement);
+            const l1 = new THREE.AmbientLight(0xffffff, 0.8);
+            mScene.add(l1);
+            const l2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            l2.position.set(2, 5, 3);
+            mScene.add(l2);
+            const { group, parts } = createCharacterFigure(false, colorsData);
+            mScene.add(group);
+            Object.keys(parts).forEach(pName => {
+                const mKey = (pName === 'head' || pName === 'torso') ? pName : 'limb';
+                if(masters[mKey]) upgradePartVisual(parts, mKey, colorsData);
             });
-            document.getElementById('profile-modal').style.display = 'flex';
-            resizeProfileCanvas();
+            const item = { scene: mScene, camera: mCamera, renderer: mRenderer, group: group, parts: parts, colors: colorsData, container: containerElement, headTorsoOnly: headTorsoOnly };
+            microScenes.push(item);
+            return item;
         }
-        document.getElementById('profile-close').addEventListener('click', () => {
-            document.getElementById('profile-modal').style.display = 'none';
+        function updateMicroRenderers() {
+            microScenes.forEach(m => {
+                if(m.container && m.container.clientWidth > 0) {
+                    const w = m.container.clientWidth;
+                    const h = m.container.clientHeight;
+                    m.camera.aspect = w / h;
+                    m.camera.updateProjectionMatrix();
+                    m.renderer.setSize(w, h);
+                    applyColorsToParts(m.parts, m.colors);
+                }
+            });
+        }
+        const profilePageScene = new THREE.Scene();
+        profilePageScene.background = new THREE.Color(0x3a3a3a);
+        const profilePageCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        profilePageCamera.position.set(0, 3, 8);
+        profilePageCamera.lookAt(0, 2.5, 0);
+        const profilePageRenderer = new THREE.WebGLRenderer({ antialias: true });
+        const pBox = document.getElementById('profile-main-3d-box');
+        profilePageRenderer.setSize(320, 320);
+        pBox.appendChild(profilePageRenderer.domElement);
+        const pl1 = new THREE.AmbientLight(0xffffff, 0.7);
+        profilePageScene.add(pl1);
+        const pl2 = new THREE.DirectionalLight(0xffffff, 0.6);
+        pl2.position.set(5, 10, 5);
+        profilePageScene.add(pl2);
+        let profilePageGroup = null;
+        let profilePageParts = null;
+        let currentProfilePageColors = { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+        function loadProfilePageData(userData) {
+            document.getElementById('profile-main-display').textContent = userData.displayName || userData.username;
+            document.getElementById('profile-main-user').textContent = `@${userData.username}`;
+            document.getElementById('profile-main-id-val').textContent = userData.userId || "1";
+            document.getElementById('profile-main-created-val').innerHTML = userData.createdAt || "Unknown Date";
+            if(profilePageGroup) profilePageScene.remove(profilePageGroup);
+            currentProfilePageColors = userData.colors || { head: '#e0e0e0', torso: '#e0e0e0', leftArm: '#e0e0e0', rightArm: '#e0e0e0', leftLeg: '#e0e0e0', rightLeg: '#e0e0e0' };
+            const { group, parts } = createCharacterFigure(false, currentProfilePageColors);
+            profilePageGroup = group;
+            profilePageParts = parts;
+            profilePageScene.add(profilePageGroup);
+            ['head', 'torso', 'limb'].forEach(k => {
+                if(masters[k]) upgradePartVisual(profilePageParts, k, currentProfilePageColors);
+            });
+            const frameElem = document.getElementById('profile-main-avatar-frame');
+            createMicroAvatarView(frameElem, currentProfilePageColors, true);
+            const grid = document.getElementById('profile-main-friends-grid');
+            grid.innerHTML = '';
+            const fList = userData.friends || [];
+            document.getElementById('profile-main-friends-count').textContent = fList.length;
+            if(fList.length === 0) {
+                const fallback = document.createElement('div');
+                fallback.className = 'no-friends-text';
+                fallback.textContent = 'No friends';
+                grid.appendChild(fallback);
+            } else {
+                fList.forEach(async (fUid) => {
+                    const fDoc = await getDoc(doc(db, "users", fUid));
+                    if(fDoc.exists()) {
+                        const fData = fDoc.data();
+                        const card = document.createElement('div');
+                        card.className = 'friend-card';
+                        const thumb = document.createElement('div');
+                        thumb.className = 'friend-card-avatar';
+                        const nameLbl = document.createElement('div');
+                        nameLbl.className = 'friend-card-name';
+                        nameLbl.textContent = fData.displayName || fData.username;
+                        card.appendChild(thumb);
+                        card.appendChild(nameLbl);
+                        grid.appendChild(card);
+                        createMicroAvatarView(thumb, fData.colors || {}, true);
+                        card.addEventListener('click', () => {
+                            loadProfilePageData(fData);
+                            switchTab('profile');
+                        });
+                    }
+                });
+            }
+            setTimeout(updateMicroRenderers, 50);
+        }
+        function renderHomePage() {
+            if(!currentUserData) return;
+            document.getElementById('home-greeting-display').textContent = `Hello, ${currentUserData.displayName || currentUserData.username}`;
+            document.getElementById('home-greeting-user').textContent = `@${currentUserData.username}`;
+            const frameElem = document.getElementById('home-avatar-frame');
+            createMicroAvatarView(frameElem, currentUserData.colors || {}, true);
+            const grid = document.getElementById('home-friends-grid');
+            grid.innerHTML = '';
+            const fList = currentUserData.friends || [];
+            document.getElementById('home-friends-count').textContent = fList.length;
+            if(fList.length === 0) {
+                const fallback = document.createElement('div');
+                fallback.className = 'no-friends-text';
+                fallback.textContent = 'No friends';
+                grid.appendChild(fallback);
+            } else {
+                fList.forEach(async (fUid) => {
+                    const fDoc = await getDoc(doc(db, "users", fUid));
+                    if(fDoc.exists()) {
+                        const fData = fDoc.data();
+                        const card = document.createElement('div');
+                        card.className = 'friend-card';
+                        const thumb = document.createElement('div');
+                        thumb.className = 'friend-card-avatar';
+                        const nameLbl = document.createElement('div');
+                        nameLbl.className = 'friend-card-name';
+                        nameLbl.textContent = fData.displayName || fData.username;
+                        card.appendChild(thumb);
+                        card.appendChild(nameLbl);
+                        grid.appendChild(card);
+                        createMicroAvatarView(thumb, fData.colors || {}, true);
+                        card.addEventListener('click', () => {
+                            loadProfilePageData(fData);
+                            switchTab('profile');
+                        });
+                    }
+                });
+            }
+            setTimeout(updateMicroRenderers, 50);
+        }
+        document.getElementById('game-card-demo').addEventListener('click', () => {
+            switchTab('game-page');
+        });
+        document.getElementById('btn-play-game').addEventListener('click', () => {
+            switchTab('game-interactive');
+        });
+        document.getElementById('game-dev-link').addEventListener('click', async () => {
+            const q = query(collection(db, "users"), where("username", "==", "fourblox"));
+            const snap = await getDocs(q);
+            if(!snap.empty) {
+                loadProfilePageData(snap.docs[0].data());
+                switchTab('profile');
+            }
         });
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
@@ -718,7 +923,8 @@
                         item.addEventListener('click', () => {
                             searchResults.style.display = 'none';
                             searchInput.value = '';
-                            openUserProfile(uData);
+                            loadProfilePageData(uData);
+                            switchTab('profile');
                         });
                         searchResults.appendChild(item);
                     });
@@ -731,19 +937,46 @@
                 searchResults.style.display = 'none';
             }
         });
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                if(t.getAttribute('data-tab') === tabId) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+            activeTab = tabId;
+            if(tabId === 'home') {
+                document.getElementById('tab-home').classList.add('active');
+                renderHomePage();
+            } else if(tabId === 'profile') {
+                document.getElementById('tab-profile').classList.add('active');
+                if(currentUserData && currentProfilePageColors.head === '#e0e0e0' && currentProfilePageColors.torso === '#e0e0e0') {
+                    loadProfilePageData(currentUserData);
+                }
+            } else if(tabId === 'game-page') {
+                document.getElementById('tab-game-page').classList.add('active');
+            } else if(tabId === 'game-interactive') {
+                document.getElementById('tab-game-interactive').classList.add('active');
+            } else {
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            }
+            if(activeTab !== 'game-interactive') {
+                document.exitPointerLock();
+            }
+            if(activeTab === 'avatar') {
+                resizeAvatarCanvas();
+            }
+            updateMicroRenderers();
+        }
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-                tab.classList.add('active');
-                activeTab = tab.getAttribute('data-tab');
-                document.getElementById(`tab-${activeTab}`).classList.add('active');
-                if(activeTab !== 'home') {
-                    document.exitPointerLock();
+                const target = tab.getAttribute('data-tab');
+                if(target === 'profile' && currentUserData) {
+                    loadProfilePageData(currentUserData);
                 }
-                if(activeTab === 'avatar') {
-                    resizeAvatarCanvas();
-                }
+                switchTab(target);
             });
         });
         function resizeAvatarCanvas() {
@@ -754,20 +987,12 @@
                 avatarRenderer.setSize(pane.clientWidth, pane.clientHeight);
             }
         }
-        function resizeProfileCanvas() {
-            const pane = document.getElementById('profile-preview-pane');
-            if(pane.clientWidth > 0 && pane.clientHeight > 0) {
-                profileCamera.aspect = pane.clientWidth / pane.clientHeight;
-                profileCamera.updateProjectionMatrix();
-                profileRenderer.setSize(pane.clientWidth, pane.clientHeight);
-            }
-        }
         const clock = new THREE.Clock();
         const raycaster = new THREE.Raycaster();
         function animate() {
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
-            if(activeTab === 'home') {
+            if(activeTab === 'game-interactive') {
                 velocityY += gravity * delta;
                 playerGroup.position.y += velocityY * delta;
                 if (playerGroup.position.y <= 0) {
@@ -850,7 +1075,7 @@
                     localPlayerParts.rightArm.rotation.x = -1.2;
                     localPlayerParts.leftLeg.rotation.x = 0;
                     localPlayerParts.rightLeg.rotation.x = 0;
-                } else if (moveX !== 0 || moveZ !== 0) {
+                } else if (keys.w || keys.s || keys.a || keys.d) {
                     localWalkTime += delta * 12;
                     const angle = Math.sin(localWalkTime) * 0.8;
                     localPlayerParts.leftArm.rotation.x = angle;
@@ -899,17 +1124,21 @@
                 avatarTabGroup.rotation.y += 1 * delta;
                 avatarRenderer.render(avatarScene, avatarCamera);
             }
-            if(document.getElementById('profile-modal').style.display === 'flex' && profileModalGroup) {
-                profileModalGroup.rotation.y += 1 * delta;
-                profileRenderer.render(profileScene, profileCamera);
+            if(activeTab === 'profile' && profilePageGroup) {
+                profilePageGroup.rotation.y += 1 * delta;
+                profilePageRenderer.render(profilePageScene, profilePageCamera);
             }
+            microScenes.forEach(m => {
+                m.group.rotation.y = 0.2;
+                m.renderer.render(m.scene, m.camera);
+            });
         }
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             resizeAvatarCanvas();
-            resizeProfileCanvas();
+            updateMicroRenderers();
         });
         animate();
     </script>
