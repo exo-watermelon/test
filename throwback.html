@@ -10,119 +10,279 @@
         .auth-box { padding: 35px; background: #141414; border: 2px solid #ff1e3a; border-radius: 12px; width: 340px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 20px rgba(255, 30, 58, 0.2); }
         .auth-box input, .auth-box select, .auth-box button { padding: 12px; font-size: 14px; border: 1px solid #2a2a2a; border-radius: 6px; background: #1a1a1a; color: white; outline: none; }
         .auth-box input:focus, .auth-box select:focus { border-color: #ff1e3a; }
-        .auth-box button { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        .auth-box button:hover { background: #e01b32; }
-        .auth-toggle { text-align: center; color: #ff1e3a; cursor: pointer; font-size: 13px; margin-top: 5px; }
-        #game-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; font-family: sans-serif; }
-        .sidebar { position: absolute; left: 10px; top: 10px; width: 60px; background: rgba(16, 16, 16, 0.85); border: 1px solid #2a2a2a; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; padding: 8px; pointer-events: auto; }
-        .sidebar-btn { width: 60px; height: 60px; background: #222; border: 1px solid #333; border-radius: 6px; color: white; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11px; font-weight: bold; }
-        .sidebar-btn:hover { background: #333; border-color: #ff1e3a; }
-        .sidebar-btn.active { background: #ff1e3a; border-color: #ff1e3a; }
-        .window { position: absolute; left: 90px; top: 10px; width: 320px; height: calc(100% - 40px); background: rgba(16, 16, 16, 0.9); border: 1px solid #2a2a2a; border-radius: 8px; display: none; flex-direction: column; pointer-events: auto; color: white; }
-        .window-header { padding: 12px; font-weight: bold; border-bottom: 1px solid #2a2a2a; font-size: 15px; color: #ff1e3a; }
-        .window-content { padding: 12px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .friend-item { display: flex; align-items: center; gap: 10px; padding: 8px; background: #1a1a1a; border: 1px solid #2d2d2d; border-radius: 6px; }
-        .friend-status { width: 8px; height: 8px; border-radius: 50%; background: #00ff66; }
-        .friend-name { font-size: 13px; color: #efefef; flex: 1; }
-        #canvas-container { width: 100vw; height: 100vh; display: block; }
-        .color-picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .color-option { height: 35px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
-        .color-option.selected { border-color: white; }
+        .auth-box button { background: #ff1e3a; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .auth-toggle { text-align: center; color: #ff1e3a; cursor: pointer; font-size: 13px; text-decoration: none; font-weight: 500; }
+        .auth-toggle:hover { text-decoration: underline; }
+        #main-app { display: none; width: 100vw; height: 100vh; flex-direction: column; position: relative; }
+        #nav-bar { background: linear-gradient(to bottom, #e50000, #b20000); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 54px; z-index: 500; border-bottom: 2px solid #800000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .nav-tabs { display: flex; gap: 5px; height: 100%; align-items: center; }
+        .nav-tab { padding: 6px 14px; cursor: pointer; font-weight: bold; font-size: 14px; color: #ffffff; border-radius: 4px; border: 1px solid transparent; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .nav-tab.active { background: linear-gradient(to bottom, #ffffff, #e0e0e0); color: #b20000; border: 1px solid #800000; text-shadow: none; }
+        .search-container { position: relative; width: 240px; }
+        .search-container input { width: 100%; padding: 6px 12px; border-radius: 15px; border: 1px solid #b20000; background: #ffffff; color: #000; box-sizing: border-box; outline: none; }
+        .search-results { position: absolute; top: 35px; left: 0; width: 100%; background: #ffffff; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; display: none; flex-direction: column; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 600; }
+        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 13px; color: #333; }
+        .search-item:hover { background: #e50000; color: #fff; }
+        .tab-view { flex: 1; position: relative; width: 100%; height: calc(100vh - 54px); display: none; box-sizing: border-box; padding: 30px; overflow-y: auto; }
+        .tab-view.active { display: block; }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 900; display: none; }
+        #btn-exit-game { position: absolute; top: 20px; right: 20px; z-index: 950; padding: 10px 20px; background: #ff1e3a; color: white; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; display: none; }
+        .avatar-circle-3d { width: 130px; height: 130px; border-radius: 50%; background: #ffffff; border: 1px solid #ccc; overflow: hidden; position: relative; display: inline-block; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+        .user-hero-header { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
+        .user-hero-info h1 { margin: 0; font-size: 36px; font-weight: normal; color: #000000; }
+        .user-hero-info p { margin: 0; font-size: 18px; color: #888888; display: flex; align-items: center; gap: 6px; }
+        .badge-icon { width: 18px; height: 18px; object-fit: contain; }
+        .section-title { font-size: 24px; font-weight: normal; color: #000000; margin: 25px 0 15px 0; }
+        .friends-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px; }
+        .friend-card { width: 110px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); cursor: pointer; }
+        .friend-card .avatar-circle-3d { width: 75px; height: 75px; }
+        .friend-displayname { font-size: 12px; text-align: center; color: #000000; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .games-container { display: flex; gap: 15px; flex-wrap: wrap; }
+        .game-card { width: 110px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); cursor: pointer; }
+        .game-thumbnail-placeholder { width: 85px; height: 85px; background: #cccccc; border-radius: 10px; }
+        .game-card-name { font-size: 12px; text-align: center; color: #000000; font-weight: bold; }
+        .profile-layout-blocks { display: flex; gap: 20px; max-width: 1000px; margin-bottom: 25px; }
+        .profile-3d-box { width: 300px; height: 350px; background: #3a3a3a; border-radius: 8px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .profile-empty-box { flex: 1; height: 350px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 18px; }
+        .profile-footer-stats { display: flex; border-top: 1px solid #cccccc; padding-top: 20px; max-width: 1000px; }
+        .footer-stat-col { flex: 1; text-align: center; display: flex; flex-direction: column; gap: 4px; }
+        .footer-stat-col:first-child { border-right: 1px solid #cccccc; }
+        .footer-stat-title { font-size: 16px; font-weight: bold; color: #000000; }
+        .footer-stat-val { font-size: 14px; color: #000000; line-height: 1.4; }
+        .game-page-layout { display: flex; gap: 40px; max-width: 1000px; padding-top: 10px; }
+        .game-page-left { flex: 1.4; }
+        .game-page-right { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px; }
+        .game-large-thumbnail { width: 100%; height: 320px; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .game-title-text { font-size: 32px; color: #000000; margin: 0; }
+        .game-dev-text { font-size: 16px; color: #888888; margin: 0; cursor: pointer; }
+        .game-dev-text:hover { text-decoration: underline; }
+        .game-rating-bar-container { width: 240px; background: #e50000; height: 6px; border-radius: 3px; overflow: hidden; margin: 10px 0; }
+        .game-rating-likes-fill { background: #2ecc71; height: 100%; width: 0%; }
+        .game-rating-actions { display: flex; gap: 10px; align-items: center; }
+        .game-vote-btn { background: #ffffff; border: 1px solid #cccccc; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 14px; }
+        .game-vote-btn:hover { background: #f0f0f0; }
+        .game-vote-count { font-size: 13px; color: #666666; margin-left: 2px; }
+        .play-button-node { width: 160px; height: 45px; background: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 4px; border: none; }
+        .play-button-node:hover { background: #222222; }
+        .avatar-tab-layout { display: flex; gap: 30px; max-width: 1000px; }
+        .avatar-tab-left { display: flex; flex-direction: column; gap: 20px; width: 260px; }
+        .avatar-tab-right { flex: 1; background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; height: 500px; display: flex; justify-content: center; align-items: center; color: #000000; font-size: 16px; }
+        .avatar-tab-preview-box { width: 260px; height: 260px; background: #3a3a3a; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid #dddddd; }
+        .avatar-snap-2d-btn { position: absolute; bottom: 10px; right: 10px; background: #ffffff; border: 1px solid #ccc; padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; z-index: 10; color: #000000; }
+        .avatar-body-colors-panel { background: #ffffff; border: 1px solid #dddddd; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .avatar-body-colors-title { font-size: 12px; color: #000000; margin: 0 0 5px 0; }
+        .avatar-body-grid { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 120px; margin: 0 auto; position: relative; }
+        .avatar-grid-part { background: #e0e0e0; border: 1px solid #aaaaaa; border-radius: 4px; cursor: pointer; position: relative; }
+        .avatar-grid-part input[type="color"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: none; }
+        .grid-head { width: 26px; height: 26px; border-radius: 6px; }
+        .grid-middle-row { display: flex; gap: 4px; align-items: flex-start; }
+        .grid-torso { width: 44px; height: 44px; }
+        .grid-limb { width: 20px; height: 44px; }
+        .grid-bottom-row { display: flex; gap: 4px; margin-top: 0px; padding-left: 2px; }
+        .grid-leg { width: 20px; height: 44px; }
+        .settings-box { background: #ffffff; padding: 30px; border: 1px solid #dddddd; border-radius: 12px; width: 340px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .settings-box input, .settings-box button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; background: #fff; color: #000; outline: none; }
+        .settings-box button.save-btn { background: linear-gradient(to bottom, #e50000, #b20000); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .settings-box button.danger-btn { background: #fdfdfd; color: #e50000; border: 1px solid #e50000; cursor: pointer; font-weight: bold; }
+        .settings-box button.danger-btn:hover { background: #e50000; color: white; }
+        #control-panel-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: #000; color: #fff; border: 1px solid #ff1e3a; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; }
+        #control-panel-modal { position: fixed; bottom: 70px; right: 20px; z-index: 999; background: #141414; border: 2px solid #ff1e3a; border-radius: 8px; padding: 20px; width: 280px; display: none; flex-direction: column; gap: 12px; color: #fff; box-shadow: 0 0 15px rgba(255, 30, 58, 0.3); }
+        #control-panel-modal h3 { margin: 0 0 5px 0; font-size: 16px; color: #ff1e3a; }
+        #control-panel-modal input[type="text"], #control-panel-modal button { padding: 8px; background: #1a1a1a; border: 1px solid #2a2a2a; color: #fff; border-radius: 4px; outline: none; }
+        #control-panel-modal button { background: #ff1e3a; font-weight: bold; cursor: pointer; border: none; }
+        .control-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .profile-actions-container { display: flex; gap: 10px; margin-top: 10px; }
+        .profile-action-btn { padding: 6px 12px; font-size: 13px; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; background: #fff; color: #000; cursor: pointer; }
+        .profile-action-btn:hover { background: #f0f0f0; }
+        .friend-requests-section { border-top: 1px solid #cccccc; padding-top: 20px; margin-top: 20px; }
+        .request-item { display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #dddddd; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+        .request-btn { padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; }
+        .request-accept { background: #2ecc71; color: white; }
+        .request-decline { background: #e74c3c; color: white; margin-left: 5px; }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <div id="auth-screen">
         <div class="auth-box" id="login-box">
-            <h2 style="color: white; margin: 0 0 10px 0; text-align: center;">Sign In</h2>
-            <input type="text" id="login-username" placeholder="Username">
-            <input type="password" id="login-password" placeholder="Password">
-            <button id="btn-login">Login</button>
-            <div class="auth-toggle" id="to-register">Create an account</div>
+            <h2 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800;">LOGIN</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button id="btn-login">SIGN IN</button>
+            <div class="auth-toggle" id="to-register">Don't have an account? Register</div>
         </div>
-        <div class="auth-box" id="register-box" style="display: none;">
-            <h2 style="color: white; margin: 0 0 10px 0; text-align: center;">Register</h2>
-            <input type="text" id="reg-username" placeholder="Username">
-            <input type="password" id="reg-password" placeholder="Password">
+        <div class="auth-box" id="register-box" style="display:none;">
+            <h2 style="margin:0 0 10px 0; text-align:center; color:#ff1e3a; font-weight:800;">REGISTER</h2>
+            <input type="text" id="reg-user" placeholder="Username">
+            <input type="text" id="reg-display" placeholder="Display Name (Optional)">
             <select id="reg-gender">
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
             </select>
-            <button id="btn-register">Sign Up</button>
-            <div class="auth-toggle" id="to-login">Already have an account?</div>
+            <input type="email" id="reg-email" placeholder="Email">
+            <input type="password" id="reg-pass" placeholder="Password">
+            <button id="btn-register">CREATE ACCOUNT</button>
+            <div class="auth-toggle" id="to-login">Already have an account? Login</div>
         </div>
     </div>
-    <div id="game-ui">
-        <div class="sidebar">
-            <button class="sidebar-btn active" data-tab="game">GAME</button>
-            <button class="sidebar-btn" data-tab="avatar">AVATAR</button>
-            <button class="sidebar-btn" data-tab="profile">PROFILE</button>
-            <button class="sidebar-btn" data-tab="friends">FRIENDS</button>
-        </div>
-        <div class="window" id="window-avatar">
-            <div class="window-header">Customize Avatar</div>
-            <div class="window-content">
-                <div style="height: 180px; background: #000; border-radius: 6px; position: relative;" id="avatar-canvas-container"></div>
-                <label style="font-size: 12px; color: #aaa;">Torso Color</label>
-                <div class="color-picker-grid" id="torso-colors"></div>
-                <label style="font-size: 12px; color: #aaa;">Leds Color</label>
-                <div class="color-picker-grid" id="legs-colors"></div>
+    <div id="main-app">
+        <div id="nav-bar">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="home">Home</div>
+                <div class="nav-tab" data-tab="profile">Profile</div>
+                <div class="nav-tab" data-tab="avatar">Avatar</div>
+                <div class="nav-tab" data-tab="games">Games</div>
+                <div class="nav-tab" data-tab="settings">Settings</div>
+            </div>
+            <div class="search-container">
+                <input type="text" id="nav-search-input" placeholder="Search Users...">
+                <div class="search-results" id="nav-search-results"></div>
             </div>
         </div>
-        <div class="window" id="window-profile">
-            <div class="window-header">Player Profile</div>
-            <div class="window-content">
-                <div style="height: 150px; background: #000; border-radius: 6px;" id="profile-canvas-container"></div>
-                <div style="font-size: 14px; margin-top: 10px;">Username: <span id="info-username" style="color: #ff1e3a; font-weight: bold;">-</span></div>
-                <div style="font-size: 14px;">Gender: <span id="info-gender" style="color: #efefef;">-</span></div>
-                <div style="font-size: 14px;">Join Date: <span id="info-date" style="color: #efefef;">-</span></div>
+        <div id="tab-home" class="tab-view active">
+            <div class="user-hero-header">
+                <div class="avatar-circle-3d" id="home-avatar-container"></div>
+                <div class="user-hero-info">
+                    <h1 id="home-display-name">Loading...</h1>
+                    <p id="home-display-username"><span></span></p>
+                </div>
+            </div>
+            <h2 class="section-title" id="home-friends-title">Friends (0)</h2>
+            <div class="friends-container" id="home-friends-container"></div>
+            <div class="friend-requests-section" id="friend-requests-panel" style="display:none;">
+                <h3 class="section-title" style="font-size:18px; margin-top:0;">Friend Requests</h3>
+                <div id="friend-requests-list"></div>
             </div>
         </div>
-        <div class="window" id="window-friends">
-            <div class="window-header">Friends (3)</div>
-            <div class="window-content" id="friends-list-container">
-                <div class="friend-item">
-                    <div class="friend-status"></div>
-                    <div class="friend-name">Marko</div>
+        <div id="tab-profile" class="tab-view">
+            <div class="user-hero-header">
+                <div class="avatar-circle-3d" id="profile-avatar-container"></div>
+                <div class="user-hero-info">
+                    <h1 id="profile-display-name">-</h1>
+                    <p id="profile-display-username">@-</p>
+                    <div class="profile-actions-container" id="profile-actions-bar" style="display:none;">
+                        <button class="profile-action-btn" id="btn-profile-friend">Add Friend</button>
+                        <button class="profile-action-btn" id="btn-profile-follow">Follow</button>
+                    </div>
                 </div>
-                <div class="friend-item">
-                    <div class="friend-status"></div>
-                    <div class="friend-name">Ren</div>
+            </div>
+            <div class="profile-layout-blocks">
+                <div class="profile-3d-box" id="profile-full-3d-container"></div>
+                <div class="profile-empty-box">About Section / Player Feed Placeholder</div>
+            </div>
+            <div class="profile-footer-stats">
+                <div class="footer-stat-col">
+                    <div class="footer-stat-title">Join Date</div>
+                    <div class="footer-stat-val" id="profile-stat-joined">-</div>
                 </div>
-                <div class="friend-item">
-                    <div class="friend-status"></div>
-                    <div class="friend-name">Tacs</div>
+                <div class="footer-stat-col">
+                    <div class="footer-stat-title">Statistics</div>
+                    <div class="footer-stat-val">Place Visits: 0<br>Forum Posts: 0</div>
                 </div>
+            </div>
+        </div>
+        <div id="tab-avatar" class="tab-view">
+            <h1 class="section-title" id="avatar-tab-heading" style="margin-top:0; margin-bottom:20px;">Your Avatar</h1>
+            <div class="avatar-tab-layout">
+                <div class="avatar-tab-left">
+                    <div class="avatar-tab-preview-box" id="avatar-tab-3d-container">
+                        <button class="avatar-snap-2d-btn" id="btn-avatar-snap">SNAP 2D</button>
+                    </div>
+                    <div class="avatar-body-colors-panel">
+                        <h3 class="avatar-body-colors-title">BODY COLORS</h3>
+                        <div class="avatar-body-grid">
+                            <div class="avatar-grid-part grid-head" id="grid-color-head"><input type="color" id="col-head" value="#e0e0e0"></div>
+                            <div class="grid-middle-row">
+                                <div class="avatar-grid-part grid-limb" id="grid-color-leftArm"><input type="color" id="col-leftArm" value="#e0e0e0"></div>
+                                <div class="avatar-grid-part grid-torso" id="grid-color-torso"><input type="color" id="col-torso" value="#e0e0e0"></div>
+                                <div class="avatar-grid-part grid-limb" id="grid-color-rightArm"><input type="color" id="col-rightArm" value="#e0e0e0"></div>
+                            </div>
+                            <div class="grid-bottom-row">
+                                <div class="avatar-grid-part grid-leg" id="grid-color-leftLeg"><input type="color" id="col-leftLeg" value="#e0e0e0"></div>
+                                <div class="avatar-grid-part grid-leg" id="grid-color-rightLeg"><input type="color" id="col-rightLeg" value="#e0e0e0"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="avatar-tab-right">Wardrobe Inventory & Customization Options coming soon</div>
+            </div>
+        </div>
+        <div id="tab-games" class="tab-view">
+            <div id="games-list-view">
+                <h1 class="section-title" style="margin-top:0; margin-bottom:20px;">Experiences</h1>
+                <div class="games-container" id="experiences-cards-wrapper"></div>
+            </div>
+            <div id="game-detail-view" style="display:none;">
+                <button class="profile-action-btn" id="btn-back-to-games" style="margin-bottom:15px;">&larr; Experiences</button>
+                <div class="game-page-layout">
+                    <div class="game-page-left">
+                        <div class="game-large-thumbnail">3D Gameplay Snapshot</div>
+                    </div>
+                    <div class="game-page-right">
+                        <h1 class="game-title-text" id="game-view-title">-</h1>
+                        <p class="game-dev-text" id="game-view-creator">By -</p>
+                        <div class="game-rating-bar-container">
+                            <div class="game-rating-likes-fill" id="game-view-rating-fill"></div>
+                        </div>
+                        <div class="game-rating-actions">
+                            <button class="game-vote-btn" id="btn-game-like">Thumup</button>
+                            <button class="game-vote-btn" id="btn-game-dislike">Thumdown</button>
+                            <span class="game-vote-count" id="game-view-rating-text">0% (0 votes)</span>
+                        </div>
+                        <button class="play-button-node" id="btn-start-game-execution">PLAY</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tab-settings" class="tab-view">
+            <h1 class="section-title" style="margin-top:0; margin-bottom:20px;">Account Settings</h1>
+            <div class="settings-box">
+                <input type="text" id="settings-displayname" placeholder="Display Name">
+                <button class="save-btn" id="btn-save-settings">Save Changes</button>
+                <button class="danger-btn" id="btn-logout">Sign Out</button>
+                <button class="danger-btn" id="btn-delete-account" style="margin-top:10px;">Delete Account</button>
             </div>
         </div>
     </div>
     <div id="canvas-container"></div>
-    <script>
-        const colorsList = ["#ff1e3a", "#00ff66", "#007bff", "#ffcc00", "#ff00ff", "#00ffff", "#ffffff", "#333333"];
-        let activeTab = 'game';
-        let socket;
-        let localPlayer = { username: "Player", torsoColor: "#ff1e3a", legsColor: "#333333", gender: "male", joined: "Just now" };
-        let currentTorsoColor = "#ff1e3a";
-        let currentLegsColor = "#333333";
-        let isDead = false;
-        let deathTimer = 0;
-        let partsVelocity = [];
-        let partsRotVelocity = [];
-        let remotePlayers = {};
-        let scene, camera, renderer, ground;
-        let avatarScene, avatarCamera, avatarRenderer, avatarTabGroup;
-        let profileFullScene, profileFullCamera, profileFullRenderer, profileFullGroup;
-        let playerGroup, playerModelContainer;
-        let bodyParts = {};
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
-        let playerVelocity = new THREE.Vector3();
-        let isJumping = false;
-        let keysPressed = {};
-        let cameraAngleX = 0;
-        let cameraAngleY = 0.3;
-        let cameraRadius = 12;
-        let clock = new THREE.Clock();
+    <button id="btn-exit-game">LEAVE GAME</button>
+    <button id="control-panel-toggle">DEV PANEL</button>
+    <div id="control-panel-modal">
+        <h3>Server Controls</h3>
+        <input type="text" id="cp-target-user" placeholder="Target Username">
+        <button id="btn-cp-kick">Kick User</button>
+        <button id="btn-cp-kill">Kill User</button>
+        <div class="control-checkbox-row">
+            <input type="checkbox" id="cp-toggle-noclip">
+            <label for="cp-toggle-noclip">Enable Local Noclip</label>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, runTransaction, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        const firebaseConfig = {
+            apiKey: "AIzaSyFakeKey_ForTestingPurposesOnly",
+            authDomain: "demo-cube-retro.firebaseapp.com",
+            projectId: "demo-cube-retro",
+            storageBucket: "demo-cube-retro.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
         document.getElementById('to-register').addEventListener('click', () => {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('register-box').style.display = 'flex';
@@ -131,472 +291,687 @@
             document.getElementById('register-box').style.display = 'none';
             document.getElementById('login-box').style.display = 'flex';
         });
-        document.getElementById('btn-login').addEventListener('click', () => {
-            const u = document.getElementById('login-username').value.trim();
-            if(u) {
-                localPlayer.username = u;
-                initGame();
-            }
-        });
-        document.getElementById('btn-register').addEventListener('click', () => {
-            const u = document.getElementById('reg-username').value.trim();
-            if(u) {
-                localPlayer.username = u;
-                localPlayer.gender = document.getElementById('reg-gender').value;
-                initGame();
-            }
-        });
-        function initGame() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'block';
-            document.getElementById('info-username').innerText = localPlayer.username;
-            document.getElementById('info-gender').innerText = localPlayer.gender;
-            document.getElementById('info-date').innerText = localPlayer.joined;
-            setupColorPickers();
-            initThree();
-            initAvatarTabScene();
-            initProfileTabScene();
-            setupNetwork();
-            setupControls();
-        }
-        function setupColorPickers() {
-            const tc = document.getElementById('torso-colors');
-            const lc = document.getElementById('legs-colors');
-            colorsList.forEach(color => {
-                const opt1 = document.createElement('div');
-                opt1.className = 'color-option';
-                opt1.style.backgroundColor = color;
-                if(color === currentTorsoColor) opt1.classList.add('selected');
-                opt1.addEventListener('click', () => {
-                    document.querySelectorAll('#torso-colors .color-option').forEach(e => e.classList.remove('selected'));
-                    opt1.classList.add('selected');
-                    currentTorsoColor = color;
-                    updateLocalPlayerMaterials();
-                    syncCustomization();
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const username = document.getElementById('reg-user').value.trim();
+            const displayName = document.getElementById('reg-display').value.trim();
+            const gender = document.getElementById('reg-gender').value;
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+            if(!username || !email || !password) { alert("Please complete mandatory registration credentials."); return; }
+            if(!/^[a-zA-Z0-9_]{3,15}$/.test(username)) { alert("Username must be alphanumeric, 3-15 symbols long."); return; }
+            try {
+                const usernameLower = username.toLowerCase();
+                const nameRef = doc(db, "usernames", usernameLower);
+                let taken = false;
+                try {
+                    const nameSnap = await getDoc(nameRef);
+                    if(nameSnap.exists()) taken = true;
+                } catch(e) {}
+                if(taken) { alert("This username is already occupied."); return; }
+                const credential = await createUserWithEmailAndPassword(auth, email, password);
+                const uid = credential.user.uid;
+                const defaultColors = { head: "#e0e0e0", torso: "#e0e0e0", leftArm: "#e0e0e0", rightArm: "#e0e0e0", leftLeg: "#e0e0e0", rightLeg: "#e0e0e0" };
+                await setDoc(doc(db, "usernames", usernameLower), { uid: uid });
+                await setDoc(doc(db, "users", uid), {
+                    uid: uid,
+                    username: username,
+                    displayName: displayName || username,
+                    gender: gender,
+                    email: email,
+                    joined: new Date().toLocaleDateString(),
+                    bodyColors: defaultColors,
+                    friends: [],
+                    friendRequests: [],
+                    isAdmin: false
                 });
-                tc.appendChild(opt1);
-                const opt2 = document.createElement('div');
-                opt2.className = 'color-option';
-                opt2.style.backgroundColor = color;
-                if(color === currentLegsColor) opt2.classList.add('selected');
-                opt2.addEventListener('click', () => {
-                    document.querySelectorAll('#legs-colors .color-option').forEach(e => e.classList.remove('selected'));
-                    opt2.classList.add('selected');
-                    currentLegsColor = color;
-                    updateLocalPlayerMaterials();
-                    syncCustomization();
-                });
-                lc.appendChild(opt2);
-            });
-        }
-        document.querySelectorAll('.sidebar-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.window').forEach(w => w.style.display = 'none');
-                btn.classList.add('active');
-                activeTab = btn.getAttribute('data-tab');
-                if(activeTab !== 'game') {
-                    const win = document.getElementById('window-' + activeTab);
-                    if(win) win.style.display = 'flex';
+            } catch(err) { alert(err.message); }
+        });
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-pass').value;
+            if(!email || !password) { alert("Provide authentication data."); return; }
+            try { await signInWithEmailAndPassword(auth, email, password); } catch(err) { alert(err.message); }
+        });
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btn-save-settings').addEventListener('click', async () => {
+            if(!auth.currentUser) return;
+            const dName = document.getElementById('settings-displayname').value.trim();
+            if(!dName) return;
+            try {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: dName });
+                alert("Account details modified successfully.");
+            } catch(err) { alert(err.message); }
+        });
+        document.getElementById('btn-delete-account').addEventListener('click', async () => {
+            if(!auth.currentUser) return;
+            if(!confirm("Are you sure you want to delete your account? This cannot be undone.")) return;
+            try {
+                const uid = auth.currentUser.uid;
+                const userDoc = await getDoc(doc(db, "users", uid));
+                if(userDoc.exists()) {
+                    const usernameLower = userDoc.data().username.toLowerCase();
+                    await deleteDoc(doc(db, "usernames", usernameLower));
+                    await deleteDoc(doc(db, "users", uid));
                 }
-                if(activeTab === 'avatar') resizeAvatarCanvas();
-                if(activeTab === 'profile') resizeProfileCanvas();
-            });
+                await deleteUser(auth.currentUser);
+            } catch(err) { alert(err.message); }
         });
-        function createCharacterMesh(torsoHex, legsHex) {
-            const group = new THREE.Group();
-            const headGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-            const headMat = new THREE.MeshLambertMaterial({ color: 0xffdbac });
-            const head = new THREE.Mesh(headGeo, headMat);
-            head.position.y = 2.0;
-            group.add(head);
-            const torsoGeo = new THREE.BoxGeometry(1.2, 1.4, 0.6);
-            const torsoMat = new THREE.MeshLambertMaterial({ color: torsoHex });
-            const torso = new THREE.Mesh(torsoGeo, torsoMat);
-            torso.position.y = 1.0;
-            group.add(torso);
-            const limbGeo = new THREE.BoxGeometry(0.4, 1.2, 0.4);
-            const legsMat = new THREE.MeshLambertMaterial({ color: legsHex });
-            const leftArm = new THREE.Mesh(limbGeo, headMat);
-            leftArm.position.set(-0.8, 1.0, 0);
-            group.add(leftArm);
-            const rightArm = new THREE.Mesh(limbGeo, headMat);
-            rightArm.position.set(0.8, 1.0, 0);
-            group.add(rightArm);
-            const leftLeg = new THREE.Mesh(limbGeo, legsMat);
-            leftLeg.position.set(-0.3, -0.2, 0);
-            group.add(leftLeg);
-            const rightLeg = new THREE.Mesh(limbGeo, legsMat);
-            rightLeg.position.set(0.3, -0.2, 0);
-            group.add(rightLeg);
-            return { group, head, torso, leftArm, rightArm, leftLeg, rightLeg };
-        }
-        function initThree() {
-            const container = document.getElementById('canvas-container');
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xbfe3dd);
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            container.appendChild(renderer.domElement);
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(20, 40, 20);
-            dirLight.castShadow = true;
-            scene.add(dirLight);
-            const groundGeo = new THREE.PlaneGeometry(200, 200);
-            const groundMat = new THREE.MeshStandardMaterial({ color: 0x557a46 });
-            ground = new THREE.Mesh(groundGeo, groundMat);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            const grid = new THREE.GridHelper(200, 50, 0x000000, 0x444444);
-            grid.position.y = 0.01;
-            scene.add(grid);
-            playerGroup = new THREE.Group();
-            playerGroup.position.set(0, 1.3, 0);
-            scene.add(playerGroup);
-            playerModelContainer = new THREE.Group();
-            playerGroup.add(playerModelContainer);
-            bodyParts = createCharacterMesh(currentTorsoColor, currentLegsColor);
-            bodyParts.group.position.y = -0.4;
-            playerModelContainer.add(bodyParts.group);
-        }
-        function updateLocalPlayerMaterials() {
-            if(bodyParts.torso) bodyParts.torso.material.color.set(currentTorsoColor);
-            if(bodyParts.leftLeg) bodyParts.leftLeg.material.color.set(currentLegsColor);
-            if(bodyParts.rightLeg) bodyParts.rightLeg.material.color.set(currentLegsColor);
-        }
-        function initAvatarTabScene() {
-            const container = document.getElementById('avatar-canvas-container');
-            avatarScene = new THREE.Scene();
-            avatarScene.background = new THREE.Color(0x141414);
-            avatarCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
-            avatarCamera.position.set(0, 1.2, 3.5);
-            avatarCamera.lookAt(0, 1.0, 0);
-            avatarRenderer = new THREE.WebGLRenderer({ antialias: true });
-            avatarRenderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(avatarRenderer.domElement);
-            const al = new THREE.AmbientLight(0xffffff, 0.8);
-            avatarScene.add(al);
-            avatarTabGroup = new THREE.Group();
-            avatarScene.add(avatarTabGroup);
-            refreshAvatarTabModel();
-        }
-        function refreshAvatarTabModel() {
-            if(avatarTabGroup.children.length > 0) {
-                avatarTabGroup.remove(avatarTabGroup.children[0]);
-            }
-            const model = createCharacterMesh(currentTorsoColor, currentLegsColor);
-            avatarTabGroup.add(model.group);
-        }
-        function resizeAvatarCanvas() {
-            const container = document.getElementById('avatar-canvas-container');
-            if(!container || !avatarRenderer) return;
-            avatarCamera.aspect = container.clientWidth / container.clientHeight;
-            avatarCamera.updateProjectionMatrix();
-            avatarRenderer.setSize(container.clientWidth, container.clientHeight);
-        }
-        function initProfileTabScene() {
-            const container = document.getElementById('profile-canvas-container');
-            profileFullScene = new THREE.Scene();
-            profileFullScene.background = new THREE.Color(0x141414);
-            profileFullCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
-            profileFullCamera.position.set(0, 1.2, 3.0);
-            profileFullCamera.lookAt(0, 1.0, 0);
-            profileFullRenderer = new THREE.WebGLRenderer({ antialias: true });
-            profileFullRenderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(profileFullRenderer.domElement);
-            const al = new THREE.AmbientLight(0xffffff, 0.8);
-            profileFullScene.add(al);
-            profileFullGroup = new THREE.Group();
-            profileFullScene.add(profileFullGroup);
-            const model = createCharacterMesh(currentTorsoColor, currentLegsColor);
-            profileFullGroup.add(model.group);
-        }
-        function resizeProfileCanvas() {
-            const container = document.getElementById('profile-canvas-container');
-            if(!container || !profileFullRenderer) return;
-            profileFullCamera.aspect = container.clientWidth / container.clientHeight;
-            profileFullCamera.updateProjectionMatrix();
-            profileFullRenderer.setSize(container.clientWidth, container.clientHeight);
-        }
-        function syncCustomization() {
-            refreshAvatarTabModel();
-            if(profileFullGroup && profileFullGroup.children[0]) {
-                profileFullScene.remove(profileFullGroup);
-                profileFullGroup = new THREE.Group();
-                profileFullScene.add(profileFullGroup);
-                const model = createCharacterMesh(currentTorsoColor, currentLegsColor);
-                profileFullGroup.add(model.group);
-            }
-            if(socket && socket.connected) {
-                socket.emit('updateAvatar', {
-                    torsoColor: currentTorsoColor,
-                    legsColor: currentLegsColor
+        let currentUserData = null;
+        let socketInitialized = false;
+        let socket = null;
+        let unsubscribeUserSnapshot = null;
+        onAuthStateChanged(auth, async (user) => {
+            if (unsubscribeUserSnapshot) { unsubscribeUserSnapshot(); unsubscribeUserSnapshot = null; }
+            if (user) {
+                unsubscribeUserSnapshot = onSnapshot(doc(db, "users", user.uid), (userDoc) => {
+                    if (userDoc.exists()) {
+                        currentUserData = userDoc.data();
+                        document.getElementById('settings-displayname').value = currentUserData.displayName || '';
+                        document.getElementById('control-panel-toggle').style.display = currentUserData.isAdmin ? 'block' : 'none';
+                        updateHomeInterface(currentUserData);
+                        syncLocalAvatarCustomizerPanel(currentUserData.bodyColors);
+                        if (!socketInitialized) { setupNetworkConnection(); socketInitialized = true; }
+                    }
                 });
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                switchNavigationTabs('home');
+            } else {
+                currentUserData = null;
+                socketInitialized = false;
+                if(socket) { socket.disconnect(); socket = null; }
+                document.getElementById('main-app').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('login-box').style.display = 'flex';
+                document.getElementById('register-box').style.display = 'none';
             }
-        }
-        function setupNetwork() {
-            socket = io(window.location.origin, { autoConnect: false });
-            socket.connect();
+        });
+        function setupNetworkConnection() {
+            socket = io({ autoConnect: true });
             socket.on('connect', () => {
-                socket.emit('joinGame', {
-                    username: localPlayer.username,
-                    torsoColor: currentTorsoColor,
-                    legsColor: currentLegsColor
-                });
-            });
-            socket.on('currentPlayers', (players) => {
-                Object.keys(players).forEach(id => {
-                    if(id !== socket.id) {
-                        createRemotePlayer(id, players[id]);
-                    }
-                });
-            });
-            socket.on('newPlayer', (data) => {
-                createRemotePlayer(data.id, data.player);
-            });
-            socket.on('playerMoved', (data) => {
-                if(remotePlayers[data.id]) {
-                    remotePlayers[data.id].group.position.set(data.x, data.y, data.z);
-                    remotePlayers[data.id].meshContainer.rotation.y = data.ry;
-                    if(data.jumping) {
-                        remotePlayers[data.id].parts.leftLeg.rotation.x = -Math.sin(30) * 0.5;
-                        remotePlayers[data.id].parts.rightLeg.rotation.x = Math.sin(30) * 0.5;
-                    } else if(data.moving) {
-                        let t = Date.now() * 0.01;
-                        remotePlayers[data.id].parts.leftLeg.rotation.x = Math.sin(t) * 0.5;
-                        remotePlayers[data.id].parts.rightLeg.rotation.x = -Math.sin(t) * 0.5;
-                    } else {
-                        remotePlayers[data.id].parts.leftLeg.rotation.x = 0;
-                        remotePlayers[data.id].parts.rightLeg.rotation.x = 0;
-                    }
+                if(currentUserData) {
+                    socket.emit('joinServer', {
+                        uid: currentUserData.uid,
+                        username: currentUserData.username,
+                        displayName: currentUserData.displayName,
+                        bodyColors: currentUserData.bodyColors
+                    });
                 }
             });
-            socket.on('avatarUpdated', (data) => {
-                if(remotePlayers[data.id]) {
-                    scene.remove(remotePlayers[data.id].group);
-                    createRemotePlayer(data.id, data.player);
-                }
-            });
-            socket.on('playerDisconnected', (id) => {
-                if(remotePlayers[id]) {
-                    scene.remove(remotePlayers[id].group);
-                    delete remotePlayers[id];
-                }
-            });
+            socket.on('spawnPlayer', (data) => { if(activeTab === 'game') instantiateNetworkPlayerModel(data); });
+            socket.on('removePlayer', (id) => { destroyNetworkPlayerInstance(id); });
+            socket.on('playerMoved', (data) => { updateNetworkPlayerTransform(data); });
+            socket.on('serverKickSignal', (msg) => { alert("Server Termination: " + msg); location.reload(); });
+            socket.on('serverKillSignal', () => { resetLocalPlayerRespawnState(); });
         }
-        function createRemotePlayer(id, data) {
-            const pGroup = new THREE.Group();
-            pGroup.position.set(data.x || 0, data.y || 1.3, data.z || 0);
-            scene.add(pGroup);
-            const mContainer = new THREE.Group();
-            pGroup.add(mContainer);
-            const tColor = data.torsoColor || "#ffffff";
-            const lColor = data.legsColor || "#ffffff";
-            const rParts = createCharacterMesh(tColor, lColor);
-            rParts.group.position.y = -0.4;
-            mContainer.add(rParts.group);
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(0, 0, 256, 64);
-            ctx.font = 'bold 32px Arial';
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-            ctx.fillText(data.username || "Player", 128, 44);
-            const txtTex = new THREE.CanvasTexture(canvas);
-            const spriteMat = new THREE.SpriteMaterial({ map: txtTex });
-            const sprite = new THREE.Sprite(spriteMat);
-            sprite.position.y = 2.8;
-            sprite.scale.set(2, 0.5, 1);
-            pGroup.add(sprite);
-            remotePlayers[id] = {
-                group: pGroup,
-                meshContainer: mContainer,
-                parts: rParts,
-                username: data.username
+        let activeTab = 'home';
+        const tabTriggers = document.querySelectorAll('.nav-tab');
+        tabTriggers.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-tab');
+                switchNavigationTabs(target);
+            });
+        });
+        function switchNavigationTabs(tabName) {
+            activeTab = tabName;
+            tabTriggers.forEach(b => {
+                if(b.getAttribute('data-tab') === tabName) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+            const matchedView = document.getElementById(`tab-${tabName}`);
+            if(matchedView) matchedView.classList.add('active');
+            if(tabName === 'home' && currentUserData) {
+                renderMiniatureAvatarPreview(currentUserData.bodyColors, 'home-avatar-container');
+            } else if(tabName === 'profile') {
+                if(currentUserData) renderTargetProfileView(currentUserData);
+            } else if(tabName === 'avatar' && currentUserData) {
+                renderInteractiveAvatarTabScene(currentUserData.bodyColors);
+            } else if(tabName === 'games') {
+                document.getElementById('games-list-view').style.display = 'block';
+                document.getElementById('game-detail-view').style.display = 'none';
+                renderExperiencesCatalog();
+            }
+        }
+        function updateHomeInterface(userData) {
+            document.getElementById('home-display-name').textContent = userData.displayName || userData.username;
+            document.getElementById('home-display-username').querySelector('span').textContent = `@${userData.username}`;
+            document.getElementById('avatar-tab-heading').textContent = `Your avatar, @${userData.displayName || userData.username}`;
+            const fCount = userData.friends ? userData.friends.length : 0;
+            document.getElementById('home-friends-title').textContent = `Friends (${fCount})`;
+            const hFriends = document.getElementById('home-friends-container');
+            hFriends.innerHTML = '';
+            if (userData.friends && userData.friends.length > 0) {
+                userData.friends.forEach(fName => {
+                    const card = document.createElement('div');
+                    card.className = 'friend-card';
+                    const cId = `f-thumb-${Math.random().toString(36).substr(2,9)}`;
+                    card.innerHTML = `<div class="avatar-circle-3d" id="${cId}"></div><div class="friend-displayname">${fName}</div>`;
+                    hFriends.appendChild(card);
+                    card.addEventListener('click', () => requestTargetUserProfile(fName));
+                    lookupProfileColorsByUsername(fName).then(colors => {
+                        renderMiniatureAvatarPreview(colors, cId);
+                    });
+                });
+            } else {
+                hFriends.innerHTML = '<div style="color: #888888; font-size: 14px;">No friends</div>';
+            }
+            const requestsPanel = document.getElementById('friend-requests-panel');
+            const requestsList = document.getElementById('friend-requests-list');
+            requestsList.innerHTML = '';
+            if(userData.friendRequests && userData.friendRequests.length > 0) {
+                requestsPanel.style.display = 'block';
+                userData.friendRequests.forEach(reqUser => {
+                    const row = document.createElement('div');
+                    row.className = 'request-item';
+                    row.innerHTML = `<span><strong>${reqUser}</strong></span><div><button class="request-btn request-accept" data-user="${reqUser}">Accept</button><button class="request-btn request-decline" data-user="${reqUser}">Decline</button></div>`;
+                    requestsList.appendChild(row);
+                });
+            } else {
+                requestsPanel.style.display = 'none';
+            }
+        }
+        document.getElementById('friend-requests-list').addEventListener('click', async (e) => {
+            if(!e.target.classList.contains('request-btn')) return;
+            const targetUser = e.target.getAttribute('data-user');
+            if(!targetUser || !currentUserData) return;
+            if(e.target.classList.contains('request-accept')) {
+                try {
+                    const q = query(collection(db, "users"), where("username", "==", targetUser));
+                    const snap = await getDocs(q);
+                    if(snap.empty) return;
+                    const targetUid = snap.docs[0].id;
+                    await updateDoc(doc(db, "users", currentUserData.uid), { friendRequests: arrayRemove(targetUser), friends: arrayUnion(targetUser) });
+                    await updateDoc(doc(db, "users", targetUid), { friends: arrayUnion(currentUserData.username) });
+                } catch(err) { alert(err.message); }
+            } else {
+                try {
+                    await updateDoc(doc(db, "users", currentUserData.uid), { friendRequests: arrayRemove(targetUser) });
+                } catch(err) { alert(err.message); }
+            }
+        });
+        async function lookupProfileColorsByUsername(username) {
+            try {
+                const q = query(collection(db, "users"), where("username", "==", username));
+                const snap = await getDocs(q);
+                if(!snap.empty) return snap.docs[0].data().bodyColors;
+            } catch(e) {}
+            return { head: "#e0e0e0", torso: "#e0e0e0", leftArm: "#e0e0e0", rightArm: "#e0e0e0", leftLeg: "#e0e0e0", rightLeg: "#e0e0e0" };
+        }
+        async function requestTargetUserProfile(username) {
+            try {
+                const q = query(collection(db, "users"), where("username", "==", username));
+                const snap = await getDocs(q);
+                if(!snap.empty) {
+                    renderTargetProfileView(snap.docs[0].data());
+                    switchNavigationTabs('profile');
+                }
+            } catch(e) { alert("Unable to view user profile data."); }
+        }
+        function renderTargetProfileView(userData) {
+            document.getElementById('profile-display-name').textContent = userData.displayName || userData.username;
+            document.getElementById('profile-display-username').textContent = `@${userData.username}`;
+            document.getElementById('profile-stat-joined').textContent = userData.joined || '-';
+            const actionsBar = document.getElementById('profile-actions-bar');
+            const friendBtn = document.getElementById('btn-profile-friend');
+            const followBtn = document.getElementById('btn-profile-follow');
+            if (auth.currentUser && auth.currentUser.uid !== userData.uid) {
+                actionsBar.style.display = 'flex';
+                const myFriends = currentUserData ? (currentUserData.friends || []) : [];
+                const targetRequests = userData.friendRequests || [];
+                const myRequests = currentUserData ? (currentUserData.friendRequests || []) : [];
+                if (myFriends.includes(userData.username)) {
+                    friendBtn.textContent = 'Friends';
+                    friendBtn.disabled = true;
+                } else if (targetRequests.includes(currentUserData.username)) {
+                    friendBtn.textContent = 'Pending...';
+                    friendBtn.disabled = true;
+                } else if (myRequests.includes(userData.username)) {
+                    friendBtn.textContent = 'Accept Request';
+                    friendBtn.disabled = false;
+                } else {
+                    friendBtn.textContent = 'Add Friend';
+                    friendBtn.disabled = false;
+                }
+                friendBtn.onclick = async () => {
+                    if(!currentUserData) return;
+                    if(friendBtn.textContent === 'Accept Request') {
+                        await updateDoc(doc(db, "users", currentUserData.uid), { friendRequests: arrayRemove(userData.username), friends: arrayUnion(userData.username) });
+                        await updateDoc(doc(db, "users", userData.uid), { friends: arrayUnion(currentUserData.username) });
+                    } else if(friendBtn.textContent === 'Add Friend') {
+                        await updateDoc(doc(db, "users", userData.uid), { friendRequests: arrayUnion(currentUserData.username) });
+                    }
+                };
+            } else {
+                actionsBar.style.display = 'none';
+            }
+            renderMiniatureAvatarPreview(userData.bodyColors, 'profile-avatar-container');
+            renderFullScaleProfileShowcaseScene(userData.bodyColors);
+        }
+        const sInput = document.getElementById('nav-search-input');
+        const sResults = document.getElementById('nav-search-results');
+        sInput.addEventListener('input', async () => {
+            const raw = sInput.value.trim();
+            if(raw.length < 2) { sResults.style.display = 'none'; return; }
+            try {
+                const q = query(collection(db, "users"), where("username", ">=", raw), where("username", "<=", raw + '\uf8ff'));
+                const snap = await getDocs(q);
+                sResults.innerHTML = '';
+                if(!snap.empty) {
+                    sResults.style.display = 'flex';
+                    snap.forEach(d => {
+                        const u = d.data();
+                        const item = document.createElement('div');
+                        item.className = 'search-item';
+                        item.textContent = `${u.displayName || u.username} (@${u.username})`;
+                        item.addEventListener('click', () => {
+                            sResults.style.display = 'none';
+                            sInput.value = '';
+                            renderTargetProfileView(u);
+                            switchNavigationTabs('profile');
+                        });
+                        sResults.appendChild(item);
+                    });
+                } else {
+                    sResults.style.display = 'none';
+                }
+            } catch(e) {}
+        });
+        document.addEventListener('click', (e) => { if(!sInput.contains(e.target)) sResults.style.display = 'none'; });
+        function syncLocalAvatarCustomizerPanel(colors) {
+            for(let p in colors) {
+                const input = document.getElementById(`col-${p}`);
+                if(input) {
+                    input.value = colors[p];
+                    document.getElementById(`grid-color-${p}`).style.backgroundColor = colors[p];
+                }
+            }
+        }
+        const colorInputFields = document.querySelectorAll('.avatar-grid-part input[type="color"]');
+        colorInputFields.forEach(field => {
+            field.addEventListener('input', (e) => {
+                const id = field.id.replace('col-', '');
+                document.getElementById(`grid-color-${id}`).style.backgroundColor = e.target.value;
+                triggerAvatarModelColorUpdate(id, e.target.value);
+            });
+            field.addEventListener('change', async (e) => {
+                if(!auth.currentUser || !currentUserData) return;
+                const id = field.id.replace('col-', '');
+                const updatedColors = { ...currentUserData.bodyColors, [id]: e.target.value };
+                try {
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { bodyColors: updatedColors });
+                } catch(err) { alert("Failed sync to cloud storage."); }
+            });
+        });
+        function constructHumanoidMeshHierarchy(colors) {
+            const group = new THREE.Group();
+            const matConfig = (c) => new THREE.MeshLambertMaterial({ color: new THREE.Color(c) });
+            const headGeom = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+            const head = new THREE.Mesh(headGeom, matConfig(colors.head));
+            head.position.y = 3.1;
+            group.add(head);
+            const torsoGeom = new THREE.BoxGeometry(2.0, 2.0, 1.0);
+            const torso = new THREE.Mesh(torsoGeom, matConfig(colors.torso));
+            torso.position.y = 1.5;
+            group.add(torso);
+            const armGeom = new THREE.BoxGeometry(1.0, 2.0, 1.0);
+            const leftArm = new THREE.Mesh(armGeom, matConfig(colors.leftArm));
+            leftArm.position.set(-1.6, 1.5, 0);
+            group.add(leftArm);
+            const rightArm = new THREE.Mesh(armGeom, matConfig(colors.rightArm));
+            rightArm.position.set(1.6, 1.5, 0);
+            group.add(rightArm);
+            const legGeom = new THREE.BoxGeometry(1.0, 2.0, 1.0);
+            const leftLeg = new THREE.Mesh(legGeom, matConfig(colors.leftLeg));
+            leftLeg.position.set(-0.5, -0.5, 0);
+            group.add(leftLeg);
+            const rightLeg = new THREE.Mesh(legGeom, matConfig(colors.rightLeg));
+            rightLeg.position.set(0.5, -0.5, 0);
+            group.add(rightLeg);
+            const innerWrapper = new THREE.Group();
+            innerWrapper.add(group);
+            group.position.y = 1.5;
+            return {
+                root: innerWrapper,
+                parts: { head, torso, leftArm, rightArm, leftLeg, rightLeg }
             };
         }
-        function setupControls() {
-            window.addEventListener('keydown', (e) => {
-                keysPressed[e.code] = true;
-                if(e.code === 'KeyW') moveForward = true;
-                if(e.code === 'KeyS') moveBackward = true;
-                if(e.code === 'KeyA') moveLeft = true;
-                if(e.code === 'KeyD') moveRight = true;
-                if(e.code === 'Space' && !isJumping && !isDead) {
-                    playerVelocity.y = 12;
-                    isJumping = true;
-                }
-                if(e.code === 'KeyK' && !isDead) {
-                    triggerDeath();
-                }
-            });
-            window.addEventListener('keyup', (e) => {
-                keysPressed[e.code] = false;
-                if(e.code === 'KeyW') moveForward = false;
-                if(e.code === 'KeyS') moveBackward = false;
-                if(e.code === 'KeyA') moveLeft = false;
-                if(e.code === 'KeyD') moveRight = false;
-            });
-            let isMouseDown = false;
-            let prevMouseX = 0;
-            let prevMouseY = 0;
-            window.addEventListener('mousedown', (e) => {
-                if(e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && !e.target.closest('.window') && !e.target.closest('.sidebar')) {
-                    isMouseDown = true;
-                    prevMouseX = e.clientX;
-                    prevMouseY = e.clientY;
-                }
-            });
-            window.addEventListener('mousemove', (e) => {
-                if(isMouseDown) {
-                    let deltaX = e.clientX - prevMouseX;
-                    let deltaY = e.clientY - prevMouseY;
-                    cameraAngleX -= deltaX * 0.005;
-                    cameraAngleY = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, cameraAngleY + deltaY * 0.005));
-                    prevMouseX = e.clientX;
-                    prevMouseY = e.clientY;
-                }
-            });
-            window.addEventListener('mouseup', () => { isMouseDown = false; });
+        function renderMiniatureAvatarPreview(colors, elementId) {
+            const container = document.getElementById(elementId);
+            if(!container) return;
+            container.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.width = 130;
+            canvas.height = 130;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            container.appendChild(canvas);
+            const cScene = new THREE.Scene();
+            cScene.background = new THREE.Color(0x111111);
+            const cCam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            cCam.position.set(0, 3.5, 9.0);
+            cCam.lookAt(new THREE.Vector3(0, 2.5, 0));
+            const cRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            cRenderer.setSize(130, 130);
+            const l1 = new THREE.AmbientLight(0xffffff, 0.7);
+            cScene.add(l1);
+            const l2 = new THREE.DirectionalLight(0xffffff, 0.5);
+            l2.position.set(5, 10, 7);
+            cScene.add(l2);
+            const model = constructHumanoidMeshHierarchy(colors);
+            model.root.rotation.y = -0.3;
+            cScene.add(model.root);
+            cRenderer.render(cScene, cCam);
         }
-        function triggerDeath() {
-            isDead = true;
-            deathTimer = 1.0;
-            partsVelocity = [];
-            partsRotVelocity = [];
-            const partsArray = [bodyParts.head, bodyParts.torso, bodyParts.leftArm, bodyParts.rightArm, bodyParts.leftLeg, bodyParts.rightLeg];
-            partsArray.forEach(part => {
-                THREE.SceneUtils.attach(part, bodyParts.group, scene);
-                partsVelocity.push(new THREE.Vector3(
-                    (Math.random() - 0.5) * 5,
-                    Math.random() * 8 + 2,
-                    (Math.random() - 0.5) * 5
-                ));
-                partsRotVelocity.push(new THREE.Vector3(
-                    Math.random() * 10,
-                    Math.random() * 10,
-                    Math.random() * 10
-                ));
+        let avatarScene, avatarCamera, avatarRenderer, avatarTabGroup, avatarTabModelRef;
+        let rotateAvatarTabModel = true;
+        function renderInteractiveAvatarTabScene(colors) {
+            const wrapper = document.getElementById('avatar-tab-3d-container');
+            if(!wrapper) return;
+            const existingCanvas = wrapper.querySelector('canvas');
+            if(existingCanvas) wrapper.removeChild(existingCanvas);
+            const width = wrapper.clientWidth;
+            const height = wrapper.clientHeight;
+            avatarScene = new THREE.Scene();
+            avatarScene.background = new THREE.Color(0x242424);
+            avatarCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            avatarCamera.position.set(0, 3.5, 10.0);
+            avatarRenderer = new THREE.WebGLRenderer({ antialias: true });
+            avatarRenderer.setSize(width, height);
+            wrapper.appendChild(avatarRenderer.domElement);
+            avatarScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const dir = new THREE.DirectionalLight(0xffffff, 0.4);
+            dir.position.set(4, 10, 5);
+            avatarScene.add(dir);
+            avatarTabGroup = new THREE.Group();
+            avatarTabModelRef = constructHumanoidMeshHierarchy(colors);
+            avatarTabGroup.add(avatarTabModelRef.root);
+            avatarScene.add(avatarTabGroup);
+            avatarCamera.lookAt(new THREE.Vector3(0, 2.8, 0));
+            const controls = new OrbitControls(avatarCamera, avatarRenderer.domElement);
+            controls.enableZoom = true;
+            controls.target.set(0, 2.8, 0);
+            controls.addEventListener('start', () => { rotateAvatarTabModel = false; });
+            controls.update();
+        }
+        function triggerAvatarModelColorUpdate(partId, colorHex) {
+            if(avatarTabModelRef && avatarTabModelRef.parts[partId]) {
+                avatarTabModelRef.parts[partId].material.color.set(colorHex);
+                if(activeTab === 'avatar' && avatarRenderer && avatarScene && avatarCamera) {
+                    avatarRenderer.render(avatarScene, avatarCamera);
+                }
+            }
+        }
+        function resizeAvatarCanvas() {
+            const wrapper = document.getElementById('avatar-tab-3d-container');
+            if (activeTab === 'avatar' && wrapper && avatarCamera && avatarRenderer) {
+                const w = wrapper.clientWidth;
+                const h = wrapper.clientHeight;
+                avatarCamera.aspect = w / h;
+                avatarCamera.updateProjectionMatrix();
+                avatarRenderer.setSize(w, h);
+            }
+        }
+        let profileFullScene, profileFullCamera, profileFullRenderer, profileFullGroup;
+        function renderFullScaleProfileShowcaseScene(colors) {
+            const box = document.getElementById('profile-full-3d-container');
+            if(!box) return;
+            box.innerHTML = '';
+            const w = box.clientWidth;
+            const h = box.clientHeight;
+            profileFullScene = new THREE.Scene();
+            profileFullScene.background = new THREE.Color(0x2c2c2c);
+            profileFullCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+            profileFullCamera.position.set(0, 3.5, 9.5);
+            profileFullRenderer = new THREE.WebGLRenderer({ antialias: true });
+            profileFullRenderer.setSize(w, h);
+            box.appendChild(profileFullRenderer.domElement);
+            profileFullScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const dLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            dLight.position.set(3, 8, 5);
+            profileFullScene.add(dLight);
+            profileFullGroup = new THREE.Group();
+            const hModel = constructHumanoidMeshHierarchy(colors);
+            profileFullGroup.add(hModel.root);
+            profileFullScene.add(profileFullGroup);
+            profileFullCamera.lookAt(new THREE.Vector3(0, 2.6, 0));
+        }
+        function resizeProfileCanvas() {
+            const box = document.getElementById('profile-full-3d-container');
+            if(activeTab === 'profile' && box && profileFullCamera && profileFullRenderer) {
+                const w = box.clientWidth;
+                const h = box.clientHeight;
+                profileFullCamera.aspect = w / h;
+                profileFullCamera.updateProjectionMatrix();
+                profileFullRenderer.setSize(w, h);
+            }
+        }
+        const availableExperiencesList = [
+            { id: "classic_crossroads", name: "Classic Crossroads", creator: "Builderman", rating: 88, totalVotes: 450, color: 0x34495e },
+            { id: "chaos_canyon", name: "Chaos Canyon", creator: "Telamon", rating: 74, totalVotes: 120, color: 0x7f8c8d }
+        ];
+        let currentSelectedGame = null;
+        function renderExperiencesCatalog() {
+            const wrapper = document.getElementById('experiences-cards-wrapper');
+            wrapper.innerHTML = '';
+            availableExperiencesList.forEach(g => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `<div class="game-thumbnail-placeholder" style="background-color:#${g.color.toString(16)}"></div><div class="game-card-name">${g.name}</div>`;
+                card.addEventListener('click', () => displayExperienceDetailPanel(g));
+                wrapper.appendChild(card);
             });
         }
-        function respawnPlayer() {
-            isDead = false;
-            playerGroup.position.set(0, 1.3, 0);
-            playerVelocity.set(0, 0, 0);
-            isJumping = false;
-            const partsArray = [bodyParts.head, bodyParts.torso, bodyParts.leftArm, bodyParts.rightArm, bodyParts.leftLeg, bodyParts.rightLeg];
-            partsArray.forEach(part => {
-                THREE.SceneUtils.detach(part, scene, bodyParts.group);
-                part.rotation.set(0, 0, 0);
-            });
-            bodyParts.head.position.set(0, 2.0, 0);
-            bodyParts.torso.position.set(0, 1.0, 0);
-            bodyParts.leftArm.position.set(-0.8, 1.0, 0);
-            bodyParts.rightArm.position.set(0.8, 1.0, 0);
-            bodyParts.leftLeg.position.set(-0.3, -0.2, 0);
-            bodyParts.rightLeg.position.set(0.3, -0.2, 0);
+        function displayExperienceDetailPanel(gameObj) {
+            currentSelectedGame = gameObj;
+            document.getElementById('games-list-view').style.display = 'none';
+            document.getElementById('game-detail-view').style.display = 'block';
+            document.getElementById('game-view-title').textContent = gameObj.name;
+            document.getElementById('game-view-creator').textContent = `By ${gameObj.creator}`;
+            document.getElementById('game-view-rating-fill').style.width = `${gameObj.rating}%`;
+            document.getElementById('game-view-rating-text').textContent = `${gameObj.rating}% (${gameObj.totalVotes} votes)`;
+        }
+        document.getElementById('btn-back-to-games').addEventListener('click', () => {
+            document.getElementById('games-list-view').style.display = 'block';
+            document.getElementById('game-detail-view').style.display = 'none';
+        });
+        let scene, camera, renderer, clock;
+        let playerGroup, playerModelContainer;
+        let remotePlayers = {};
+        let keys = {};
+        let mixer;
+        let cameraTargetPosition = new THREE.Vector3();
+        let centerTarget = new THREE.Vector3();
+        let lastPosition = new THREE.Vector3();
+        let lastRotationY = 0;
+        document.getElementById('btn-start-game-execution').addEventListener('click', () => {
+            if(!currentSelectedGame) return;
+            switchNavigationTabs('game');
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('canvas-container').style.display = 'block';
+            document.getElementById('btn-exit-game').style.display = 'block';
+            initializeVirtualWorldGameplay(currentSelectedGame);
+        });
+        document.getElementById('btn-exit-game').addEventListener('click', () => {
+            terminateVirtualWorldGameplay();
+            document.getElementById('canvas-container').style.display = 'none';
+            document.getElementById('btn-exit-game').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            switchNavigationTabs('games');
+        });
+        function initializeVirtualWorldGameplay(gameData) {
+            clock = new THREE.Clock();
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x54a0ff);
+            scene.fog = new THREE.FogExp2(0x54a0ff, 0.015);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+            sun.position.set(20, 40, 20);
+            scene.add(sun);
+            const grid = new THREE.GridHelper(200, 50, 0x000000, 0x444444);
+            grid.position.y = -0.01;
+            scene.add(grid);
+            const stageGeom = new THREE.BoxGeometry(60, 2, 60);
+            const stageMat = new THREE.MeshLambertMaterial({ color: gameData.color });
+            const stage = new THREE.Mesh(stageGeom, stageMat);
+            stage.position.y = -1;
+            scene.add(stage);
+            const colors = currentUserData ? currentUserData.bodyColors : { head: "#e0e0e0", torso: "#e0e0e0", leftArm: "#e0e0e0", rightArm: "#e0e0e0", leftLeg: "#e0e0e0", rightLeg: "#e0e0e0" };
+            const charObj = constructHumanoidMeshHierarchy(colors);
+            playerModelContainer = charObj.root;
+            playerGroup = new THREE.Group();
+            playerGroup.add(playerModelContainer);
+            playerGroup.position.set((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10);
+            scene.add(playerGroup);
+            lastPosition.copy(playerGroup.position);
+            lastRotationY = playerModelContainer.rotation.y;
+            window.addEventListener('keydown', handleWorldKeyDown);
+            window.addEventListener('keyup', handleWorldKeyUp);
+            if(socket && socket.connected) {
+                socket.emit('enterExperience', {
+                    x: playerGroup.position.x,
+                    y: playerGroup.position.y,
+                    z: playerGroup.position.z,
+                    ry: playerModelContainer.rotation.y
+                });
+            }
+        }
+        function terminateVirtualWorldGameplay() {
+            window.removeEventListener('keydown', handleWorldKeyDown);
+            window.removeEventListener('keyup', handleWorldKeyUp);
+            keys = {};
+            if(socket && socket.connected) socket.emit('leaveExperience');
+            for(let id in remotePlayers) {
+                scene.remove(remotePlayers[id].mesh);
+            }
+            remotePlayers = {};
+            if(renderer) {
+                if(renderer.domElement && renderer.domElement.parentNode) {
+                    renderer.domElement.parentNode.removeChild(renderer.domElement);
+                }
+                renderer.dispose();
+            }
+            scene = null;
+            camera = null;
+            renderer = null;
+            playerGroup = null;
+            playerModelContainer = null;
+        }
+        function handleWorldKeyDown(e) { keys[e.key.toLowerCase()] = true; }
+        function handleWorldKeyUp(e) { keys[e.key.toLowerCase()] = false; }
+        function instantiateNetworkPlayerModel(data) {
+            if(remotePlayers[data.id]) return;
+            const model = constructHumanoidMeshHierarchy(data.bodyColors);
+            model.root.position.set(data.x, data.y, data.z);
+            model.root.rotation.y = data.ry;
+            scene.add(model.root);
+            remotePlayers[data.id] = {
+                mesh: model.root,
+                parts: model.parts,
+                prevPosition: new THREE.Vector3(data.x, data.y, data.z)
+            };
+        }
+        function destroyNetworkPlayerInstance(id) {
+            if(remotePlayers[id]) {
+                scene.remove(remotePlayers[id].mesh);
+                delete remotePlayers[id];
+            }
+        }
+        function updateNetworkPlayerTransform(data) {
+            const rp = remotePlayers[data.id];
+            if(rp) {
+                rp.mesh.position.set(data.x, data.y, data.z);
+                rp.mesh.rotation.y = data.ry;
+            }
+        }
+        function resetLocalPlayerRespawnState() {
+            if(playerGroup) {
+                playerGroup.position.set((Math.random() - 0.5) * 15, 0, (Math.random() - 0.5) * 15);
+            }
+        }
+        document.getElementById('control-panel-toggle').addEventListener('click', () => {
+            const m = document.getElementById('control-panel-modal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        });
+        document.getElementById('btn-cp-kick').addEventListener('click', () => {
+            const u = document.getElementById('cp-target-user').value.trim();
+            if(u && socket) socket.emit('cpCommand', { action: 'kick', target: u });
+        });
+        document.getElementById('btn-cp-kill').addEventListener('click', () => {
+            const u = document.getElementById('cp-target-user').value.trim();
+            if(u && socket) socket.emit('cpCommand', { action: 'kill', target: u });
+        });
+        function resizeGameCanvas() {
+            if(camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         }
         function animate() {
             requestAnimationFrame(animate);
-            let delta = clock.getDelta();
-            if(activeTab === 'game') {
-                if(isDead) {
-                    deathTimer -= delta;
-                    const partsArray = [bodyParts.head, bodyParts.torso, bodyParts.leftArm, bodyParts.rightArm, bodyParts.leftLeg, bodyParts.rightLeg];
-                    for(let i = 0; i < partsArray.length; i++) {
-                        let part = partsArray[i];
-                        partsVelocity[i].y -= 25 * delta;
-                        part.position.addScaledVector(partsVelocity[i], delta);
-                        part.rotation.x += partsRotVelocity[i].x * delta;
-                        part.rotation.y += partsRotVelocity[i].y * delta;
-                        part.rotation.z += partsRotVelocity[i].z * delta;
-                        let bottomLimit = 0.2;
-                        if(part === bodyParts.torso) bottomLimit = 0.7;
-                        if(part === bodyParts.head) bottomLimit = 0.4;
-                        if(part.position.y < bottomLimit) {
-                            part.position.y = bottomLimit;
-                            partsVelocity[i].set(0, 0, 0);
-                            partsRotVelocity[i].set(0, 0, 0);
-                        }
-                    }
-                    if(deathTimer <= 0) {
-                        respawnPlayer();
-                    }
-                } else {
-                    let camRotationMatrix = new THREE.Matrix4();
-                    camRotationMatrix.makeRotationY(cameraAngleX);
-                    let dirForward = new THREE.Vector3(0, 0, -1).applyMatrix4(camRotationMatrix).normalize();
-                    let dirSide = new THREE.Vector3(1, 0, 0).applyMatrix4(camRotationMatrix).normalize();
-                    let moveVec = new THREE.Vector3();
-                    if(moveForward) moveVec.add(dirForward);
-                    if(moveBackward) moveVec.add(dirForward.clone().negate());
-                    if(moveLeft) moveVec.add(dirSide.clone().negate());
-                    if(moveRight) moveVec.add(dirSide);
-                    moveVec.normalize();
-                    let targetSpeed = 8;
-                    playerVelocity.x = moveVec.x * targetSpeed;
-                    playerVelocity.z = moveVec.z * targetSpeed;
-                    playerVelocity.y -= 32 * delta;
-                    playerGroup.position.x += playerVelocity.x * delta;
-                    playerGroup.position.y += playerVelocity.y * delta;
-                    playerGroup.position.z += playerVelocity.z * delta;
-                    let groundY = 1.3;
-                    if(playerGroup.position.y <= groundY) {
-                        playerGroup.position.y = groundY;
-                        playerVelocity.y = 0;
-                        isJumping = false;
-                    }
-                    if(moveVec.lengthSq() > 0.001) {
-                        let angle = Math.atan2(moveVec.x, moveVec.z);
-                        playerModelContainer.rotation.y = angle;
-                        let t = Date.now() * 0.01;
-                        bodyParts.leftLeg.rotation.x = Math.sin(t) * 0.5;
-                        bodyParts.rightLeg.rotation.x = -Math.sin(t) * 0.5;
-                    } else {
-                        bodyParts.leftLeg.rotation.x = 0;
-                        bodyParts.rightLeg.rotation.x = 0;
-                    }
-                }
-                let relativeCamOffset = new THREE.Vector3(
-                    cameraRadius * Math.sin(cameraAngleX) * Math.cos(cameraAngleY),
-                    cameraRadius * Math.sin(cameraAngleY),
-                    cameraRadius * Math.cos(cameraAngleX) * Math.cos(cameraAngleY)
-                );
-                let cameraTargetPosition = playerGroup.position.clone().add(relativeCamOffset);
-                let centerTarget = playerGroup.position.clone().add(new THREE.Vector3(0, 2.0, 0));
+            const delta = clock ? clock.getDelta() : 0.016;
+            if(activeTab === 'game' && playerGroup && playerModelContainer && camera && renderer) {
+                if(mixer) mixer.update(delta);
+                if (keys['arrowleft'] || keys['a']) playerModelContainer.rotation.y += 2.5 * delta;
+                if (keys['arrowright'] || keys['d']) playerModelContainer.rotation.y -= 2.5 * delta;
+                let moveDirection = new THREE.Vector3();
+                if (keys['arrowup'] || keys['w']) moveDirection.z -= 1;
+                if (keys['arrowdown'] || keys['s']) moveDirection.z += 1;
+                moveDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerModelContainer.rotation.y);
+                moveDirection.normalize();
+                playerGroup.position.addScaledVector(moveDirection, 12 * delta);
+                let relativeCameraOffset = new THREE.Vector3(0, 5, 15);
+                let cameraOffset = relativeCameraOffset.applyMatrix4(playerModelContainer.matrixWorld);
+                cameraTargetPosition.copy(cameraOffset);
+                centerTarget.copy(playerGroup.position).y += 3.0;
                 camera.position.copy(cameraTargetPosition);
                 camera.lookAt(centerTarget);
-                if(socket && socket.connected) {
-                    socket.emit('playerMovement', {
-                        x: playerGroup.position.x,
-                        y: playerGroup.position.y,
-                        z: playerGroup.position.z,
-                        ry: playerModelContainer.rotation.y,
-                        moving: (moveForward || moveBackward || moveLeft || moveRight) && !isDead,
-                        jumping: isJumping
-                    });
+                for(let id in remotePlayers) {
+                    const rp = remotePlayers[id];
+                    if(rp.mesh.position.distanceTo(rp.prevPosition) > 0.01) {
+                        let angle = Math.sin(Date.now() * 0.01) * 0.6;
+                        rp.parts.leftArm.rotation.x = angle;
+                        rp.parts.rightArm.rotation.x = -angle;
+                        rp.parts.leftLeg.rotation.x = -angle;
+                        rp.parts.rightLeg.rotation.x = angle;
+                    } else {
+                        rp.parts.leftArm.rotation.x = 0;
+                        rp.parts.rightArm.rotation.x = 0;
+                        rp.parts.leftLeg.rotation.x = 0;
+                        rp.parts.rightLeg.rotation.x = 0;
+                    }
+                    rp.prevPosition.copy(rp.mesh.position);
+                }
+                if (playerGroup.position.distanceTo(lastPosition) > 0.001 || Math.abs(playerModelContainer.rotation.y - lastRotationY) > 0.01) {
+                    if(socket && socket.connected) {
+                        socket.emit('playerMovement', {
+                            x: playerGroup.position.x,
+                            y: playerGroup.position.y,
+                            z: playerGroup.position.z,
+                            ry: playerModelContainer.rotation.y
+                        });
+                    }
+                    lastPosition.copy(playerGroup.position);
+                    lastRotationY = playerModelContainer.rotation.y;
                 }
                 renderer.render(scene, camera);
-            } else if(activeTab === 'avatar') {
-                avatarTabGroup.rotation.y += 1 * delta;
+            } else if(activeTab === 'avatar' && avatarTabGroup && avatarRenderer && avatarScene && avatarCamera) {
+                if (rotateAvatarTabModel) {
+                    avatarTabGroup.rotation.y += 1 * delta;
+                }
                 avatarRenderer.render(avatarScene, avatarCamera);
-            } else if(activeTab === 'profile') {
+            } else if(activeTab === 'profile' && profileFullGroup && profileFullRenderer && profileFullScene && profileFullCamera) {
                 profileFullGroup.rotation.y += 1 * delta;
                 profileFullRenderer.render(profileFullScene, profileFullCamera);
             }
         }
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            resizeGameCanvas();
             resizeAvatarCanvas();
             resizeProfileCanvas();
         });
