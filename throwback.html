@@ -1327,7 +1327,7 @@
                 let targetGroundY = -Infinity;
                 if (groundIntersects.length > 0) {
                     for (let i = 0; i < groundIntersects.length; i++) {
-                        if (groundIntersects[i].distance <= 3.05) {
+                        if (groundIntersects[i].distance <= 4.05) {
                             targetGroundY = groundIntersects[i].point.y;
                             break;
                         }
@@ -1335,15 +1335,15 @@
                 }
                 velocityY += gravity * delta;
                 playerGroup.position.y += velocityY * delta;
-                if (targetGroundY !== -Infinity && playerGroup.position.y <= targetGroundY + 0.01) {
-                    playerGroup.position.y = targetGroundY;
+                if (targetGroundY !== -Infinity && playerGroup.position.y <= targetGroundY + 1.01) {
+                    playerGroup.position.y = targetGroundY + 1.0;
                     velocityY = 0;
                     isGrounded = true;
                 } else {
                     isGrounded = false;
                 }
                 if (playerGroup.position.y < -100) {
-                    playerGroup.position.set(0, 0, 0);
+                    playerGroup.position.set(0, 1, 0);
                     velocityY = 0;
                     isGrounded = true;
                 }
@@ -1358,11 +1358,47 @@
                 if (moveX !== 0 || moveZ !== 0) {
                     const camForward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
                     const camRight = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw).normalize();
-                    const moveDir = new THREE.Vector3()
-                        .addScaledVector(camForward, -moveZ)
-                        .addScaledVector(camRight, moveX)
-                        .normalize();
-                    playerGroup.position.addScaledVector(moveDir, moveSpeed * delta);
+                    const moveDir = new THREE.Vector3().addScaledVector(camForward, -moveZ).addScaledVector(camRight, moveX).normalize();
+                    const playerRadius = 0.6;
+                    const playerHeight = 3.0;
+                    playerGroup.position.x += moveDir.x * moveSpeed * delta;
+                    let playerBox = new THREE.Box3(new THREE.Vector3(playerGroup.position.x - playerRadius, playerGroup.position.y - 1.0, playerGroup.position.z - playerRadius), new THREE.Vector3(playerGroup.position.x + playerRadius, playerGroup.position.y + playerHeight - 1.0, playerGroup.position.z + playerRadius));
+                    groundObjects.forEach(obj => {
+                        if (obj) {
+                            const objBox = new THREE.Box3().setFromObject(obj);
+                            if (playerBox.intersectsBox(objBox)) {
+                                if (playerGroup.position.y + playerHeight - 1.0 > objBox.min.y && playerGroup.position.y - 1.0 < objBox.max.y) {
+                                    const overlapX1 = objBox.max.x - playerBox.min.x;
+                                    const overlapX2 = playerBox.max.x - objBox.min.x;
+                                    if (overlapX1 < overlapX2) {
+                                        playerGroup.position.x += overlapX1;
+                                    } else {
+                                        playerGroup.position.x -= overlapX2;
+                                    }
+                                    playerBox.set(new THREE.Vector3(playerGroup.position.x - playerRadius, playerGroup.position.y - 1.0, playerGroup.position.z - playerRadius), new THREE.Vector3(playerGroup.position.x + playerRadius, playerGroup.position.y + playerHeight - 1.0, playerGroup.position.z + playerRadius));
+                                }
+                            }
+                        }
+                    });
+                    playerGroup.position.z += moveDir.z * moveSpeed * delta;
+                    playerBox.set(new THREE.Vector3(playerGroup.position.x - playerRadius, playerGroup.position.y - 1.0, playerGroup.position.z - playerRadius), new THREE.Vector3(playerGroup.position.x + playerRadius, playerGroup.position.y + playerHeight - 1.0, playerGroup.position.z + playerRadius));
+                    groundObjects.forEach(obj => {
+                        if (obj) {
+                            const objBox = new THREE.Box3().setFromObject(obj);
+                            if (playerBox.intersectsBox(objBox)) {
+                                if (playerGroup.position.y + playerHeight - 1.0 > objBox.min.y && playerGroup.position.y - 1.0 < objBox.max.y) {
+                                    const overlapZ1 = objBox.max.z - playerBox.min.z;
+                                    const overlapZ2 = playerBox.max.z - objBox.min.z;
+                                    if (overlapZ1 < overlapZ2) {
+                                        playerGroup.position.z += overlapZ1;
+                                    } else {
+                                        playerGroup.position.z -= overlapZ2;
+                                    }
+                                    playerBox.set(new THREE.Vector3(playerGroup.position.x - playerRadius, playerGroup.position.y - 1.0, playerGroup.position.z - playerRadius), new THREE.Vector3(playerGroup.position.x + playerRadius, playerGroup.position.y + playerHeight - 1.0, playerGroup.position.z + playerRadius));
+                                }
+                            }
+                        }
+                    });
                     if (!isShiftLock && !isFirstPerson) {
                         const targetAngle = Math.atan2(moveDir.x, moveDir.z);
                         const currentRotation = playerModelContainer.rotation.y;
@@ -1377,11 +1413,7 @@
                 let cameraTargetPosition = new THREE.Vector3();
                 if (isFirstPerson) {
                     camera.position.copy(centerTarget);
-                    const lookTarget = new THREE.Vector3(
-                        centerTarget.x - Math.sin(cameraYaw) * Math.cos(cameraPitch),
-                        centerTarget.y + Math.sin(cameraPitch),
-                        centerTarget.z - Math.cos(cameraYaw) * Math.cos(cameraPitch)
-                    );
+                    const lookTarget = new THREE.Vector3(centerTarget.x - Math.sin(cameraYaw) * Math.cos(cameraPitch), centerTarget.y + Math.sin(cameraPitch), centerTarget.z - Math.cos(cameraYaw) * Math.cos(cameraPitch));
                     camera.lookAt(lookTarget);
                 } else {
                     let offsetCamDistance = cameraDistance;
@@ -1390,11 +1422,7 @@
                         const rightOffset = new THREE.Vector3(0.4, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
                         centerTarget.add(rightOffset);
                     }
-                    const preferredCamPos = new THREE.Vector3(
-                        centerTarget.x + offsetCamDistance * Math.sin(currentYawOffset) * Math.cos(cameraPitch),
-                        centerTarget.y + offsetCamDistance * Math.sin(cameraPitch),
-                        centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch)
-                    );
+                    const preferredCamPos = new THREE.Vector3(centerTarget.x + offsetCamDistance * Math.sin(currentYawOffset) * Math.cos(cameraPitch), centerTarget.y + offsetCamDistance * Math.sin(cameraPitch), centerTarget.z + offsetCamDistance * Math.cos(currentYawOffset) * Math.cos(cameraPitch));
                     raycaster.set(centerTarget, new THREE.Vector3().subVectors(preferredCamPos, centerTarget).normalize());
                     const intersects = raycaster.intersectObject(cube);
                     if (intersects.length > 0 && intersects[0].distance < offsetCamDistance) {
@@ -1407,11 +1435,18 @@
                 }
                 if (playerGroup.position.distanceTo(lastPosition) > 0.001 || Math.abs(playerModelContainer.rotation.y - lastRotationY) > 0.01) {
                     if(socket && socket.connected) {
+                        const localColors = {};
+                        Object.keys(localPlayerParts).forEach(p => {
+                            if (localPlayerParts[p] && localPlayerParts[p].material && localPlayerParts[p].material.color) {
+                                localColors[p] = localPlayerParts[p].material.color.getHex();
+                            }
+                        });
                         socket.emit('playerMovement', {
                             x: playerGroup.position.x,
                             y: playerGroup.position.y,
                             z: playerGroup.position.z,
-                            ry: playerModelContainer.rotation.y
+                            ry: playerModelContainer.rotation.y,
+                            colors: localColors
                         });
                     }
                     lastPosition.copy(playerGroup.position);
@@ -1442,6 +1477,13 @@
                             rp.prevPosition = new THREE.Vector3().copy(rp.group.position);
                             rp.walkTime = 0;
                         }
+                        if (rp.colors) {
+                            Object.keys(rp.colors).forEach(p => {
+                                if (rp.parts[p] && rp.parts[p].material && rp.parts[p].material.color) {
+                                    rp.parts[p].material.color.setHex(rp.colors[p]);
+                                }
+                            });
+                        }
                         const distH = Math.sqrt(Math.pow(rp.group.position.x - rp.prevPosition.x, 2) + Math.pow(rp.group.position.z - rp.prevPosition.z, 2));
                         const isMovingH = distH > 0.01;
                         downRaycaster.set(new THREE.Vector3(rp.group.position.x, rp.group.position.y + 3, rp.group.position.z), new THREE.Vector3(0, -1, 0));
@@ -1449,13 +1491,13 @@
                         let remoteTargetGroundY = 0;
                         if (remoteIntersects.length > 0) {
                             for (let i = 0; i < remoteIntersects.length; i++) {
-                                if (remoteIntersects[i].distance <= 3.05) {
+                                if (remoteIntersects[i].distance <= 4.05) {
                                     remoteTargetGroundY = remoteIntersects[i].point.y;
                                     break;
                                 }
                             }
                         }
-                        const remoteGrounded = rp.group.position.y <= (remoteTargetGroundY + 0.1);
+                        const remoteGrounded = rp.group.position.y <= (remoteTargetGroundY + 1.1);
                         if (!remoteGrounded) {
                             rp.parts.leftArm.rotation.x = -Math.PI;
                             rp.parts.rightArm.rotation.x = -Math.PI;
