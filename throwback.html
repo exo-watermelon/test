@@ -1444,7 +1444,18 @@
                         }
                         const distH = Math.sqrt(Math.pow(rp.group.position.x - rp.prevPosition.x, 2) + Math.pow(rp.group.position.z - rp.prevPosition.z, 2));
                         const isMovingH = distH > 0.01;
-                        const remoteGrounded = rp.group.position.y <= (targetGroundY + 0.1);
+                        downRaycaster.set(new THREE.Vector3(rp.group.position.x, rp.group.position.y + 3, rp.group.position.z), new THREE.Vector3(0, -1, 0));
+                        const remoteIntersects = downRaycaster.intersectObjects(groundObjects);
+                        let remoteTargetGroundY = 0;
+                        if (remoteIntersects.length > 0) {
+                            for (let i = 0; i < remoteIntersects.length; i++) {
+                                if (remoteIntersects[i].distance <= 3.05) {
+                                    remoteTargetGroundY = remoteIntersects[i].point.y;
+                                    break;
+                                }
+                            }
+                        }
+                        const remoteGrounded = rp.group.position.y <= (remoteTargetGroundY + 0.1);
                         if (!remoteGrounded) {
                             rp.parts.leftArm.rotation.x = -Math.PI;
                             rp.parts.rightArm.rotation.x = -Math.PI;
@@ -1467,6 +1478,7 @@
                     }
                 });
                 renderer.render(scene, camera);
+            }
             } else if(activeTab === 'avatar') {
                 avatarTabGroup.rotation.y += 1 * delta;
                 avatarRenderer.render(avatarScene, avatarCamera);
